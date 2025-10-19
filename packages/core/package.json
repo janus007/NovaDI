@@ -1,0 +1,50 @@
+{
+  "name": "@novadi/core",
+  "version": "0.1.0",
+  "description": "Annotation-free, Autofac-style dependency injection container for TypeScript",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./transformer": {
+      "import": "./dist/transformer/index.js",
+      "types": "./dist/transformer/index.d.ts"
+    }
+  },
+  "scripts": {
+    "test": "npm run build:transformer && vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "build": "npm run build:transformer && npm run build:lib",
+    "build:transformer": "tsc -p tsconfig.transformer.json",
+    "build:lib": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "prepare": "ts-patch install -s"
+  },
+  "keywords": [
+    "dependency-injection",
+    "di",
+    "ioc",
+    "typescript",
+    "autofac"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "@vitest/ui": "^1.0.0",
+    "ts-patch": "^3.3.0",
+    "ttypescript": "^1.5.15",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-win32-x64-msvc": "^4.52.5"
+  }
+}

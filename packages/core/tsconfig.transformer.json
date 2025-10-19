@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist/transformer",
+    "rootDir": "./src/transformer",
+    "declaration": true,
+    "declarationMap": true
+  },
+  "include": ["src/transformer/**/*"],
+  "exclude": ["node_modules", "dist", "tests"]
+}
