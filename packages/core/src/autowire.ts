@@ -89,12 +89,10 @@ export function resolveByParamName(
         `  - Mark a default implementation with .asDefaultInterface<I${capitalize(paramName)}>()`
       )
     } else {
-      // Non-strict mode: log warning and push undefined
-      console.warn(
-        `[NovaDI] Cannot resolve parameter "${paramName}" on ${constructor.name}. ` +
-        `Tried: ${namesToTry.join(', ')}. ` +
-        `Consider using .withParameters() for primitives or .autoWire({ map: {...} }) for DI deps.`
-      )
+      // Non-strict mode: silently push undefined for unresolvable parameters
+      // This is expected behavior: parameters that can't be resolved are typically
+      // primitive types (string, number, etc.) that should use .withParameters()
+      // instead of dependency injection
       resolvedDeps.push(undefined)
     }
   }
@@ -129,9 +127,9 @@ export function resolveByMap(
           `Add it to the map: .autoWire({ map: { ${paramName}: ... } })`
         )
       } else {
-        console.warn(
-          `[NovaDI] Parameter "${paramName}" not found in autowire map for ${constructor.name}`
-        )
+        // Silently push undefined for missing parameters
+        // This is expected: transformer filters out primitive types at compile-time,
+        // so missing params are typically primitives that don't need DI resolution
         resolvedDeps.push(undefined)
       }
       continue
