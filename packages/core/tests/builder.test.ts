@@ -354,3 +354,169 @@ describe('Builder - Modules', () => {
     expect(builtContainer.resolve(token).value).toBe('from-module')
   })
 })
+
+describe('Builder - Performance Optimizations', () => {
+  let container: Container
+
+  beforeEach(() => {
+    container = new Container()
+  })
+
+  it('should optimize transient classes with no dependencies', () => {
+    // Arrange
+    class SimpleService {
+      getValue(): string {
+        return 'test'
+      }
+    }
+
+    const token = Token<SimpleService>()
+
+    // Act
+    const builder = container.builder()
+    builder.registerType(SimpleService).as(token).instancePerDependency()
+    const builtContainer = builder.build()
+
+    const instance1 = builtContainer.resolve(token)
+    const instance2 = builtContainer.resolve(token)
+
+    // Assert
+    expect(instance1).toBeInstanceOf(SimpleService)
+    expect(instance2).toBeInstanceOf(SimpleService)
+    expect(instance1).not.toBe(instance2) // Transient behavior
+    expect(instance1.getValue()).toBe('test')
+    expect(instance2.getValue()).toBe('test')
+  })
+
+  it('should optimize singleton classes with no dependencies', () => {
+    // Arrange
+    class SimpleService {
+      getValue(): string {
+        return 'test'
+      }
+    }
+
+    const token = Token<SimpleService>()
+
+    // Act
+    const builder = container.builder()
+    builder.registerType(SimpleService).as(token).singleInstance()
+    const builtContainer = builder.build()
+
+    const instance1 = builtContainer.resolve(token)
+    const instance2 = builtContainer.resolve(token)
+
+    // Assert
+    expect(instance1).toBeInstanceOf(SimpleService)
+    expect(instance2).toBeInstanceOf(SimpleService)
+    expect(instance1).toBe(instance2) // Singleton behavior
+    expect(instance1.getValue()).toBe('test')
+  })
+
+  it('should handle transient classes with dependencies correctly (no optimization)', () => {
+    // Arrange
+    interface ILogger {
+      log(message: string): void
+    }
+
+    class Logger implements ILogger {
+      log(message: string) {
+        console.log(message)
+      }
+    }
+
+    class ServiceWithDeps {
+      constructor(private logger: ILogger) {}
+
+      doWork() {
+        this.logger.log('working')
+      }
+    }
+
+    const loggerToken = Token<ILogger>()
+    const serviceToken = Token<ServiceWithDeps>()
+
+    // Act
+    const builder = container.builder()
+    builder.registerType(Logger).as(loggerToken).singleInstance()
+    builder
+      .registerType(ServiceWithDeps)
+      .as(serviceToken)
+      .autoWire({ map: { logger: (c) => c.resolve(loggerToken) } })
+      .instancePerDependency()
+
+    const builtContainer = builder.build()
+
+    const instance1 = builtContainer.resolve(serviceToken)
+    const instance2 = builtContainer.resolve(serviceToken)
+
+    // Assert
+    expect(instance1).toBeInstanceOf(ServiceWithDeps)
+    expect(instance2).toBeInstanceOf(ServiceWithDeps)
+    expect(instance1).not.toBe(instance2) // Transient behavior
+    expect(() => instance1.doWork()).not.toThrow()
+  })
+
+  it('should have better performance for transient no-dependency classes', () => {
+    // Arrange
+    class FastService {
+      id = Math.random()
+    }
+
+    const token = Token<FastService>()
+
+    const builder = container.builder()
+    builder.registerType(FastService).as(token).instancePerDependency()
+    const builtContainer = builder.build()
+
+    // Act - Measure resolution time for 1000 instances
+    const start = performance.now()
+    for (let i = 0; i < 1000; i++) {
+      builtContainer.resolve(token)
+    }
+    const end = performance.now()
+    const timeMs = end - start
+
+    // Assert - Should be very fast (< 5ms for 1000 resolutions)
+    // This is a soft limit - actual performance depends on hardware
+    expect(timeMs).toBeLessThan(5)
+
+    // Verify instances are still created correctly
+    const instance = builtContainer.resolve(token)
+    expect(instance).toBeInstanceOf(FastService)
+    expect(typeof instance.id).toBe('number')
+  })
+
+  it('should not break existing autowire behavior', () => {
+    // Arrange
+    interface IConfig {
+      value: string
+    }
+
+    class ServiceWithAutowire {
+      constructor(private config: IConfig) {}
+
+      getValue(): string {
+        return this.config.value
+      }
+    }
+
+    const configToken = Token<IConfig>()
+    const serviceToken = Token<ServiceWithAutowire>()
+
+    // Act
+    const builder = container.builder()
+    builder.registerInstance({ value: 'autowired' }).as(configToken)
+    builder
+      .registerType(ServiceWithAutowire)
+      .as(serviceToken)
+      .autoWire({ map: { config: (c) => c.resolve(configToken) } })
+
+    const builtContainer = builder.build()
+    const instance = builtContainer.resolve(serviceToken)
+
+    // Assert
+    expect(instance).toBeInstanceOf(ServiceWithAutowire)
+    expect(instance.getValue()).toBe('autowired')
+  })
+})

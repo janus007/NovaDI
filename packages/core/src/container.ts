@@ -41,7 +41,7 @@ function isDisposable(obj: any): obj is Disposable {
 class ResolutionContext {
   private readonly resolvingStack: Set<Token<any>> = new Set()
   private readonly perRequestCache: Map<Token<any>, any> = new Map()
-  private readonly path: string[] = []
+  private path?: string[] // Performance: Lazy initialization - only build when needed for error messages
 
   isResolving(token: Token<any>): boolean {
     return this.resolvingStack.has(token)
@@ -49,15 +49,21 @@ class ResolutionContext {
 
   enterResolve(token: Token<any>): void {
     this.resolvingStack.add(token)
-    this.path.push(token.toString())
+    // Performance: Don't build path unless we need it (only used in error messages)
+    // This avoids expensive token.toString() calls on every resolve
   }
 
   exitResolve(token: Token<any>): void {
     this.resolvingStack.delete(token)
-    this.path.pop()
+    // Performance: Clear lazy path cache when exiting
+    this.path = undefined
   }
 
   getPath(): string[] {
+    // Performance: Build path on-demand only when needed (typically for error messages)
+    if (!this.path) {
+      this.path = Array.from(this.resolvingStack).map(t => t.toString())
+    }
     return [...this.path]
   }
 
@@ -90,7 +96,9 @@ export class Container {
   private readonly singletonOrder: Token<any>[] = []
   private readonly parent?: Container
   private currentContext?: ResolutionContext
-  private readonly interfaceRegistry: Map<string, Token<any>> = new Map()
+  protected readonly interfaceRegistry: Map<string, Token<any>> = new Map()
+  private bindingCache?: Map<Token<any>, Binding> // Performance: Flat cache of all bindings including parent chain
+  private interfaceTokenCache: Map<string, Token<any>> = new Map() // Performance: Cache for resolveInterface() lookups
 
   constructor(parent?: Container) {
     this.parent = parent
@@ -106,6 +114,7 @@ export class Container {
       value,
       constructor: undefined
     })
+    this.invalidateBindingCache()
   }
 
   /**
@@ -119,6 +128,7 @@ export class Container {
       dependencies: options?.dependencies,
       constructor: undefined
     })
+    this.invalidateBindingCache()
   }
 
   /**
@@ -135,12 +145,18 @@ export class Container {
       constructor,
       dependencies: options?.dependencies
     })
+    this.invalidateBindingCache()
   }
 
   /**
    * Resolve a dependency synchronously
    */
   resolve<T>(token: Token<T>): T {
+    // Performance: Fast path for cached singletons - skip ResolutionContext allocation
+    if (this.singletonCache.has(token)) {
+      return this.singletonCache.get(token)
+    }
+
     // If we're already resolving (called from within a factory), reuse the context
     if (this.currentContext) {
       return this.resolveWithContext(token, this.currentContext)
@@ -315,15 +331,15 @@ export class Container {
       return this.interfaceRegistry.get(key)!
     }
 
-    // Check parent container
+    // Check parent container (recursively through parent chain)
     if (this.parent) {
-      const parentToken = (this.parent as any).interfaceRegistry?.get(key)
-      if (parentToken) {
-        return parentToken
-      }
+      // Recursively check through entire parent chain
+      const parentToken = this.parent.interfaceToken<T>(key)
+      // If parent created a new token, don't create another one
+      return parentToken
     }
 
-    // Create new token
+    // Create new token (only if no parent exists)
     const token = Token<T>(key)
     this.interfaceRegistry.set(key, token)
     return token
@@ -333,7 +349,15 @@ export class Container {
    * Resolve a dependency by interface type without explicit token
    */
   resolveInterface<T>(typeName?: string): T {
-    const token = this.interfaceToken<T>(typeName)
+    // Performance: Cache token lookups to avoid repeated interfaceRegistry access
+    const key = typeName || ''
+    let token = this.interfaceTokenCache.get(key)
+
+    if (!token) {
+      token = this.interfaceToken<T>(typeName)
+      this.interfaceTokenCache.set(key, token)
+    }
+
     return this.resolve(token)
   }
 
@@ -491,18 +515,42 @@ export class Container {
 
   /**
    * Get binding from this container or parent chain
+   * Performance optimized: Uses flat cache to avoid recursive parent lookups
    */
   private getBinding<T>(token: Token<T>): Binding<T> | undefined {
-    const binding = this.bindings.get(token)
-    if (binding) {
-      return binding
+    // Build flat cache on first access
+    if (!this.bindingCache) {
+      this.buildBindingCache()
     }
 
-    // Check parent container
-    if (this.parent) {
-      return this.parent.getBinding(token)
-    }
+    return this.bindingCache!.get(token)
+  }
 
-    return undefined
+  /**
+   * Build flat cache of all bindings including parent chain
+   * This converts O(n) parent chain traversal to O(1) lookup
+   */
+  private buildBindingCache(): void {
+    this.bindingCache = new Map()
+
+    // Traverse parent chain and flatten all bindings
+    let current: Container | undefined = this
+    while (current) {
+      current.bindings.forEach((binding, token) => {
+        // Child bindings override parent bindings (first wins)
+        if (!this.bindingCache!.has(token)) {
+          this.bindingCache!.set(token, binding)
+        }
+      })
+      current = current.parent
+    }
+  }
+
+  /**
+   * Invalidate binding cache when new bindings are added
+   * Called by bindValue, bindFactory, bindClass
+   */
+  private invalidateBindingCache(): void {
+    this.bindingCache = undefined
   }
 }

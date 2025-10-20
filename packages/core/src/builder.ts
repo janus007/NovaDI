@@ -444,8 +444,24 @@ export class Builder {
         break
 
       case 'type':
-        // Handle autowiring
-        if (config.autowireOptions) {
+        // Performance optimization: Detect constructors with no dependencies
+        const constructorStr = config.constructor!.toString()
+        const hasNoDependencies = !constructorStr.match(/constructor\s*\([^)]+\)/)
+
+        if (hasNoDependencies && !config.autowireOptions && !config.parameterValues) {
+          // Constructor has no dependencies - optimize for both singleton and transient
+          if (config.lifetime === 'singleton') {
+            // Singleton: Create instance directly (fastest path - no factory overhead)
+            const instance = new config.constructor!()
+            container.bindValue(config.token, instance)
+          } else {
+            // Transient/per-request: Use simple factory without autowire overhead
+            // This avoids parameter extraction and reflection on every resolve
+            const factory: Factory<any> = () => new config.constructor!()
+            container.bindFactory(config.token, factory, options)
+          }
+        } else if (config.autowireOptions) {
+          // Handle autowiring
           const factory: Factory<any> = (c) => {
             const resolvedDeps = autowire(config.constructor!, c, config.autowireOptions)
             return new config.constructor!(...resolvedDeps)

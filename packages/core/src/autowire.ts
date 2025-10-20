@@ -8,10 +8,24 @@ import type { Token } from './token'
 import type { AutoWireOptions } from './builder'
 
 /**
+ * Performance: Cache extracted parameter names to avoid repeated regex parsing
+ * WeakMap allows garbage collection when constructor is no longer referenced
+ */
+const paramNameCache = new WeakMap<Function, string[]>()
+
+/**
  * Extract parameter names from a constructor function
  * Uses regex to parse the toString() representation
+ * Performance optimized: Results are cached per constructor
  */
 export function extractParameterNames(constructor: new (...args: any[]) => any): string[] {
+  // Check cache first - avoids expensive regex parsing
+  const cached = paramNameCache.get(constructor)
+  if (cached) {
+    return cached
+  }
+
+  // Extract parameter names (expensive operation)
   const fnStr = constructor.toString()
 
   // Match constructor(...args) or class { constructor(...args) }
@@ -41,6 +55,8 @@ export function extractParameterNames(constructor: new (...args: any[]) => any):
     })
     .filter((name): name is string => name !== null)
 
+  // Cache result for future calls
+  paramNameCache.set(constructor, params)
   return params
 }
 
@@ -179,6 +195,12 @@ export function autowire(
     by: 'paramName',
     strict: false,
     ...options
+  }
+
+  // Performance: Early exit for constructors with no parameters
+  const paramNames = extractParameterNames(constructor)
+  if (paramNames.length === 0) {
+    return []
   }
 
   // Map strategy has highest priority if map is provided
