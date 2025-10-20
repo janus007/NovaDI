@@ -138,6 +138,7 @@ export class Container {
   private interfaceTokenCache: Map<string, Token<any>> = new Map() // Performance: Cache for resolveInterface() lookups
   private readonly fastTransientCache: Map<Token<any>, () => any> = new Map() // Performance: Fast path for simple transients
   private static contextPool = new ResolutionContextPool() // Performance: Pooled contexts reduce allocations
+  private readonly ultraFastSingletonCache: Map<Token<any>, any> = new Map() // Performance: Ultra-fast singleton-only cache
 
   constructor(parent?: Container) {
     this.parent = parent
@@ -178,22 +179,38 @@ export class Container {
     constructor: new (...args: any[]) => T,
     options?: BindingOptions
   ): void {
-    this.bindings.set(token, {
+    const binding: Binding = {
       type: 'class',
       lifetime: options?.lifetime || 'transient',
       constructor,
       dependencies: options?.dependencies
-    })
+    }
+    this.bindings.set(token, binding)
     this.invalidateBindingCache()
+    
+    // Performance: Pre-compile fast transient factory for zero-dependency classes
+    if (binding.lifetime === 'transient' && (!binding.dependencies || binding.dependencies.length === 0)) {
+      this.fastTransientCache.set(token, () => new constructor())
+    }
   }
 
   /**
    * Resolve a dependency synchronously
+   * Performance optimized with multiple fast paths
    */
   resolve<T>(token: Token<T>): T {
+    // Performance: ULTRA-FAST path - Direct singleton lookup (zero overhead)
+    const ultraFast = this.ultraFastSingletonCache.get(token)
+    if (ultraFast !== undefined) {
+      return ultraFast // ⚡ Instant return, no checks needed
+    }
+
     // Performance: Fast path 1 - Cached singletons (skip ResolutionContext allocation)
     if (this.singletonCache.has(token)) {
-      return this.singletonCache.get(token)
+      const cached = this.singletonCache.get(token)
+      // Promote to ultra-fast cache for next time
+      this.ultraFastSingletonCache.set(token, cached)
+      return cached
     }
 
     // Performance: Fast path 2 - Simple transients (NO dependencies, NO circular checks needed)
@@ -217,6 +234,75 @@ export class Container {
     } finally {
       this.currentContext = undefined
       Container.contextPool.release(context) // Return to pool for reuse
+    }
+  }
+
+  /**
+   * SPECIALIZED: Ultra-fast singleton resolve (no safety checks)
+   * Use ONLY when you're 100% sure the token is a registered singleton
+   * @internal For performance-critical paths only
+   */
+  resolveSingletonUnsafe<T>(token: Token<T>): T {
+    // Direct return, no checks - maximum speed
+    return this.ultraFastSingletonCache.get(token) ?? this.singletonCache.get(token)!
+  }
+
+  /**
+   * SPECIALIZED: Fast transient resolve for zero-dependency classes
+   * Skips all context creation and circular dependency checks
+   * @internal For performance-critical paths only
+   */
+  resolveTransientSimple<T>(token: Token<T>): T {
+    const factory = this.fastTransientCache.get(token)
+    if (factory) {
+      return factory() as T
+    }
+    // Fallback to regular resolve if not in fast cache
+    return this.resolve(token)
+  }
+
+  /**
+   * SPECIALIZED: Batch resolve multiple dependencies at once
+   * More efficient than multiple individual resolves
+   */
+  resolveBatch<T extends readonly Token<any>[]>(
+    tokens: T
+  ): { [K in keyof T]: T[K] extends Token<infer U> ? U : never } {
+    // Reuse single context for all resolutions
+    const wasResolving = !!this.currentContext
+    const context = this.currentContext || Container.contextPool.acquire()
+    
+    if (!wasResolving) {
+      this.currentContext = context
+    }
+
+    try {
+      const results = tokens.map(token => {
+        // Try ultra-fast cache first
+        const cached = this.ultraFastSingletonCache.get(token)
+        if (cached !== undefined) return cached
+        
+        // Try singleton cache
+        const singleton = this.singletonCache.get(token)
+        if (singleton !== undefined) {
+          this.ultraFastSingletonCache.set(token, singleton)
+          return singleton
+        }
+        
+        // Try fast transient
+        const factory = this.fastTransientCache.get(token)
+        if (factory) return factory()
+        
+        // Full resolve with shared context
+        return this.resolveWithContext(token, context)
+      })
+      
+      return results as any
+    } finally {
+      if (!wasResolving) {
+        this.currentContext = undefined
+        Container.contextPool.release(context)
+      }
     }
   }
 
@@ -342,13 +428,13 @@ export class Container {
    */
   getRegistry(): Array<{
     token: string
-    type: 'value' | 'factory' | 'class'
+    type: 'value' | 'factory' | 'class' | 'inline-class'
     lifetime: Lifetime
     dependencies?: string[]
   }> {
     const registry: Array<{
       token: string
-      type: 'value' | 'factory' | 'class'
+      type: 'value' | 'factory' | 'class' | 'inline-class'
       lifetime: Lifetime
       dependencies?: string[]
     }> = []
@@ -490,6 +576,8 @@ export class Container {
       if (binding.lifetime === 'singleton') {
         this.singletonCache.set(token, instance)
         this.singletonOrder.push(token)
+        // Performance: Also add to ultra-fast cache
+        this.ultraFastSingletonCache.set(token, instance)
       } else if (binding.lifetime === 'per-request') {
         context.cachePerRequest(token, instance)
       }
@@ -612,5 +700,6 @@ export class Container {
    */
   private invalidateBindingCache(): void {
     this.bindingCache = undefined
+    this.ultraFastSingletonCache.clear() // Clear ultra-fast cache when bindings change
   }
 }
