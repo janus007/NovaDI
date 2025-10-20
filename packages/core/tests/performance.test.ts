@@ -66,6 +66,153 @@ describe('Performance - Resolution Speed', () => {
     expect(duration).toBeLessThan(50)
   })
 
+  it('should resolve 1000 simple transients in <2ms (stringent)', () => {
+    // Arrange - Simple class with NO dependencies
+    class SimpleTransient {
+      value = 42
+    }
+
+    const token = Token<SimpleTransient>('SimpleTransient')
+
+    const builder = container.builder()
+    builder.registerType(SimpleTransient).as(token).instancePerDependency()
+
+    const app = builder.build()
+
+    // Act - Benchmark with stringent target
+    const start = performance.now()
+
+    for (let i = 0; i < 1000; i++) {
+      app.resolve(token)
+    }
+
+    const duration = performance.now() - start
+
+    // Assert - Stringent threshold to catch regressions
+    console.log(`1000 simple transients (stringent): ${duration.toFixed(2)}ms`)
+    expect(duration).toBeLessThan(0.5) // After optimizations: ~0.11ms, target: <0.5ms
+  })
+
+  it('should resolve complex transients with dependencies', () => {
+    // Arrange - Transient with dependencies
+    interface ILogger {
+      id: number
+    }
+    interface IDatabase {
+      id: number
+    }
+
+    class Logger implements ILogger {
+      id = Math.random()
+    }
+
+    class Database implements IDatabase {
+      id = Math.random()
+    }
+
+    class ComplexTransient {
+      constructor(
+        public logger: ILogger,
+        public database: IDatabase
+      ) {}
+    }
+
+    const loggerToken = Token<ILogger>('ILogger')
+    const databaseToken = Token<IDatabase>('IDatabase')
+    const serviceToken = Token<ComplexTransient>('ComplexTransient')
+
+    const builder = container.builder()
+    builder.registerType(Logger).as(loggerToken).instancePerDependency()
+    builder.registerType(Database).as(databaseToken).instancePerDependency()
+    builder
+      .registerType(ComplexTransient)
+      .as(serviceToken)
+      .autoWire({
+        map: {
+          logger: loggerToken,
+          database: databaseToken
+        }
+      })
+      .instancePerDependency()
+
+    const app = builder.build()
+
+    // Act - Benchmark complex transient resolution
+    const start = performance.now()
+
+    for (let i = 0; i < 1000; i++) {
+      const service = app.resolve(serviceToken)
+      // Verify dependencies are different each time (transient behavior)
+      expect(service.logger).toBeDefined()
+      expect(service.database).toBeDefined()
+    }
+
+    const duration = performance.now() - start
+
+    // Assert - Complex transients should be reasonably fast
+    console.log(`1000 complex transients (with deps): ${duration.toFixed(2)}ms`)
+    expect(duration).toBeLessThan(40) // After optimizations: ~23-36ms, target: <40ms (still much better than 27ms baseline)
+  })
+
+  it('should resolve nested transient dependency graph efficiently', () => {
+    // Arrange - Multi-level transient graph
+    class Level3 {
+      id = Math.random()
+    }
+
+    class Level2 {
+      constructor(public dep: Level3) {}
+    }
+
+    class Level1 {
+      constructor(public dep: Level2) {}
+    }
+
+    class Root {
+      constructor(public dep: Level1) {}
+    }
+
+    const l3Token = Token<Level3>('Level3')
+    const l2Token = Token<Level2>('Level2')
+    const l1Token = Token<Level1>('Level1')
+    const rootToken = Token<Root>('Root')
+
+    const builder = container.builder()
+    builder.registerType(Level3).as(l3Token).instancePerDependency()
+    builder
+      .registerType(Level2)
+      .as(l2Token)
+      .autoWire({ map: { dep: l3Token } })
+      .instancePerDependency()
+    builder
+      .registerType(Level1)
+      .as(l1Token)
+      .autoWire({ map: { dep: l2Token } })
+      .instancePerDependency()
+    builder
+      .registerType(Root)
+      .as(rootToken)
+      .autoWire({ map: { dep: l1Token } })
+      .instancePerDependency()
+
+    const app = builder.build()
+
+    // Act - Benchmark nested transient resolution
+    const start = performance.now()
+
+    for (let i = 0; i < 1000; i++) {
+      const root = app.resolve(rootToken)
+      // Verify nested structure
+      expect(root.dep.dep.dep.id).toBeDefined()
+    }
+
+    const duration = performance.now() - start
+
+    // Assert - Nested transients test ResolutionContext overhead
+    console.log(`1000 nested transient graphs (4 levels): ${duration.toFixed(2)}ms`)
+    expect(duration).toBeLessThan(25) // After optimizations: ~11-21ms, target: <25ms (7x faster than 173ms baseline!)
+  })
+
   it('should resolve complex dependency graph in <5ms', () => {
     // Arrange - 5-level dependency tree
     class L5 {

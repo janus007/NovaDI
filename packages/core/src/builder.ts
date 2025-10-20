@@ -454,8 +454,17 @@ export class Builder {
             // Singleton: Create instance directly (fastest path - no factory overhead)
             const instance = new config.constructor!()
             container.bindValue(config.token, instance)
+          } else if (config.lifetime === 'transient') {
+            // Transient Fast Path: Register in fast transient cache
+            // Skips ResolutionContext allocation for maximum performance
+            const ctor = config.constructor!
+            const fastFactory = () => new ctor()
+            ;(container as any).fastTransientCache.set(config.token, fastFactory)
+
+            // Also register in normal bindings as fallback
+            container.bindFactory(config.token, fastFactory, options)
           } else {
-            // Transient/per-request: Use simple factory without autowire overhead
+            // Per-request: Use simple factory without autowire overhead
             // This avoids parameter extraction and reflection on every resolve
             const factory: Factory<any> = () => new config.constructor!()
             container.bindFactory(config.token, factory, options)

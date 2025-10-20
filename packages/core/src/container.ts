@@ -15,7 +15,7 @@ export interface BindingOptions {
 
 export type Factory<T> = (container: Container) => T | Promise<T>
 
-type BindingType = 'value' | 'factory' | 'class'
+type BindingType = 'value' | 'factory' | 'class' | 'inline-class'
 
 interface Binding<T = any> {
   type: BindingType
@@ -78,6 +78,43 @@ class ResolutionContext {
   hasPerRequest(token: Token<any>): boolean {
     return this.perRequestCache.has(token)
   }
+
+  /**
+   * Reset context for reuse in object pool
+   * Performance: Reusing contexts avoids heap allocations
+   */
+  reset(): void {
+    this.resolvingStack.clear()
+    this.perRequestCache.clear()
+    this.path = undefined
+  }
+}
+
+/**
+ * Object pool for ResolutionContext instances
+ * Performance: Reusing contexts reduces heap allocations and GC pressure
+ */
+class ResolutionContextPool {
+  private pool: ResolutionContext[] = []
+  private readonly maxSize = 10
+
+  acquire(): ResolutionContext {
+    const context = this.pool.pop()
+    if (context) {
+      // Reset existing context for reuse
+      context.reset()
+      return context
+    }
+    // Create new if pool empty
+    return new ResolutionContext()
+  }
+
+  release(context: ResolutionContext): void {
+    if (this.pool.length < this.maxSize) {
+      this.pool.push(context)
+    }
+    // Otherwise let it be GC'd
+  }
 }
 
 /**
@@ -99,6 +136,8 @@ export class Container {
   protected readonly interfaceRegistry: Map<string, Token<any>> = new Map()
   private bindingCache?: Map<Token<any>, Binding> // Performance: Flat cache of all bindings including parent chain
   private interfaceTokenCache: Map<string, Token<any>> = new Map() // Performance: Cache for resolveInterface() lookups
+  private readonly fastTransientCache: Map<Token<any>, () => any> = new Map() // Performance: Fast path for simple transients
+  private static contextPool = new ResolutionContextPool() // Performance: Pooled contexts reduce allocations
 
   constructor(parent?: Container) {
     this.parent = parent
@@ -152,9 +191,16 @@ export class Container {
    * Resolve a dependency synchronously
    */
   resolve<T>(token: Token<T>): T {
-    // Performance: Fast path for cached singletons - skip ResolutionContext allocation
+    // Performance: Fast path 1 - Cached singletons (skip ResolutionContext allocation)
     if (this.singletonCache.has(token)) {
       return this.singletonCache.get(token)
+    }
+
+    // Performance: Fast path 2 - Simple transients (NO dependencies, NO circular checks needed)
+    // This optimization skips ResolutionContext allocation for simple transients
+    const fastFactory = this.fastTransientCache.get(token)
+    if (fastFactory) {
+      return fastFactory() as T
     }
 
     // If we're already resolving (called from within a factory), reuse the context
@@ -162,13 +208,15 @@ export class Container {
       return this.resolveWithContext(token, this.currentContext)
     }
 
-    // New top-level resolve
-    const context = new ResolutionContext()
+    // Slow path: Complex resolution with full ResolutionContext
+    // Performance: Use pooled context to avoid heap allocation
+    const context = Container.contextPool.acquire()
     this.currentContext = context
     try {
       return this.resolveWithContext(token, context)
     } finally {
       this.currentContext = undefined
+      Container.contextPool.release(context) // Return to pool for reuse
     }
   }
 
@@ -182,12 +230,14 @@ export class Container {
     }
 
     // New top-level resolve
-    const context = new ResolutionContext()
+    // Performance: Use pooled context to avoid heap allocation
+    const context = Container.contextPool.acquire()
     this.currentContext = context
     try {
       return await this.resolveAsyncWithContext(token, context)
     } finally {
       this.currentContext = undefined
+      Container.contextPool.release(context) // Return to pool for reuse
     }
   }
 
@@ -427,6 +477,11 @@ export class Container {
           instance = new binding.constructor!(...resolvedDeps)
           break
 
+        case 'inline-class':
+          // Performance: Direct instantiation without function call overhead
+          instance = new binding.constructor!()
+          break
+
         default:
           throw new Error(`Unknown binding type: ${(binding as any).type}`)
       }
@@ -493,6 +548,11 @@ export class Container {
             deps.map(dep => this.resolveAsyncWithContext(dep, context))
           )
           instance = new binding.constructor!(...resolvedDeps)
+          break
+
+        case 'inline-class':
+          // Performance: Direct instantiation without function call overhead
+          instance = new binding.constructor!()
           break
 
         default:
