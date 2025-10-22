@@ -3,9 +3,9 @@
  * Supports three strategies: paramName, map, and class
  */
 
-import type { Container } from './container'
-import type { Token } from './token'
-import type { AutoWireOptions } from './builder'
+import type { Container } from './container.js'
+import type { Token } from './token.js'
+import type { AutoWireOptions } from './builder.js'
 
 /**
  * Performance: Cache extracted parameter names to avoid repeated regex parsing

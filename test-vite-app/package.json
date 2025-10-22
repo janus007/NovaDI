@@ -1,0 +1,21 @@
+{
+  "name": "test-vite-app",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^7.1.11"
+  },
+  "dependencies": {
+    "@novadi/core": "file:../packages/core"
+  }
+}

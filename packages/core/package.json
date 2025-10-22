@@ -1,18 +1,24 @@
 {
   "name": "@novadi/core",
-  "version": "0.1.0",
+  "version": "0.2.2",
   "description": "Annotation-free, Autofac-style dependency injection container for TypeScript",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     },
     "./transformer": {
+      "types": "./dist/transformer/index.d.ts",
       "import": "./dist/transformer/index.js",
-      "types": "./dist/transformer/index.d.ts"
+      "require": "./dist/transformer/index.js"
+    },
+    "./unplugin": {
+      "types": "./dist/unplugin/index.d.ts",
+      "import": "./dist/unplugin/index.js",
+      "require": "./dist/unplugin/index.cjs"
     }
   },
   "scripts": {
@@ -20,9 +26,10 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "build": "npm run build:transformer && npm run build:lib",
+    "build": "npm run build:transformer && npm run build:lib && npm run build:unplugin",
     "build:transformer": "tsc -p tsconfig.transformer.json",
     "build:lib": "tsc -p tsconfig.json",
+    "build:unplugin": "tsup",
     "typecheck": "tsc --noEmit",
     "prepare": "ts-patch install -s"
   },
@@ -31,20 +38,40 @@
     "di",
     "ioc",
     "typescript",
-    "autofac"
+    "autofac",
+    "container",
+    "inversion-of-control"
   ],
-  "author": "",
+  "author": "Janus Knudsen",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/janus007/NovaDI.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/janus007/NovaDI#readme",
+  "bugs": {
+    "url": "https://github.com/janus007/NovaDI/issues"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@vitest/coverage-v8": "^1.0.0",
     "@vitest/ui": "^1.0.0",
     "ts-patch": "^3.3.0",
+    "tsup": "^8.5.0",
     "ttypescript": "^1.5.15",
     "typescript": "^5.3.0",
     "vitest": "^1.0.0"
   },
   "optionalDependencies": {
     "@rollup/rollup-win32-x64-msvc": "^4.52.5"
+  },
+  "dependencies": {
+    "unplugin": "^2.3.10"
   }
 }

@@ -1,0 +1,19 @@
+{
+  "name": "test-transformer-path",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@novadi/core": "file:../packages/core"
+  },
+  "devDependencies": {
+    "ts-patch": "^3.3.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -2,9 +2,9 @@
  * Core dependency injection container for NovaDI
  */
 
-import { Token } from './token'
-import { BindingNotFoundError, CircularDependencyError } from './errors'
-import { Builder } from './builder'
+import { Token } from './token.js'
+import { BindingNotFoundError, CircularDependencyError } from './errors.js'
+import { Builder } from './builder.js'
 
 export type Lifetime = 'singleton' | 'transient' | 'per-request'
 

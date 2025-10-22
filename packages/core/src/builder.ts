@@ -2,9 +2,9 @@
  * Fluent builder API for NovaDI Container (Autofac-style)
  */
 
-import { Token } from './token'
-import type { Container, Factory, Lifetime } from './container'
-import { autowire } from './autowire'
+import { Token } from './token.js'
+import type { Container, Factory, Lifetime } from './container.js'
+import { autowire } from './autowire.js'
 
 /**
  * Represents a pending registration that hasn't been bound to a token yet

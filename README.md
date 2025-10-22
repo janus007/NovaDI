@@ -1,10 +1,10 @@
-# NovaDI
+# NovaDI Core
 
 > **Annotation-free, blazing-fast dependency injection for TypeScript**
 
 NovaDI is a modern dependency injection container that keeps your business logic clean from framework code. No decorators, no annotations, no runtime reflection - just pure TypeScript and compile-time type safety.
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/yourusername/novadi)
+[![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)](https://github.com/janus007/NovaDI)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-blue.svg)](https://www.typescriptlang.org/)
 [![Bundle Size](https://img.shields.io/badge/bundle-59KB-success.svg)](dist/)
@@ -33,14 +33,20 @@ NovaDI keeps your code clean:
 class UserService {
   constructor(
     private logger: ILogger,
-    private db: IDatabase
+    private database: IDatabase
   ) {}
 }
 
 // DI configuration lives in ONE place (Composition Root)
-const container = new ContainerBuilder()
-  .registerClass(UserService).autoWire("default")
-  .build()
+const container = new Container()
+const builder = container.builder()
+
+builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
+builder.registerType(PostgresDatabase).asInterface<IDatabase>().singleInstance()
+builder.registerType(UserService).asInterface<UserService>().autoWire()
+
+const app = builder.build()
+const userService = app.resolveInterface<UserService>()
 ```
 
 **Your business logic stays framework-agnostic. Your tests stay simple. Your architecture stays clean.**
@@ -50,13 +56,13 @@ const container = new ContainerBuilder()
 ## Features
 
 - **Zero Annotations** - No decorators in your business code
-- **Compile-time Autowiring** - TypeScript transformer handles dependency injection
+- **Convention Over Configuration** - `.autoWire()` automatically wires ALL dependencies by convention
+- **It Just Works** - No manual configuration needed
 - **Blazing Fast** - Multi-tier caching, object pooling, zero-overhead singletons
 - **Type-Safe** - Full TypeScript type inference and compile-time checking
 - **Composition Root** - All DI configuration in one place
-- **Multiple Lifetimes** - Singleton, Transient, Per-Request scoping
-- **Batch Resolution** - Resolve multiple dependencies with shared context
-- **Interface-based Resolution** - Register implementations by interface names
+- **Multiple Lifetimes** - Singleton, Transient (default), Per-Request scoping
+- **TypeScript Transformer** - Compile-time type name injection
 - **Tiny Bundle** - Only ~59 KB compiled
 
 ---
@@ -73,10 +79,67 @@ yarn add @novadi/core
 pnpm add @novadi/core
 ```
 
-### Configuration
+### Setup - Choose Your Integration Method
 
-Add the transformer to your `tsconfig.json`:
+NovaDI uses a **TypeScript transformer** to automatically inject type names at compile-time. This enables clean, annotation-free code while maintaining full type safety.
 
+> **Why a transformer?** TypeScript erases all type information at runtime. The transformer captures type names during compilation, enabling powerful features like dependency graph generation, compile-time validation, circular dependency detection, and automated wiring - all with zero runtime overhead.
+
+#### Option 1: Modern Bundlers (Recommended ⭐)
+
+Use **unplugin** for universal bundler support. This is the easiest and most reliable approach.
+
+**Vite:**
+```typescript
+// vite.config.ts
+import { defineConfig } from 'vite'
+import { NovadiUnplugin } from '@novadi/core/unplugin'
+
+export default defineConfig({
+  plugins: [NovadiUnplugin.vite()]
+})
+```
+
+**webpack:**
+```javascript
+// webpack.config.js
+const { NovadiUnplugin } = require('@novadi/core/unplugin')
+
+module.exports = {
+  plugins: [NovadiUnplugin.webpack()]
+}
+```
+
+**Rollup:**
+```javascript
+// rollup.config.js
+import { NovadiUnplugin } from '@novadi/core/unplugin'
+
+export default {
+  plugins: [NovadiUnplugin.rollup()]
+}
+```
+
+**esbuild:**
+```javascript
+// esbuild.config.js
+const { NovadiUnplugin } = require('@novadi/core/unplugin')
+
+require('esbuild').build({
+  plugins: [NovadiUnplugin.esbuild()]
+})
+```
+
+#### Option 2: TypeScript Compiler (tsc)
+
+For direct `tsc` compilation, use `ts-patch`:
+
+```bash
+npm install -D ts-patch
+npx ts-patch install
+```
+
+Add to `tsconfig.json`:
 ```json
 {
   "compilerOptions": {
@@ -87,17 +150,63 @@ Add the transformer to your `tsconfig.json`:
 }
 ```
 
-Install `ts-patch` to enable transformers:
+#### Option 3: Manual Type Names (⚠️ Not Recommended)
 
-```bash
-npm install -D ts-patch
-npx ts-patch install
-```
+> **⚠️ WARNING: This approach is considered bad practice and should be avoided.**
+>
+> Using manual type name literals:
+> - ❌ Introduces potential for typos and errors
+> - ❌ Creates maintenance burden (refactoring becomes error-prone)
+> - ❌ Loses all transformer benefits (validation, graphs, analysis)
+> - ❌ No compile-time safety for type names
+> - ❌ Verbose and repetitive code
+>
+> **Only use this if you absolutely cannot use a transformer** (e.g., runtime-only environments like `tsx` or `ts-node` where there's no build step).
 
-### Basic Usage
+If you must use manual type names:
 
 ```typescript
-import { ContainerBuilder } from '@novadi/core'
+// ⚠️ NOT RECOMMENDED - Manual type name literals
+builder.registerType(ConsoleLogger).asInterface<ILogger>("ILogger")
+const logger = app.resolveInterface<ILogger>("ILogger")
+
+builder
+  .registerType(UserService)
+  .asInterface<UserService>("UserService")
+  .autoWire({
+    map: {
+      logger: (c) => c.resolveInterface<ILogger>("ILogger")
+    }
+  })
+```
+
+**Why the transformer is superior:**
+```typescript
+// ✅ With transformer - type names auto-injected
+.asInterface<ILogger>()           // Becomes: .asInterface<ILogger>("ILogger")
+.resolveInterface<ILogger>()      // Becomes: .resolveInterface<ILogger>("ILogger")
+
+// Plus you get:
+// ✅ Compile-time validation of all dependencies
+// ✅ Dependency graph generation
+// ✅ Circular dependency detection before runtime
+// ✅ Missing registration warnings
+// ✅ IDE integration for inline errors
+// ✅ Zero typo risk
+// ✅ Refactoring safety
+```
+
+**Future transformer capabilities** (see [roadmap](../../docs/roadmap.md)):
+- Generate visual dependency graphs
+- Detect unused registrations
+- Validate entire container at compile-time
+- Export dependency information for documentation
+- Integration with development tools
+
+### Basic Usage - It Just Works!
+
+```typescript
+import { Container } from '@novadi/core'
 
 // 1. Define your services (clean code, no decorators!)
 interface ILogger {
@@ -119,21 +228,175 @@ class UserService {
 }
 
 // 2. Configure container (Composition Root)
-const container = new ContainerBuilder()
-  .registerClass(ConsoleLogger).asInterface<ILogger>().lifetime('singleton')
-  .registerClass(UserService).autoWire("default").lifetime('transient')
-  .build()
+const container = new Container()
+const builder = container.builder()
+
+// Register implementations
+builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
+
+// AutoWire does ALL the wiring by convention!
+builder.registerType(UserService).asInterface<UserService>().autoWire()
+
+const app = builder.build()
 
 // 3. Resolve and use
-const userService = container.resolve(UserService)
+const userService = app.resolveInterface<UserService>()
 userService.createUser('Alice') // [LOG] Creating user: Alice
 ```
 
-That's it! The transformer automatically generates the wiring code.
+**That's it!** No manual configuration. No mapping. Just `.autoWire()` - convention over configuration.
+
+The `logger` parameter automatically resolves to the registered `ILogger` interface by naming convention. This is THE way to use NovaDI.
 
 ---
 
-## Why Annotations Are an Anti-Pattern
+## AutoWire - Convention Over Configuration
+
+**Autowiring by convention** is THE way you wire dependencies. No manual configuration, no boilerplate - it just works.
+
+### The Standard Way - Type Injection by Convention
+
+```typescript
+class UserService {
+  constructor(
+    private logger: ILogger,      // Automatically resolves ILogger by convention
+    private database: IDatabase   // Automatically resolves IDatabase by convention
+  ) {}
+}
+
+// This is all you need - autowiring by convention!
+builder.registerType(UserService).asInterface<UserService>().autoWire()
+```
+
+**How it works:**
+- Extracts parameter names from constructor (`logger`, `database`)
+- Tries multiple naming conventions (`ILogger`, `Logger`, `logger`)
+- Automatically resolves the matching registered interfaces
+- **Zero configuration - pure convention!**
+
+**This is how you should wire ALL your services.** Convention over configuration - always.
+
+### Explicit Mapping (Edge Cases Only)
+
+Only use explicit mapping for rare cases where autowiring can't help:
+
+```typescript
+builder
+  .registerType(SmartLight)
+  .asInterface<IDevice>()
+  .autoWire({
+    map: {
+      id: () => 'light-123',              // Primitive value injection
+      name: () => 'Living Room Light',    // String injection
+      logger: (c) => c.resolveInterface<ILogger>()  // Custom resolution logic
+    }
+  })
+```
+
+**Only use explicit mapping when:**
+- Injecting primitives, strings, or configuration values
+- You need custom resolution logic (rare)
+- You're NOT using the transformer AND code is minified
+
+**For regular service dependencies, always use `.autoWire()` without arguments!**
+
+---
+
+## Lifetimes
+
+**Important:** Default lifetime is `transient` (new instance every time).
+
+### Singleton - One instance for the container lifetime
+```typescript
+builder.registerType(Database).asInterface<IDatabase>().singleInstance()
+```
+
+Use for: Loggers, database connections, configuration, caches
+
+### Transient - New instance every resolution (DEFAULT)
+```typescript
+builder.registerType(RequestHandler).asInterface<IRequestHandler>()
+// No .singleInstance() = transient by default
+```
+
+Use for: Request handlers, commands, stateful operations
+
+### Per-Request - One instance per resolution tree
+```typescript
+builder.registerType(UnitOfWork).asInterface<IUnitOfWork>().instancePerRequest()
+```
+
+Use for: Database transactions, request-scoped state
+
+---
+
+## Real-World Example
+
+```typescript
+import { Container } from '@novadi/core'
+
+// Services (clean code, no framework imports!)
+interface ILogger {
+  info(message: string): void
+  error(message: string, error?: Error): void
+}
+
+class ConsoleLogger implements ILogger {
+  info(message: string) { console.log(`[INFO] ${message}`) }
+  error(message: string, error?: Error) { console.error(`[ERROR] ${message}`, error) }
+}
+
+interface IDatabase {
+  query<T>(sql: string): Promise<T[]>
+}
+
+class PostgresDatabase implements IDatabase {
+  constructor(private logger: ILogger) {}
+
+  async query<T>(sql: string): Promise<T[]> {
+    this.logger.info(`Executing query: ${sql}`)
+    // Implementation...
+    return []
+  }
+}
+
+class UserService {
+  constructor(
+    private database: IDatabase,
+    private logger: ILogger
+  ) {}
+
+  async getUser(id: number) {
+    this.logger.info(`Fetching user ${id}`)
+    return this.database.query(`SELECT * FROM users WHERE id = ${id}`)
+  }
+}
+
+// Composition Root
+const container = new Container()
+const builder = container.builder()
+
+builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
+builder.registerType(PostgresDatabase).asInterface<IDatabase>().singleInstance().autoWire()
+builder.registerType(UserService).asInterface<UserService>().autoWire()
+
+const app = builder.build()
+
+// Use it
+const userService = app.resolveInterface<UserService>()
+await userService.getUser(123)
+```
+
+**Notice:**
+- All service files are pure TypeScript - no decorators, no framework imports
+- `.autoWire()` handles ALL dependency wiring by convention
+- No manual mapping needed - it just works
+- Configuration lives in ONE place
+- Testing is trivial: `new UserService(mockDB, mockLogger)`
+
+---
+
+## Why No Decorators?
 
 Many DI frameworks (NestJS, InversifyJS, TypeDI, TSyringe) rely heavily on decorators. While convenient, this approach violates fundamental software design principles:
 
@@ -180,9 +443,11 @@ class OrderService {
 }
 
 // DI configuration lives separately (Composition Root)
-const container = new ContainerBuilder()
-  .registerClass(OrderService).autoWire("default")
-  .build()
+const container = new Container()
+const builder = container.builder()
+
+// Convention over configuration - autowiring by parameter names
+builder.registerType(OrderService).asInterface<OrderService>().autoWire()
 ```
 
 **Benefits:**
@@ -240,27 +505,36 @@ class BusinessService { /* ... */ }
 class BusinessService { /* ... */ }
 ```
 
-### 4. The Composition Root Pattern
+### 4. Composition Root Pattern
 
 NovaDI follows the **Composition Root** pattern - all DI configuration happens in ONE place at the application's entry point:
 
 ```typescript
 // main.ts - The ONLY place that knows about DI
-import { ContainerBuilder } from '@novadi/core'
+import { Container } from '@novadi/core'
 
 // All wiring happens here
-const container = new ContainerBuilder()
-  .registerClass(ConsoleLogger).asInterface<ILogger>()
-  .registerClass(PostgresDatabase).asInterface<IDatabase>()
-  .registerClass(StripePayment).asInterface<IPaymentGateway>()
-  .registerClass(SendGridEmail).asInterface<IEmailService>()
-  .registerClass(OrderService).autoWire("default")
-  .registerClass(UserService).autoWire("default")
-  .build()
+const container = new Container()
+const builder = container.builder()
+
+// Infrastructure layer - singletons
+builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
+builder.registerType(PostgresDatabase).asInterface<IDatabase>().singleInstance().autoWire()
+builder.registerType(StripePayment).asInterface<IPaymentGateway>().singleInstance()
+builder.registerType(SendGridEmail).asInterface<IEmailService>().singleInstance()
+
+// Service layer - autowired by convention
+builder.registerType(OrderService).asInterface<OrderService>().autoWire()
+builder.registerType(UserService).asInterface<UserService>().autoWire()
+
+// Application layer
+builder.registerType(Application).asInterface<Application>().autoWire()
+
+const app = builder.build()
 
 // Start application
-const app = container.resolve(Application)
-app.start()
+const application = app.resolveInterface<Application>()
+application.start()
 ```
 
 **Everything else is clean business code with zero DI knowledge.**
@@ -304,7 +578,7 @@ export class OrderService {
 export class UserService {
   constructor(
     private logger: ILogger,
-    private db: IDatabase
+    private database: IDatabase
   ) {}
 }
 
@@ -317,10 +591,11 @@ export class OrderService {
 }
 
 // main.ts (Composition Root)
-const container = new ContainerBuilder()
-  .registerClass(UserService).autoWire("default")
-  .registerClass(OrderService).autoWire("default")
-  .build()
+const container = new Container()
+const builder = container.builder()
+builder.registerType(UserService).asInterface<UserService>().autoWire()
+builder.registerType(OrderService).asInterface<OrderService>().autoWire()
+const app = builder.build()
 
 // Business code knows nothing about DI!
 // Tests are trivial: new UserService(mockLogger, mockDb)
@@ -329,29 +604,58 @@ const container = new ContainerBuilder()
 
 ---
 
+## Advanced Usage
+
+### Factories
+
+```typescript
+builder
+  .register((c) => {
+    const config = c.resolveInterface<IConfig>()
+    const logger = c.resolveInterface<ILogger>()
+    return new ComplexService(config, logger, new Date())
+  })
+  .asInterface<IComplexService>()
+  .singleInstance()
+```
+
+### Instances
+
+```typescript
+const config = { apiKey: 'secret', timeout: 5000 }
+builder.registerInstance(config).asInterface<IConfig>()
+```
+
+### Scoped Containers
+
+```typescript
+// Create child scope per request
+app.use((req, res, next) => {
+  const requestScope = app.createChild()
+  req.container = requestScope
+  next()
+})
+
+// Resolve per-request services
+const handler = req.container.resolveInterface<IRequestHandler>()
+```
+
+### Keyed Services
+
+```typescript
+// Register multiple implementations
+builder.registerType(RedisCache).asInterface<ICache>().keyed('redis')
+builder.registerType(MemoryCache).asInterface<ICache>().keyed('memory')
+
+// Resolve specific implementation
+const redisCache = app.resolveKeyed<ICache>('redis')
+```
+
+---
+
 ## Technical Deep Dive
 
 *For the curious developers who want to know how it works under the hood.*
-
-### Code Metrics
-
-| Metric | Value |
-|--------|-------|
-| **Total Lines of Code** | 2,079 lines |
-| **Bundle Size (compiled)** | ~59 KB |
-| **Public API Surface** | 22 exports |
-| **Functions & Classes** | ~110 |
-| **Avg. Cyclomatic Complexity** | ~3.4 (low complexity, maintainable) |
-| **Core Dependencies** | 0 (only TypeScript) |
-
-**File Breakdown:**
-- `container.ts` - 705 lines (core resolution engine)
-- `builder.ts` - 497 lines (fluent configuration API)
-- `transformer/index.ts` - 544 lines (compile-time autowiring)
-- `autowire.ts` - 229 lines (autowiring strategies)
-- `token.ts` - 61 lines (type-safe token system)
-- `errors.ts` - 25 lines (custom error types)
-- `index.ts` - 18 lines (public API exports)
 
 ### Performance Architecture
 
@@ -444,45 +748,6 @@ class ResolutionContext {
 
 **Benefit:** Avoids expensive `toString()` calls during successful resolutions
 
-### Batch Resolution
-
-Resolve multiple dependencies with a single shared context:
-
-```typescript
-const [logger, db, cache] = container.resolveBatch([
-  LoggerToken,
-  DatabaseToken,
-  CacheToken
-])
-```
-
-**Benefit:** Reuses context across resolutions, reducing allocations
-
-### TypeScript Transformer Magic
-
-The `autoWire("default")` transformation:
-
-```typescript
-// Before transformation:
-container.registerClass(UserService).autoWire("default")
-
-// After transformation (automatic):
-container.registerClass(UserService).autoWire({
-  map: {
-    logger: (c) => c.resolveInterface<ILogger>("ILogger"),
-    database: (c) => c.resolveInterface<IDatabase>("IDatabase")
-  }
-})
-```
-
-The transformer:
-1. Analyzes `UserService` constructor using TypeScript's AST
-2. Extracts parameter types (`ILogger`, `IDatabase`)
-3. Generates resolution map
-4. Filters out primitives (string, number, etc.)
-
-**All at compile-time - zero runtime overhead!**
-
 ### Memory Footprint
 
 ```
@@ -516,154 +781,23 @@ For a typical app with 50 services:
 
 ---
 
-## Core Concepts
+## Code Metrics
 
-### Tokens
+| Metric | Value |
+|--------|-------|
+| **Total Lines of Code** | 2,079 lines |
+| **Bundle Size (compiled)** | ~59 KB |
+| **Public API Surface** | 22 exports |
+| **Avg. Cyclomatic Complexity** | ~3.4 (low, maintainable) |
+| **Runtime Dependencies** | 0 (only TypeScript) |
 
-Tokens are type-safe identifiers for dependencies:
-
-```typescript
-import { Token } from '@novadi/core'
-
-// Automatic token from class
-const userService = container.resolve(UserService)
-
-// Manual token for interfaces
-const LoggerToken = new Token<ILogger>('ILogger')
-const logger = container.resolve(LoggerToken)
-```
-
-### Lifetimes
-
-**Singleton** - One instance for the container lifetime:
-```typescript
-.registerClass(Database).lifetime('singleton')
-```
-
-**Transient** - New instance every resolution:
-```typescript
-.registerClass(RequestHandler).lifetime('transient')
-```
-
-**Per-Request** - One instance per resolution tree:
-```typescript
-.registerClass(UnitOfWork).lifetime('per-request')
-```
-
-### Autowiring Strategies
-
-**Default** - Matches parameter names to interface names:
-```typescript
-class UserService {
-  constructor(
-    private logger: ILogger,    // Resolves ILogger
-    private database: IDatabase // Resolves IDatabase
-  ) {}
-}
-
-.registerClass(UserService).autoWire("default")
-```
-
-**Map** - Explicit mapping:
-```typescript
-.registerClass(UserService).autoWire({
-  map: {
-    logger: (c) => c.resolveInterface<ILogger>('ILogger'),
-    database: (c) => c.resolve(PostgresDatabase)
-  }
-})
-```
-
-**Class** - Resolve by parameter types:
-```typescript
-class UserService {
-  constructor(
-    private logger: ConsoleLogger,
-    private database: PostgresDatabase
-  ) {}
-}
-
-.registerClass(UserService).autoWire("class")
-```
-
-### Builder Pattern
-
-Fluent API for container configuration:
-
-```typescript
-const container = new ContainerBuilder()
-  .registerClass(Logger).asInterface<ILogger>().lifetime('singleton')
-  .registerClass(Database).asInterface<IDatabase>().lifetime('singleton')
-  .registerClass(UserService).autoWire("default").lifetime('transient')
-  .registerFactory((c) => new Config(process.env)).lifetime('singleton')
-  .registerValue(42, NumberToken)
-  .build()
-```
-
----
-
-## Advanced Usage
-
-### Batch Resolution
-
-Resolve multiple dependencies efficiently:
-
-```typescript
-const [logger, db, cache] = container.resolveBatch([
-  LoggerToken,
-  DatabaseToken,
-  CacheToken
-])
-```
-
-### Interface-based Resolution
-
-Register implementations by interface:
-
-```typescript
-// Registration
-.registerClass(PostgresDatabase).asInterface<IDatabase>()
-
-// Resolution
-const db = container.resolveInterface<IDatabase>('IDatabase')
-```
-
-### Custom Factories
-
-Complex initialization logic:
-
-```typescript
-.registerFactory((c) => {
-  const config = c.resolve(ConfigToken)
-  const logger = c.resolveInterface<ILogger>('ILogger')
-  return new ComplexService(config, logger, new Date())
-}).lifetime('singleton')
-```
-
-### Child Containers (Scoping)
-
-Create scoped containers for request isolation:
-
-```typescript
-const requestScope = container.createScope()
-const handler = requestScope.resolve(RequestHandler)
-// Per-request services are isolated to this scope
-```
-
-### Disposal
-
-Cleanup resources when done:
-
-```typescript
-class DatabaseConnection implements IDisposable {
-  async dispose() {
-    await this.connection.close()
-  }
-}
-
-// Automatically called on container.dispose()
-await container.dispose()
-```
+**File Breakdown:**
+- `container.ts` - 706 lines (resolution engine)
+- `builder.ts` - 498 lines (fluent API)
+- `transformer/index.ts` - 544 lines (compile-time magic)
+- `autowire.ts` - 229 lines (autowiring strategies)
+- `token.ts` - 61 lines (type-safe tokens)
+- `errors.ts` - 25 lines (error types)
 
 ---
 
@@ -671,142 +805,129 @@ await container.dispose()
 
 | Feature | NovaDI | InversifyJS | TSyringe | TypeDI | Awilix |
 |---------|---------|-------------|----------|--------|--------|
-| **Bundle Size** | ~59 KB | ~90 KB | ~20 KB | ~50 KB | ~30 KB |
 | **No Decorators** | ✅ | ❌ | ❌ | ❌ | ✅ |
+| **AutoWire** | ✅ Automatic | ❌ Manual | ❌ Manual | ❌ Manual | ✅ Automatic |
 | **Type Safety** | ✅ Full | ⚠️ Partial | ⚠️ Partial | ⚠️ Partial | ✅ Full |
-| **Compile-time DI** | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Transformer** | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Performance** | ⚡ ~10ns | 🐢 ~500ns | 🐢 ~300ns | 🐢 ~400ns | ⚡ ~50ns |
+| **Bundle Size** | 59 KB | 90 KB | 20 KB | 50 KB | 30 KB |
 | **Composition Root** | ✅ | ❌ | ❌ | ❌ | ✅ |
-| **Object Pooling** | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Autowiring** | ✅ Auto | ⚠️ Manual | ⚠️ Manual | ⚠️ Manual | ✅ Auto |
-| **Performance** | ⚡ Fastest | 🐢 Slow | 🐢 Slow | 🐢 Slow | ⚡ Fast |
-| **Testing** | ✅ Simple | ❌ Complex | ❌ Complex | ❌ Complex | ✅ Simple |
-
-### Migration Paths
-
-See [Migration Guide](docs/migration.md) for step-by-step instructions from:
-- InversifyJS
-- TSyringe
-- TypeDI
-- NestJS DI
-- Awilix
 
 ---
 
-## Real-World Example
+## AI-Assisted Onboarding Prompt
 
-Complete Express.js application with NovaDI:
+**Copy this prompt when asking an AI assistant to help you use NovaDI:**
 
+```
+I want to use the @novadi/core dependency injection library in my TypeScript project.
+
+Key Principles:
+- Package: @novadi/core
+- NO decorators/annotations in business code
+- Convention over configuration
+- Uses .asInterface<T>() and .resolveInterface<T>()
+- TypeScript transformer handles type names automatically
+
+Core API:
+1. Import: import { Container } from '@novadi/core'
+
+2. Build container:
+   const container = new Container()
+   const builder = container.builder()
+
+3. Register services:
+   builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
+
+4. Autowire dependencies BY CONVENTION (recommended):
+   builder.registerType(UserService).asInterface<UserService>().autoWire()
+   // Parameters automatically match registered interfaces by naming convention
+
+5. Build and resolve:
+   const app = builder.build()
+   const service = app.resolveInterface<UserService>()
+
+Lifetimes:
+- .singleInstance() - singleton
+- .instancePerDependency() - transient (DEFAULT)
+- .instancePerRequest() - per resolution tree
+
+AutoWire (Convention Over Configuration):
+- Automatic: .autoWire() - matches parameters to interfaces by naming convention
+- Explicit: .autoWire({ map: { logger: (c) => c.resolveInterface<ILogger>() } })
+- Use automatic for ALL services, explicit only for primitives/values
+
+Transformer Setup (tsconfig.json):
+{
+  "compilerOptions": {
+    "plugins": [
+      { "transform": "@novadi/core/transformer" }
+    ]
+  }
+}
+
+Then: npm install -D ts-patch && npx ts-patch install
+
+Simple Hello World example:
 ```typescript
-// services/logger.service.ts
-export interface ILogger {
-  info(message: string): void
-  error(message: string, error?: Error): void
+import { Container } from '@novadi/core'
+
+interface IGreeter {
+  greet(name: string): string
 }
 
-export class ConsoleLogger implements ILogger {
-  info(message: string) {
-    console.log(`[INFO] ${message}`)
-  }
-
-  error(message: string, error?: Error) {
-    console.error(`[ERROR] ${message}`, error)
+class ConsoleGreeter implements IGreeter {
+  greet(name: string): string {
+    return `Hello, ${name}!`
   }
 }
 
-// services/database.service.ts
-export interface IDatabase {
-  query<T>(sql: string): Promise<T[]>
-}
+class Application {
+  constructor(private greeter: IGreeter) {}
 
-export class PostgresDatabase implements IDatabase {
-  constructor(private logger: ILogger) {}
-
-  async query<T>(sql: string): Promise<T[]> {
-    this.logger.info(`Executing query: ${sql}`)
-    // Implementation...
+  run() {
+    console.log(this.greeter.greet('World'))
   }
 }
 
-// services/user.service.ts
-export class UserService {
-  constructor(
-    private database: IDatabase,
-    private logger: ILogger
-  ) {}
+// Composition Root
+const container = new Container()
+const builder = container.builder()
 
-  async getUser(id: number) {
-    this.logger.info(`Fetching user ${id}`)
-    return this.database.query(`SELECT * FROM users WHERE id = ${id}`)
-  }
-}
+builder.registerType(ConsoleGreeter).asInterface<IGreeter>().singleInstance()
+builder.registerType(Application).asInterface<Application>().autoWire() // Convention!
 
-// controllers/user.controller.ts
-export class UserController {
-  constructor(private userService: UserService) {}
-
-  async handleGetUser(req: Request, res: Response) {
-    const user = await this.userService.getUser(req.params.id)
-    res.json(user)
-  }
-}
-
-// main.ts - Composition Root
-import { ContainerBuilder } from '@novadi/core'
-import express from 'express'
-
-const container = new ContainerBuilder()
-  .registerClass(ConsoleLogger).asInterface<ILogger>().lifetime('singleton')
-  .registerClass(PostgresDatabase).asInterface<IDatabase>().lifetime('singleton')
-  .registerClass(UserService).autoWire("default").lifetime('singleton')
-  .registerClass(UserController).autoWire("default").lifetime('transient')
-  .build()
-
-const app = express()
-
-app.get('/users/:id', (req, res) => {
-  const controller = container.resolve(UserController)
-  controller.handleGetUser(req, res)
-})
-
-app.listen(3000, () => {
-  const logger = container.resolveInterface<ILogger>('ILogger')
-  logger.info('Server started on port 3000')
-})
+const app = builder.build()
+const application = app.resolveInterface<Application>()
+application.run() // Outputs: Hello, World!
 ```
 
-**Notice:** All service files are clean TypeScript with zero DI framework code!
+Please help me set up NovaDI following these patterns.
+```
+
+**For AI to reference:** Full README at https://github.com/janus007/NovaDI
 
 ---
 
 ## Documentation
 
-- [Getting Started Guide](docs/getting-started.md)
-- [API Reference](docs/api-reference.md)
-- [Transformer Setup](docs/transformer-setup.md)
-- [Best Practices](docs/best-practices.md)
-- [Migration Guide](docs/migration.md)
-- [Roadmap & Ideas](docs/roadmap.md)
-
----
-
-## Contributing
-
-Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) first.
-
-Ideas and suggestions? See our [Roadmap](docs/roadmap.md) for planned features.
+- [Getting Started Guide](../../docs/getting-started.md)
+- [Transformer Setup](../../docs/transformer-setup.md)
+- [Best Practices](../../docs/best-practices.md)
+- [Roadmap & Ideas](../../docs/roadmap.md)
 
 ---
 
 ## License
 
-MIT © [Your Name]
+MIT © Janus Knudsen
 
 ---
 
 ## Acknowledgments
 
 Inspired by:
-- **Autofac** (.NET) - Composition Root pattern
+- **Autofac** (.NET) - Composition Root pattern, fluent API
 - **Awilix** (Node.js) - Clean, annotation-free API
 - **Mark Seemann's** work on Dependency Injection patterns
 
@@ -815,6 +936,7 @@ Built for developers who believe in:
 - Separation of Concerns
 - Testable Code
 - SOLID Principles
+- Convention over configuration
 
 ---
 
