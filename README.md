@@ -4,7 +4,7 @@
 
 NovaDI is a modern dependency injection container that keeps your business logic clean from framework code. No decorators, no annotations, no runtime reflection - just pure TypeScript and compile-time type safety.
 
-[![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)](https://github.com/janus007/NovaDI)
+[![Version](https://img.shields.io/badge/version-0.2.2-blue.svg)](https://github.com/janus007/NovaDI)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-blue.svg)](https://www.typescriptlang.org/)
 [![Bundle Size](https://img.shields.io/badge/bundle-59KB-success.svg)](dist/)
