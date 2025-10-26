@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Getting Started - NovaDI</title>
+  <meta name="description" content="Get started with NovaDI in 60 seconds. AI-friendly dependency injection for TypeScript.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto+Slab:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/docs.css">
+
+  <!-- Prism.js for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="main-header">
+    <a href="index.html" class="header-logo">NovaDI</a>
+    <div class="header-links">
+      <a href="https://www.npmjs.com/package/@novadi/core" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z"></path></svg>
+        npm
+      </a>
+      <a href="https://github.com/janus007/NovaDI" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg>
+        GitHub
+      </a>
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <span class="theme-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z"></path></svg>
+        </span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Sidebar Navigation -->
+  <aside class="main-nav">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li class="nav-group">
+          <div class="nav-group-title">Documentation</div>
+          <a href="getting-started.html" class="active">Getting Started</a>
+          <a href="guide.html">Documentation</a>
+          <a href="why.html">Why is DI this important?</a>
+          <a href="design-philosophy.html">Design Philosophy</a>
+        </li>
+        <li class="nav-group">
+          <div class="nav-group-title">Resources</div>
+          <a href="roadmap.html">NovaDI Roadmap & Ideas</a>
+          <a href="demo.html">Performance Benchmarks</a>
+          <a href="examples.html">Examples</a>
+        </li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Hero Section -->
+  <div class="hero">
+    <div class="container">
+      <h1 class="hero-title">Getting Started</h1>
+      <p class="hero-subtitle">Decorator-free Dependency Injection for TypeScript</p>
+     
+      <div style="margin-top: 24px;">
+        <span class="tech-badge">TypeScript 5+</span>
+        <span class="tech-badge">Zero Decorators</span>
+        <span class="tech-badge">Browser-First</span>
+        <span class="tech-badge">Type-Safe</span>
+        <span class="tech-badge">3.9KB gzipped</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="container" style="padding: 40px 20px 80px;">
+
+    <!-- Quick Start Options -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin: 40px 0;">
+      <div class="card">
+        <h3>⚡ The AI Way</h3>
+        <p style="margin: 12px 0;">Let AI do the heavy lifting. Copy our prompt, paste it to Claude/ChatGPT, and you're done.</p>
+        <a href="#ai-setup" class="btn btn-outline">AI Setup (60 seconds)</a>
+      </div>
+      <div class="card">
+        <h3>🛠️ The Manual Way</h3>
+        <p style="margin: 12px 0;">Prefer hands-on? Follow step-by-step instructions to set up NovaDI yourself.</p>
+        <a href="#manual-setup" class="btn btn-outline">Manual Setup</a>
+      </div>
+    </div>
+
+    <hr style="margin: 60px 0;">
+
+    <!-- AI Setup Section -->
+    <section id="ai-setup">
+      <h2>⚡ AI-Assisted Setup (Recommended)</h2>
+      <p class="text-large">
+        NovaDI is designed to be <strong>AI-friendly</strong>. Instead of memorizing APIs and patterns,
+        just give your AI assistant this prompt and let it handle the setup.
+      </p>
+
+      <div class="callout callout-success" style="margin: 24px 0;">
+        <strong>💡 Why AI-First?</strong><br>
+        Dependency injection frameworks traditionally have steep learning curves. NovaDI embraces modern development:
+        give AI the context it needs, and it writes clean DI code that follows best practices automatically.
+      </div>
+
+      <h3>Step 1: Copy the Prompt</h3>
+      <p>Copy this entire prompt and paste it into Claude, ChatGPT, or your favorite AI coding assistant:</p>
+
+      <div class="card" style="background: var(--code-bg); border: 1px solid var(--code-bg-border); padding: 20px; margin: 24px 0;">
+        <pre style="margin: 0; font-family: var(--font-mono); font-size: 11px; line-height: 1.6; white-space: pre-wrap; color: var(--text-primary);">I want to use the @novadi/core dependency injection library in my TypeScript project.
+
+Key Principles:
+- Package: @novadi/core
+- NO decorators/annotations in business code
+- Convention over configuration
+- Uses .asInterface&lt;T&gt;() and .resolveInterface&lt;T&gt;()
+- TypeScript transformer handles type names automatically
+
+Core API:
+1. Import: import { Container } from '@novadi/core'
+
+2. Build container:
+   const container = new Container()
+   const builder = container.builder()
+
+3. Register services:
+   builder.registerType(ConsoleLogger).asInterface&lt;ILogger&gt;().singleInstance()
+
+4. Autowire dependencies BY CONVENTION (recommended):
+   builder.registerType(UserService).asInterface&lt;UserService&gt;().autoWire()
+   // Parameters automatically match registered interfaces by naming convention
+
+5. Build and resolve:
+   const app = builder.build()
+   const service = app.resolveInterface&lt;UserService&gt;()
+
+Lifetimes:
+- .singleInstance() - singleton
+- .instancePerDependency() - transient (DEFAULT)
+- .instancePerRequest() - per resolution tree
+
+AutoWire (Convention Over Configuration):
+- Automatic: .autoWire() - matches parameters to interfaces by naming convention
+- Explicit: .autoWire({ map: { logger: (c) =&gt; c.resolveInterface&lt;ILogger&gt;() } })
+- Use automatic for ALL services, explicit only for primitives/values
+
+Transformer Setup (tsconfig.json):
+{
+  "compilerOptions": {
+    "plugins": [
+      { "transform": "@novadi/core/transformer" }
+    ]
+  }
+}
+
+Then: npm install -D ts-patch && npx ts-patch install
+
+Simple Hello World example:
+```typescript
+import { Container } from '@novadi/core'
+
+interface IGreeter {
+  greet(name: string): string
+}
+
+class ConsoleGreeter implements IGreeter {
+  greet(name: string): string {
+    return `Hello, ${name}!`
+  }
+}
+
+class Application {
+  constructor(private greeter: IGreeter) {}
+
+  run() {
+    console.log(this.greeter.greet('World'))
+  }
+}
+
+// Composition Root
+const container = new Container()
+const builder = container.builder()
+
+builder.registerType(ConsoleGreeter).asInterface&lt;IGreeter&gt;().singleInstance()
+builder.registerType(Application).asInterface&lt;Application&gt;().autoWire() // Convention!
+
+const app = builder.build()
+const application = app.resolveInterface&lt;Application&gt;()
+application.run() // Outputs: Hello, World!
+```
+
+Please help me set up NovaDI following these patterns.</pre>
+      </div>
+
+      <h3>Step 2: Let AI Set It Up</h3>
+      <p>Your AI assistant will:</p>
+      <ul style="margin-left: 24px; line-height: 1.8;">
+        <li>Install <code>@novadi/core</code></li>
+        <li>Configure the TypeScript transformer</li>
+        <li>Create a basic container setup</li>
+        <li>Write clean, decorator-free code following NovaDI conventions</li>
+      </ul>
+
+      <h3>Step 3: Start Coding</h3>
+      <p>That's it! Your project is now set up with dependency injection. Start writing your services:</p>
+
+      <pre class="line-numbers"><code class="language-typescript">// Your business logic - clean and framework-free
+interface IUserRepository {
+  findById(id: string): Promise<User>
+}
+
+class UserRepository implements IUserRepository {
+  async findById(id: string): Promise<User> {
+    // Database logic
+  }
+}
+
+class UserService {
+  constructor(private userRepo: IUserRepository) {}
+
+  async getUser(id: string) {
+    return this.userRepo.findById(id)
+  }
+}
+
+// Composition Root (AI can help set this up)
+builder.registerType(UserRepository).asInterface<IUserRepository>().singleInstance()
+builder.registerType(UserService).asInterface<UserService>().autoWire() // ✨ Convention!</code></pre>
+
+      <div class="callout callout-info" style="margin: 32px 0;">
+        <strong>🤖 Pro Tip:</strong> When you need to add new services, just ask your AI:
+        "Add a new EmailService with IEmailService interface using NovaDI conventions" - it knows the patterns!
+      </div>
+    </section>
+
+    <hr style="margin: 60px 0;">
+
+    <!-- Manual Setup Section -->
+    <section id="manual-setup">
+      <h2>🛠️ Manual Setup</h2>
+      <p>Prefer to set things up yourself? Here's the step-by-step Documentation.</p>
+
+      <h3>1. Installation</h3>
+      <pre class="line-numbers"><code class="language-bash">npm install @novadi/core
+# or
+yarn add @novadi/core
+# or
+pnpm add @novadi/core</code></pre>
+
+      <h3>2. Transformer Setup</h3>
+      <p>The TypeScript transformer automatically injects type names at compile-time. Choose one method:</p>
+
+      <h4>Option A: Modern Bundlers (Recommended ⭐)</h4>
+      <p>Use <strong>unplugin</strong> for universal bundler support:</p>
+
+      <div style="margin: 24px 0;">
+        <strong>Vite:</strong>
+        <pre class="line-numbers"><code class="language-typescript">// vite.config.ts
+import { defineConfig } from 'vite'
+import { NovadiUnplugin } from '@novadi/core/unplugin'
+
+export default defineConfig({
+  plugins: [NovadiUnplugin.vite()]
+})</code></pre>
+      </div>
+
+      <div style="margin: 24px 0;">
+        <strong>webpack:</strong>
+        <pre class="line-numbers"><code class="language-javascript">// webpack.config.js
+const { NovadiUnplugin } = require('@novadi/core/unplugin')
+
+module.exports = {
+  plugins: [NovadiUnplugin.webpack()]
+}</code></pre>
+      </div>
+
+      <div style="margin: 24px 0;">
+        <strong>Rollup:</strong>
+        <pre class="line-numbers"><code class="language-javascript">// rollup.config.js
+import { NovadiUnplugin } from '@novadi/core/unplugin'
+
+export default {
+  plugins: [NovadiUnplugin.rollup()]
+}</code></pre>
+      </div>
+
+      <div style="margin: 24px 0;">
+        <strong>esbuild:</strong>
+        <pre class="line-numbers"><code class="language-javascript">// esbuild.config.js
+const { NovadiUnplugin } = require('@novadi/core/unplugin')
+
+require('esbuild').build({
+  plugins: [NovadiUnplugin.esbuild()]
+})</code></pre>
+      </div>
+
+      <h4>Option B: TypeScript Compiler (tsc)</h4>
+      <p>For direct <code>tsc</code> compilation, use <code>ts-patch</code>:</p>
+
+      <pre class="line-numbers"><code class="language-bash">npm install -D ts-patch
+npx ts-patch install</code></pre>
+
+      <p>Add to <code>tsconfig.json</code>:</p>
+      <pre class="line-numbers"><code class="language-json">{
+  "compilerOptions": {
+    "plugins": [
+      { "transform": "@novadi/core/transformer" }
+    ]
+  }
+}</code></pre>
+
+      <div class="callout callout-warning" style="margin: 24px 0;">
+        <strong>⚠️ Option C: Manual Type Names (Not Recommended)</strong><br>
+        You can provide type names manually, but this defeats the purpose of NovaDI's clean API.
+        Only use this for runtime-only environments (tsx, ts-node) with no build step.
+        <a href="https://github.com/janus007/NovaDI#option-3-manual-type-names">See docs</a>.
+      </div>
+
+      <h3>3. Basic Usage</h3>
+      <p>Create your first container:</p>
+
+      <pre class="line-numbers"><code class="language-typescript">import { Container } from '@novadi/core'
+
+// 1. Define your services (clean code, no decorators!)
+interface ILogger {
+  log(message: string): void
+}
+
+class ConsoleLogger implements ILogger {
+  log(message: string) {
+    console.log(`[LOG] ${message}`)
+  }
+}
+
+class UserService {
+  constructor(private logger: ILogger) {}
+
+  createUser(name: string) {
+    this.logger.log(`Creating user: ${name}`)
+  }
+}
+
+// 2. Configure container (Composition Root)
+const container = new Container()
+const builder = container.builder()
+
+// Register implementations
+builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
+
+// AutoWire does ALL the wiring by convention!
+builder.registerType(UserService).asInterface<UserService>().autoWire()
+
+const app = builder.build()
+
+// 3. Resolve and use
+const userService = app.resolveInterface<UserService>()
+userService.createUser('Alice') // [LOG] Creating user: Alice</code></pre>
+
+      <div class="callout callout-success" style="margin: 32px 0;">
+        <strong>✅ That's it!</strong> No manual configuration. No mapping. Just <code>.autoWire()</code> - convention over configuration.
+      </div>
+    </section>
+
+    <hr style="margin: 60px 0;">
+
+    <!-- Next Steps -->
+    <section id="next-steps">
+      <h2>🚀 Next Steps</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin: 24px 0;">
+        <div class="card">
+          <h4>📚 Complete Documentation</h4>
+          <p>Learn about lifetimes, patterns, and advanced features</p>
+          <a href="guide.html">Read the Documentation →</a>
+        </div>
+        <div class="card">
+          <h4>🏗️ Design Philosophy</h4>
+          <p>Understand why NovaDI is built the way it is</p>
+          <a href="design-philosophy.html">Design Philosophy →</a>
+        </div>
+        <div class="card">
+          <h4>💻 GitHub</h4>
+          <p>View source code, examples, and contribute</p>
+          <a href="https://github.com/janus007/NovaDI">View on GitHub →</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <p>
+        <a href="https://github.com/janus007/NovaDI">View on GitHub</a> •
+        <a href="https://www.npmjs.com/package/@novadi/core">npm</a> •
+        <a href="https://github.com/janus007/NovaDI/issues">Report Issue</a>
+      </p>
+      <p class="text-secondary">Built with ❤️ for TypeScript developers</p>
+    </div>
+  </footer>
+
+  <!-- Prism.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+
+  <script>
+    function copyToClipboard(elementId) {
+      const element = document.getElementById(elementId);
+      const text = element.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const button = event.target;
+        const originalText = button.textContent;
+        button.textContent = 'Copied!';
+        setTimeout(() => {
+          button.textContent = originalText;
+        }, 2000);
+      });
+    }
+  </script>
+
+  <!-- Docs JavaScript -->
+  <script src="js/docs.js"></script>
+</body>
+</html>

@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roadmap - NovaDI</title>
+  <meta name="description" content="Future features and improvements planned for NovaDI dependency injection framework.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto+Slab:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/docs.css">
+
+  <!-- Prism.js for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
+</head>
+<body class="has-toc">
+
+  <!-- Header -->
+  <header class="main-header">
+    <a href="index.html" class="header-logo">NovaDI</a>
+    <div class="header-links">
+      <a href="https://www.npmjs.com/package/@novadi/core" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z"></path></svg>
+        npm
+      </a>
+      <a href="https://github.com/janus007/NovaDI" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg>
+        GitHub
+      </a>
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <span class="theme-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z"></path></svg>
+        </span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Sidebar Navigation -->
+  <aside class="main-nav">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li class="nav-group">
+          <div class="nav-group-title">Documentation</div>
+          <a href="getting-started.html">Getting Started</a>
+          <a href="guide.html">Documentation</a>
+          <a href="why.html">Why is DI this important?</a>
+          <a href="design-philosophy.html">Design Philosophy</a>
+        </li>
+        <li class="nav-group">
+          <div class="nav-group-title">Resources</div>
+          <a href="roadmap.html" class="active">NovaDI Roadmap & Ideas</a>
+          <a href="demo.html">Performance Benchmarks</a>
+          <a href="examples.html">Examples</a>
+        </li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Hero Section -->
+    <div class="hero">
+      <div class="container">
+        <h1 class="hero-title">NovaDI Roadmap & Ideas</h1>
+        <p class="hero-subtitle">Future features and improvements planned for NovaDI</p>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="container" style="padding: 40px 20px 80px;">
+      <p class="text-secondary" style="margin-bottom: 32px;">
+        This document contains ideas and potential features for future development of NovaDI.
+        These are organized by focus area and represent possibilities rather than commitments.
+      </p>
+
+    <hr>
+
+    <!-- 1. Transformer Improvements -->
+    <section class="section roadmap-section">
+      <h2 id="transformer-improvements">1. Transformer Improvements</h2>
+
+      <div class="card" id="dependency-graph">
+        <h3>Dependency Graph Generation</h3>
+        <p>Generate a complete dependency graph during compilation showing all services and their dependencies. This would help developers understand the structure of their application and identify potential issues.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-red">High</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">High</span></span>
+          </div>
+        </div>
+
+        <h4>Output formats:</h4>
+        <ul>
+          <li><strong>JSON</strong>: Machine-readable format for tooling integration</li>
+          <li><strong>Mermaid</strong>: For markdown documentation</li>
+        </ul>
+
+        <h4>Benefits:</h4>
+        <ul>
+          <li>Visual overview of entire DI container</li>
+          <li>Easier debugging of complex dependency chains</li>
+          <li>Automated documentation generation</li>
+          <li>Integration with CI/CD pipelines</li>
+          <li>Dependency analysis and metrics</li>
+        </ul>
+      </div>
+
+      <div class="card" id="visual-graph">
+        <h3>Visual Graph Export & Preview</h3>
+        <p>Export and preview dependency graphs during development for immediate feedback.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-red">High</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">Medium</span></span>
+          </div>
+        </div>
+
+        <h4>Features:</h4>
+        <ul>
+          <li>Real-time graph preview in IDE or browser</li>
+          <li>Show all registered services and their relationships</li>
+          <li>Highlight unresolved dependencies in red</li>
+          <li>Interactive graph exploration (zoom, filter, search)</li>
+          <li>Export to multiple formats for documentation</li>
+        </ul>
+      </div>
+
+      <div class="card" id="compile-validation">
+        <h3>Compile-time Container Validation</h3>
+        <p>Analyze the entire container configuration during transformation to detect issues before runtime.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-teal">High</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-red">High</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">Very High</span></span>
+          </div>
+        </div>
+
+        <h4>Validation checks:</h4>
+        <ul>
+          <li><strong>Missing Registrations</strong>: Detect when code tries to resolve a service that was never registered</li>
+          <li><strong>Circular Dependencies</strong>: Identify dependency cycles with full path information</li>
+          <li><strong>Type Mismatches</strong>: Ensure resolved types match registered types</li>
+          <li><strong>Lifetime Violations</strong>: Detect when singleton depends on transient (potential memory leak)</li>
+        </ul>
+
+        <h4>Benefits:</h4>
+        <ul>
+          <li>Catch all container configuration errors at compile-time</li>
+          <li>Zero-runtime overhead for validation</li>
+          <li>Clear error messages with full dependency chain context</li>
+          <li>IDE integration showing errors inline as you code</li>
+          <li>Faster development feedback loop</li>
+        </ul>
+      </div>
+
+      <div class="card" id="circular-detection">
+        <h3>Compile-time Circular Dependency Detection</h3>
+        <p>Analyze the dependency graph during transformation to detect circular dependencies before runtime. Currently these are only caught when resolving.</p>
+
+        <div class="info-box info-box-info" style="margin: 16px 0;">
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; font-size: 13px;">
+            <div>
+              <strong>Priority:</strong> <span class="badge badge-teal">High</span>
+            </div>
+            <div>
+              <strong>Complexity:</strong> <span class="badge badge-yellow">Medium</span>
+            </div>
+            <div>
+              <strong>Business Value:</strong> <span class="badge badge-teal">High</span>
+            </div>
+          </div>
+        </div>
+
+        <h4>Benefits:</h4>
+        <ul>
+          <li>Catch errors at compile-time instead of runtime</li>
+          <li>Clear error messages pointing to the cycle with full path</li>
+          <li>Faster development feedback loop</li>
+        </ul>
+      </div>
+
+      <div class="card" id="unused-binding">
+        <h3>Unused Binding Detection</h3>
+        <p>Warn developers about services registered in the container that are never resolved anywhere in the codebase.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge">Low</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-yellow">Medium</span></span>
+          </div>
+        </div>
+
+        <h4>Detection capabilities:</h4>
+        <ul>
+          <li>Identify registered but unused services</li>
+          <li>Suggest removing dead registrations</li>
+          <li>Optimize container size</li>
+        </ul>
+      </div>
+
+      <div class="card" id="dead-code">
+        <h3>Dead Code Elimination for DI Registrations</h3>
+        <p>Integration with tree-shaking to remove unused service registrations from production builds.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-red">High</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">High</span></span>
+          </div>
+        </div>
+
+        <h4>Benefits:</h4>
+        <ul>
+          <li>Smaller bundle sizes</li>
+          <li>Faster container initialization</li>
+          <li>Cleaner production code</li>
+        </ul>
+      </div>
+
+      <div class="card" id="auto-generate">
+        <h3>Auto-generate Container Configuration</h3>
+        <p>Analyze all interfaces and classes in the project to automatically generate suggested container configuration.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge">Low</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-red">High</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-yellow">Medium</span></span>
+          </div>
+        </div>
+
+        <h4>Features:</h4>
+        <ul>
+          <li>Scan for all injectable classes</li>
+          <li>Suggest registration strategy (singleton/transient/scoped)</li>
+          <li>Generate boilerplate registration code</li>
+          <li>Interactive CLI for configuration</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr>
+
+    <!-- 2. Performance Optimization -->
+    <section class="section roadmap-section">
+      <h2 id="performance-optimization">2. Performance Optimization</h2>
+
+      <div class="card" id="caching">
+        <h3>Advanced Caching Strategies</h3>
+        <p>Implement LRU (Least Recently Used) cache for frequently resolved transient dependencies to avoid repeated instantiation.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge">Low</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-yellow">Medium</span></span>
+          </div>
+        </div>
+
+        <h4>Strategies:</h4>
+        <ul>
+          <li>LRU cache with configurable size</li>
+          <li>Time-based cache invalidation</li>
+          <li>Per-token cache configuration</li>
+        </ul>
+      </div>
+
+      <div class="card" id="lazy-init">
+        <h3>Lazy Initialization</h3>
+        <p>Defer singleton creation until first resolution instead of during container build. Especially useful for heavy services.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">High</span></span>
+          </div>
+        </div>
+
+        <h4>Benefits:</h4>
+        <ul>
+          <li>Faster application startup</li>
+          <li>Reduced memory usage for unused services</li>
+          <li>Optional eager initialization for critical services</li>
+        </ul>
+      </div>
+
+      <div class="card" id="memory-pool">
+        <h3>Memory Pooling Enhancements</h3>
+        <p>Expand the current context pooling system to other internal data structures.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge">Low</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-yellow">Medium</span></span>
+          </div>
+        </div>
+
+        <h4>Candidates for pooling:</h4>
+        <ul>
+          <li>Resolution path arrays</li>
+          <li>Dependency maps</li>
+          <li>Error context objects</li>
+        </ul>
+      </div>
+
+      <div class="card" id="benchmarks">
+        <h3>Benchmark Suite Development</h3>
+        <p>Comprehensive automated benchmarking to track performance across versions and prevent regressions.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-teal">High</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">High</span></span>
+          </div>
+        </div>
+
+        <h4>Metrics:</h4>
+        <ul>
+          <li>Resolution speed (singleton, transient, scoped)</li>
+          <li>Container build time</li>
+          <li>Memory usage</li>
+          <li>Batch resolution performance</li>
+          <li>Comparison with other DI frameworks</li>
+        </ul>
+      </div>
+
+      <div class="card" id="tree-shaking">
+        <h3>Tree-shaking Support Improvements</h3>
+        <p>Better integration with bundlers to eliminate unused code more effectively.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">High</span></span>
+          </div>
+        </div>
+
+        <h4>Improvements:</h4>
+        <ul>
+          <li>Mark all APIs with <code>/*#__PURE__*/</code> annotations</li>
+          <li>Optimize for bundler side-effect detection</li>
+          <li>Provide separate entry points for features</li>
+        </ul>
+      </div>
+
+      <div class="card" id="parallel">
+        <h3>Parallel Resolution</h3>
+        <p>Resolve independent dependencies in parallel using worker threads or async resolution.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge">Low</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-red">High</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-yellow">Medium</span></span>
+          </div>
+        </div>
+
+        <h4>Use cases:</h4>
+        <ul>
+          <li>Async factories with parallel execution</li>
+          <li>Batch resolution optimization</li>
+          <li>Microservice coordination</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr>
+
+    <!-- 3. Developer Experience -->
+    <section class="section roadmap-section">
+      <h2 id="developer-experience">3. Developer Experience</h2>
+
+      <div class="card" id="cli-tools">
+        <h3>CLI Tools</h3>
+        <p>Command-line tools for inspecting, validating, and debugging containers.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">High</span></span>
+          </div>
+        </div>
+
+        <h4>Commands:</h4>
+        <ul>
+          <li><code>novadi inspect</code> - Show all registered services</li>
+          <li><code>novadi validate</code> - Check all dependencies resolve</li>
+          <li><code>novadi graph</code> - Generate dependency graph</li>
+          <li><code>novadi analyze</code> - Performance profiling</li>
+          <li><code>novadi doctor</code> - Diagnose common issues</li>
+        </ul>
+      </div>
+
+      <div class="card" id="vscode">
+        <h3>VS Code Extension</h3>
+        <p>Editor integration for improved development experience.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-teal">High</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-red">High</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">Very High</span></span>
+          </div>
+        </div>
+
+        <h4>Features:</h4>
+        <ul>
+          <li>Go to definition: Jump from <code>resolve()</code> to registration</li>
+          <li>IntelliSense: Show available services when typing</li>
+          <li>Inline errors: Show unresolved dependencies in editor</li>
+          <li>Refactoring: Rename services safely</li>
+          <li>Dependency viewer: Sidebar showing container structure</li>
+        </ul>
+      </div>
+
+      <div class="card" id="error-messages">
+        <h3>Enhanced Error Messages</h3>
+        <p>Improve error messages with actionable suggestions and context.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-teal">High</span></span>
+            <span><strong>Complexity:</strong> <span class="badge">Low</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">High</span></span>
+          </div>
+        </div>
+
+        <h4>Improvements:</h4>
+        <ul>
+          <li>"Did you mean X?" suggestions for typos</li>
+          <li>Show dependency chain leading to error</li>
+          <li>Suggest fixes for common mistakes</li>
+          <li>Link to relevant documentation</li>
+        </ul>
+      </div>
+
+      <div class="card" id="intellisense">
+        <h3>IntelliSense Support</h3>
+        <p>Better TypeScript type inference for autowiring and resolution.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-red">High</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">High</span></span>
+          </div>
+        </div>
+
+        <h4>Goals:</h4>
+        <ul>
+          <li>Autocomplete parameter names in autowire maps</li>
+          <li>Show available interfaces when using <code>resolveInterface()</code></li>
+          <li>Type-safe token creation</li>
+          <li>Generic constraint improvements</li>
+        </ul>
+      </div>
+
+      <div class="card" id="validation-api">
+        <h3>Container Validation API</h3>
+        <p>Programmatic API to validate container configuration before runtime.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">High</span></span>
+          </div>
+        </div>
+
+        <h4>Validation checks:</h4>
+        <ul>
+          <li>All registered services can be resolved</li>
+          <li>No circular dependencies exist</li>
+          <li>All required dependencies are registered</li>
+          <li>Lifetime compatibility checks</li>
+        </ul>
+      </div>
+
+      <div class="card" id="debug-mode">
+        <h3>Debug Mode</h3>
+        <p>Special debug mode with extensive logging and introspection.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Complexity:</strong> <span class="badge">Low</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-yellow">Medium</span></span>
+          </div>
+        </div>
+
+        <h4>Features:</h4>
+        <ul>
+          <li>Log every resolution with timing</li>
+          <li>Track resolution context depth</li>
+          <li>Detect potential memory leaks</li>
+          <li>Performance bottleneck identification</li>
+        </ul>
+      </div>
+
+      <div class="card" id="testing-utils">
+        <h3>Testing Utilities</h3>
+        <p>Helper functions and utilities for testing code with dependency injection.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-teal">High</span></span>
+            <span><strong>Complexity:</strong> <span class="badge">Low</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">High</span></span>
+          </div>
+        </div>
+
+        <h4>Utilities:</h4>
+        <ul>
+          <li>Mock container builder</li>
+          <li>Spy/stub helpers for dependencies</li>
+          <li>Snapshot testing for container configuration</li>
+          <li>Integration test helpers</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr>
+
+    <!-- 4. Documentation & Examples -->
+    <section class="section roadmap-section">
+      <h2 id="documentation-examples">4. Documentation & Examples</h2>
+
+      <div class="card" id="real-world">
+        <h3>Real-world Application Examples</h3>
+        <p>Complete example applications demonstrating NovaDI in production scenarios.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-teal">High</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">Very High</span></span>
+          </div>
+        </div>
+
+        <h4>Examples:</h4>
+        <ul>
+          <li>Express.js REST API with database layer</li>
+          <li>Fastify microservice with multiple dependencies</li>
+          <li>GraphQL server with complex resolvers</li>
+          <li>CLI tool with plugin system</li>
+          <li>React SSR application with DI</li>
+          <li>WebSocket server with state management</li>
+        </ul>
+      </div>
+
+      <div class="card" id="migration">
+        <h3>Migration Guides</h3>
+        <p>Step-by-step guides for migrating from other DI frameworks.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Complexity:</strong> <span class="badge">Low</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">High</span></span>
+          </div>
+        </div>
+
+        <h4>Frameworks to cover:</h4>
+        <ul>
+          <li>InversifyJS → NovaDI</li>
+          <li>TSyringe → NovaDI</li>
+          <li>TypeDI → NovaDI</li>
+          <li>Awilix → NovaDI</li>
+          <li>NestJS DI → NovaDI</li>
+        </ul>
+      </div>
+
+      <div class="card" id="videos">
+        <h3>Video Tutorials</h3>
+        <p>Video content covering setup, usage, and advanced features.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">High</span></span>
+          </div>
+        </div>
+
+        <h4>Tutorial topics:</h4>
+        <ul>
+          <li>Getting started (5 minutes)</li>
+          <li>Transformer setup and configuration</li>
+          <li>Advanced autowiring strategies</li>
+          <li>Performance optimization techniques</li>
+          <li>Building a real application</li>
+          <li>Common pitfalls and solutions</li>
+        </ul>
+      </div>
+
+      <div class="card" id="playground">
+        <h3>Interactive Playground</h3>
+        <p>Web-based environment for experimenting with NovaDI.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge">Low</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-red">High</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-yellow">Medium</span></span>
+          </div>
+        </div>
+
+        <h4>Features:</h4>
+        <ul>
+          <li>In-browser TypeScript compilation</li>
+          <li>Live transformer preview</li>
+          <li>Dependency graph visualization</li>
+          <li>Shareable examples</li>
+          <li>Common patterns library</li>
+        </ul>
+      </div>
+
+      <div class="card" id="best-practices">
+        <h3>Best Practices Documentation</h3>
+        <p>Comprehensive Documentation on how to use NovaDI effectively.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-teal">High</span></span>
+            <span><strong>Complexity:</strong> <span class="badge">Low</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">Very High</span></span>
+          </div>
+        </div>
+
+        <h4>Topics:</h4>
+        <ul>
+          <li>Composition root pattern</li>
+          <li>When to use singleton vs transient vs scoped</li>
+          <li>Organizing large containers</li>
+          <li>Testing strategies</li>
+          <li>Performance optimization</li>
+          <li>Module organization</li>
+        </ul>
+      </div>
+
+      <div class="card" id="anti-patterns">
+        <h3>Anti-patterns Documentation</h3>
+        <p>Document common mistakes and anti-patterns to avoid.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Complexity:</strong> <span class="badge">Low</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">High</span></span>
+          </div>
+        </div>
+
+        <h4>Anti-patterns:</h4>
+        <ul>
+          <li>Service Locator anti-pattern</li>
+          <li>Decorators everywhere (why NovaDI avoids this)</li>
+          <li>Circular dependencies</li>
+          <li>Fat containers</li>
+          <li>Runtime registration</li>
+          <li>God objects</li>
+        </ul>
+      </div>
+
+      <div class="card" id="api-reference">
+        <h3>API Reference Documentation</h3>
+        <p>Complete API documentation with examples for every method.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Complexity:</strong> <span class="badge">Low</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">High</span></span>
+          </div>
+        </div>
+
+        <h4>Format:</h4>
+        <ul>
+          <li>TypeDoc generated docs</li>
+          <li>Interactive examples</li>
+          <li>Parameter descriptions</li>
+          <li>Return value documentation</li>
+          <li>Error conditions</li>
+        </ul>
+      </div>
+
+      <div class="card" id="architecture">
+        <h3>Architecture Deep Dive</h3>
+        <p>Technical documentation explaining internal implementation details.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge">Low</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-yellow">Medium</span></span>
+          </div>
+        </div>
+
+        <h4>Topics:</h4>
+        <ul>
+          <li>Resolution algorithm</li>
+          <li>Caching strategies</li>
+          <li>Transformer AST manipulation</li>
+          <li>Type system integration</li>
+          <li>Performance optimizations</li>
+          <li>Design decisions and tradeoffs</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr>
+
+    <!-- 5. Additional Ideas -->
+    <section class="section roadmap-section">
+      <h2 id="additional-ideas">5. Additional Ideas</h2>
+
+      <div class="card" id="plugins">
+        <h3>Plugin System</h3>
+        <p>Extensible plugin system for custom behaviors.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge">Low</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-red">High</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-yellow">Medium</span></span>
+          </div>
+        </div>
+
+        <h4>Plugin types:</h4>
+        <ul>
+          <li>Resolution middleware</li>
+          <li>Lifecycle hooks</li>
+          <li>Custom scopes</li>
+          <li>Logging/monitoring integrations</li>
+        </ul>
+      </div>
+
+      <div class="card" id="scopes">
+        <h3>Scope Improvements</h3>
+        <p>Enhanced scoping system for more complex scenarios.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-yellow">Medium</span></span>
+          </div>
+        </div>
+
+        <h4>Improvements:</h4>
+        <ul>
+          <li>Request scope for HTTP frameworks</li>
+          <li>Tenant scope for multi-tenant applications</li>
+          <li>Custom scope creation API</li>
+          <li>Nested scope support</li>
+        </ul>
+      </div>
+
+      <div class="card" id="async">
+        <h3>Async Resolution</h3>
+        <p>Full support for async factories and resolution.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-red">High</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">High</span></span>
+          </div>
+        </div>
+
+        <h4>Features:</h4>
+        <ul>
+          <li><code>resolveAsync()</code> method</li>
+          <li>Async factory support</li>
+          <li>Parallel async resolution</li>
+          <li>Promise pooling</li>
+        </ul>
+      </div>
+
+      <div class="card" id="conditional">
+        <h3>Conditional Registration</h3>
+        <p>Register services based on runtime conditions.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge">Low</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-yellow">Medium</span></span>
+          </div>
+        </div>
+
+        <h4>Use cases:</h4>
+        <ul>
+          <li>Feature flags</li>
+          <li>Environment-based registration</li>
+          <li>A/B testing scenarios</li>
+          <li>Dynamic module loading</li>
+        </ul>
+      </div>
+
+      <div class="card" id="health">
+        <h3>Health Checks</h3>
+        <p>Built-in health check system for registered services.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge">Low</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-yellow">Medium</span></span>
+          </div>
+        </div>
+
+        <h4>Features:</h4>
+        <ul>
+          <li>Service health status</li>
+          <li>Dependency health propagation</li>
+          <li>Integration with monitoring systems</li>
+          <li>Graceful degradation</li>
+        </ul>
+      </div>
+
+      <div class="card" id="config">
+        <h3>Configuration Management</h3>
+        <p>Integrated configuration management for services.</p>
+
+        <div class="feature-metrics">
+          <div class="feature-metrics-grid">
+            <span><strong>Priority:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Complexity:</strong> <span class="badge badge-yellow">Medium</span></span>
+            <span><strong>Value:</strong> <span class="badge badge-teal">High</span></span>
+          </div>
+        </div>
+
+        <h4>Features:</h4>
+        <ul>
+          <li>Type-safe configuration injection</li>
+          <li>Environment variable binding</li>
+          <li>Configuration validation</li>
+          <li>Hot reload support</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr>
+
+    <!-- Contributing Ideas -->
+    <section class="section roadmap-section">
+      <div class="info-box info-box-tip">
+        <h3 class="info-box-title">Contributing Ideas</h3>
+        <p>Have an idea not listed here? Consider:</p>
+        <ol style="margin-left: 20px; margin-top: 12px;">
+          <li>Opening an issue on GitHub to discuss</li>
+          <li>Creating a proof-of-concept</li>
+          <li>Joining discussions in existing issues</li>
+          <li>Contributing to documentation</li>
+        </ol>
+        <p style="margin-bottom: 0; margin-top: 12px;">
+          All ideas are welcome, whether they focus on performance, developer experience, features, or documentation!
+        </p>
+      </div>
+    </section>
+
+    </div>
+
+  </main>
+
+  <!-- Table of Contents -->
+  <aside class="main-toc">
+    <h3 class="toc-title">On This Page</h3>
+    <ul class="toc-links">
+      <li><a href="#transformer-improvements" class="toc-section-title">Transformer Improvements</a></li>
+      <li><a href="#dependency-graph">Dependency Graph Generation</a></li>
+      <li><a href="#visual-graph">Visual Graph Export & Preview</a></li>
+      <li><a href="#compile-validation">Compile-time Container Validation</a></li>
+      <li><a href="#circular-detection">Circular Dependency Detection</a></li>
+      <li><a href="#unused-binding">Unused Binding Detection</a></li>
+      <li><a href="#dead-code">Dead Code Elimination</a></li>
+      <li><a href="#auto-generate">Auto-generate Configuration</a></li>
+
+      <li><a href="#performance-optimization" class="toc-section-title">Performance Optimization</a></li>
+      <li><a href="#caching">Advanced Caching Strategies</a></li>
+      <li><a href="#lazy-init">Lazy Initialization</a></li>
+      <li><a href="#memory-pool">Memory Pooling Enhancements</a></li>
+      <li><a href="#benchmarks">Benchmark Suite Development</a></li>
+      <li><a href="#tree-shaking">Tree-shaking Improvements</a></li>
+      <li><a href="#parallel">Parallel Resolution</a></li>
+
+      <li><a href="#developer-experience" class="toc-section-title">Developer Experience</a></li>
+      <li><a href="#cli-tools">CLI Tools</a></li>
+      <li><a href="#vscode">VS Code Extension</a></li>
+      <li><a href="#error-messages">Enhanced Error Messages</a></li>
+      <li><a href="#intellisense">IntelliSense Support</a></li>
+      <li><a href="#validation-api">Container Validation API</a></li>
+      <li><a href="#debug-mode">Debug Mode</a></li>
+      <li><a href="#testing-utils">Testing Utilities</a></li>
+
+      <li><a href="#documentation-examples" class="toc-section-title">Documentation & Examples</a></li>
+      <li><a href="#real-world">Real-world Examples</a></li>
+      <li><a href="#migration">Migration Guides</a></li>
+      <li><a href="#videos">Video Tutorials</a></li>
+      <li><a href="#playground">Interactive Playground</a></li>
+      <li><a href="#best-practices">Best Practices</a></li>
+      <li><a href="#anti-patterns">Anti-patterns Documentation</a></li>
+      <li><a href="#api-reference">API Reference</a></li>
+      <li><a href="#architecture">Architecture Deep Dive</a></li>
+
+      <li><a href="#additional-ideas" class="toc-section-title">Additional Ideas</a></li>
+      <li><a href="#plugins">Plugin System</a></li>
+      <li><a href="#scopes">Scope Improvements</a></li>
+      <li><a href="#async">Async Resolution</a></li>
+      <li><a href="#conditional">Conditional Registration</a></li>
+      <li><a href="#health">Health Checks</a></li>
+      <li><a href="#config">Configuration Management</a></li>
+    </ul>
+  </aside>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <p>
+        <a href="https://github.com/janus007/NovaDI">View on GitHub</a> •
+        <a href="https://www.npmjs.com/package/@novadi/core">npm</a> •
+        <a href="https://github.com/janus007/NovaDI/issues">Report Issue</a>
+      </p>
+      <p class="text-secondary">Built with ❤️ for TypeScript developers</p>
+    </div>
+  </footer>
+
+  <!-- Prism.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+
+  <!-- Docs JavaScript -->
+  <script src="js/docs.js"></script>
+</body>
+</html>

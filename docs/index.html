@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NovaDI - Decorator-free Dependency Injection for TypeScript</title>
+  <meta name="description" content="Modern, decorator-free dependency injection container for TypeScript. Inspired by Autofac, built for performance.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto+Slab:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/docs.css">
+
+  <!-- Prism.js for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="main-header">
+    <a href="index.html" class="header-logo">NovaDI</a>
+    <div class="header-links">
+      <a href="https://www.npmjs.com/package/@novadi/core" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z"></path></svg>
+        npm
+      </a>
+      <a href="https://github.com/janus007/NovaDI" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg>
+        GitHub
+      </a>
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <span class="theme-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z"></path></svg>
+        </span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Sidebar Navigation -->
+  <aside class="main-nav">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li class="nav-group">
+          <div class="nav-group-title">Documentation</div>
+          <a href="getting-started.html">Getting Started</a>
+          <a href="guide.html">Documentation</a>
+          <a href="why.html">Why is DI this important?</a>
+        </li>
+        <li class="nav-group">
+          <div class="nav-group-title">Resources</div>
+          <a href="roadmap.html">NovaDI Roadmap & Ideas</a>
+          <a href="demo.html">Performance Benchmarks</a>
+          <a href="examples.html">Examples</a>
+        </li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Hero Section -->
+  <div class="hero">
+    <div class="container">
+      <h1 class="hero-title">NovaDI</h1>
+      <p class="hero-subtitle">Decorator-free Dependency Injection for TypeScript</p>
+      <p class="text-secondary" style="max-width: 600px; margin: 0 auto 32px;">
+        Inspired by Autofac, built for modern TypeScript projects. Fast, type-safe, and framework-agnostic.
+      </p>
+      
+      <div style="margin-top: 24px;">
+        <span class="tech-badge">TypeScript 5+</span>
+        <span class="tech-badge">Zero Decorators</span>
+        <span class="tech-badge">Browser-First</span>
+        <span class="tech-badge">Type-Safe</span>
+        <span class="tech-badge">3.93KB gzipped</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Why NovaDI Stands Out -->
+  <div class="container" style="padding-top: 48px; padding-bottom: 0;">
+    <div class="info-box">
+      <div class="grid grid-3">
+        <div>
+          <h3>True Separation of Concerns</h3>
+          <p>
+            <strong>Zero decorators</strong> in your domain code. No <code>@Injectable()</code> pollution.
+            All DI configuration in ONE place at the composition root - just like Autofac in .NET.
+          </p>
+        </div>
+        <div>
+          <h3>Industry-Leading Speed</h3>
+          <p>
+            <strong>Fastest singleton resolution</strong> (0.03ms) and <strong>fastest complex graph</strong> (0.03ms) among all tested frameworks.
+            No reflection overhead, just pure TypeScript performance.
+          </p>
+        </div>
+        <div>
+          <h3>Modern & Universal</h3>
+          <p>
+            <strong>Only 3.93KB gzipped.</strong> Works everywhere: Browser, Node.js, Deno, Edge Workers.
+            Built for TypeScript 5+ with full type safety and zero runtime dependencies.
+            Tested with 5 major bundlers (Vite, Webpack, Rollup, esbuild, Parcel) using unplugin for seamless integration.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Start -->
+  <div class="container" style="padding-top: 64px; padding-bottom: 64px;">
+
+    <section class="section">
+      <h2 class="text-center">Quick Start (30 seconds)</h2>
+      <p class="text-center text-secondary">Get up and running with NovaDI in less than a minute</p>
+
+      <div class="grid grid-2" style="margin-top: 32px;">
+        <div>
+          <h3>1. Install</h3>
+          <pre class="line-numbers"><code class="language-bash">npm install @novadi/core</code></pre>
+        </div>
+
+        <div>
+          <h3>2. Use</h3>
+          <pre class="line-numbers"><code class="language-typescript">import { Container } from '@novadi/core'
+
+const container = new Container()
+  .builder()
+  .registerType(ConsoleLogger)
+    .asInterface&lt;ILogger&gt;()
+    .singleInstance()
+  .build()
+
+const logger = container.resolveInterface&lt;ILogger&gt;()
+logger.log('Hello NovaDI!')</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why NovaDI -->
+    <section class="section">
+      <h2 class="text-center">Why NovaDI?</h2>
+      <p class="text-center text-secondary" style="max-width: 700px; margin: 0 auto 48px;">
+        Most DI frameworks require decorators everywhere in your domain code. NovaDI takes a different approach.
+      </p>
+
+      <div class="grid grid-2" style="margin-bottom: 48px;">
+        <div class="card" style="border-left: 3px solid var(--accent-red);">
+          <h3 style="color: var(--accent-red); margin-top: 0;">❌ Other Frameworks</h3>
+          <pre class="line-numbers" style="margin: 0;"><code class="language-typescript">// Decorators pollute your domain code
+@Injectable()
+class UserService {
+  constructor(
+    @Inject('Logger') private logger: ILogger,
+    @Inject('Database') private db: IDatabase
+  ) {}
+}</code></pre>
+          <ul style="margin-top: 16px; color: var(--text-secondary); font-size: 14px;">
+            <li>Tight coupling to framework</li>
+            <li>Violates separation of concerns</li>
+            <li>Hard to test in isolation</li>
+            <li>Reflection overhead</li>
+          </ul>
+        </div>
+
+        <div class="card" style="border-left: 3px solid var(--accent-teal);">
+          <h3 style="color: var(--accent-teal); margin-top: 0;">✅ NovaDI Approach</h3>
+          <pre class="line-numbers" style="margin: 0;"><code class="language-typescript">// Clean domain code
+class UserService {
+  constructor(
+    private logger: ILogger,
+    private db: IDatabase
+  ) {}
+}
+
+// DI config in ONE place (composition root)
+const container = new Container()
+  .builder()
+  .registerType(Logger).asInterface&lt;ILogger&gt;()
+  .registerType(Database).asInterface&lt;IDatabase&gt;()
+  .registerType(UserService).autoWire()
+  .build()</code></pre>
+          <ul style="margin-top: 16px; color: var(--text-secondary); font-size: 14px;">
+            <li>Framework-agnostic domain code</li>
+            <li>True separation of concerns</li>
+            <li>Easy to test</li>
+            <li>Zero runtime reflection</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-box info-box-tip">
+        <h5 class="info-box-title">💡 The Composition Root Pattern</h5>
+        <p>NovaDI follows the <strong>Composition Root</strong> pattern: all DI configuration happens in ONE place at your application's entry point. Your domain code stays clean and framework-agnostic.</p>
+       
+      </div>
+    </section>
+
+    <!-- Key Features -->
+    <section class="section">
+      <h2 class="text-center">Key Features</h2>
+      <p class="text-center text-secondary" style="margin-bottom: 48px;">Everything you need for modern dependency injection</p>
+
+      <div class="grid grid-3">
+        <div class="feature-card">
+          <div class="feature-card-icon">✨</div>
+          <h3>Zero Decorators</h3>
+          <p>Keep your domain code clean and framework-agnostic. No <code>@Injectable()</code>, no <code>@Inject()</code>.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-icon">⚡</div>
+          <h3>Industry-Leading Performance</h3>
+          <p>Fastest singleton resolution (0.03ms) and complex graphs (0.03ms). Wins on speed with decorator-free design.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-icon">🎯</div>
+          <h3>Type-Safe</h3>
+          <p>Full TypeScript support without reflect-metadata. Leverages the type system for safety.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-icon">🏗️</div>
+          <h3>Autofac-Inspired Builder</h3>
+          <p>Fluent, readable API inspired by the excellent Autofac (.NET) container.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-icon">🔧</div>
+          <h3>Autowiring</h3>
+          <p>Automatic dependency resolution with paramName, map, or class-based strategies.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-icon">📦</div>
+          <h3>Lightweight</h3>
+          <p>3.93KB gzipped. Zero runtime dependencies. Tree-shakeable for optimal bundle size.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-icon">🌐</div>
+          <h3>Universal</h3>
+          <p>Works everywhere: Node.js, Browser, Edge Workers, Deno. No Node-specific APIs.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-icon">🔑</div>
+          <h3>Keyed Services</h3>
+          <p>Register multiple implementations of the same interface with keys.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-icon">👶</div>
+          <h3>Child Containers</h3>
+          <p>Scoped isolation for per-request patterns and hierarchical DI.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Performance -->
+    <section class="section">
+      <h2 class="text-center">Performance</h2>
+      <p class="text-center text-secondary" style="margin-bottom: 48px;">Benchmarked against popular DI frameworks</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Framework</th>
+            <th>Decorator-Free</th>
+            <th>Singleton (ms) ↓</th>
+            <th>Transient (ms) ↓</th>
+            <th>Build Time (ms) ↓</th>
+            <th>Complex Graph (ms) ↓</th>
+            <th>Bundle Size (KB) ↓</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="table-row-highlight">
+            <td><strong>NovaDI 🏆</strong></td>
+            <td><span class="badge badge-teal">✅ Yes</span></td>
+            <td><span class="badge badge-teal">0.03 🥇</span></td>
+            <td>0.09</td>
+            <td>0.11</td>
+            <td><span class="badge badge-teal">0.03 🥇</span></td>
+            <td>3.9</td>
+          </tr>
+          <tr>
+            <td>Brandi</td>
+            <td><span class="badge badge-teal">✅ Yes</span></td>
+            <td>0.11</td>
+            <td>0.22</td>
+            <td>0.12</td>
+            <td>0.07</td>
+            <td><span class="badge badge-teal">2.2 🥇</span></td>
+          </tr>
+          <tr>
+            <td>InversifyJS</td>
+            <td><span class="badge badge-red">❌ No</span></td>
+            <td>0.14</td>
+            <td>0.31</td>
+            <td>0.29</td>
+            <td>0.12</td>
+            <td>16.8</td>
+          </tr>
+          <tr>
+            <td>TSyringe</td>
+            <td><span class="badge badge-red">❌ No</span></td>
+            <td>0.19</td>
+            <td>0.28</td>
+            <td><span class="badge badge-teal">0.02 🥇</span></td>
+            <td>8.45</td>
+            <td>7.4</td>
+          </tr>
+          <tr>
+            <td>TypeDI</td>
+            <td><span class="badge badge-red">❌ No</span></td>
+            <td><span class="badge badge-teal">0.03 🥇</span></td>
+            <td><span class="badge badge-teal">0.03 🥇</span></td>
+            <td>3.41</td>
+            <td>0.21</td>
+            <td>6.4</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="info-box info-box-info" style="margin-top: 24px;">
+        <h5 class="info-box-title">📊 Benchmark Details</h5>
+        <p style="margin-bottom: 0;">
+          Benchmarks run on AMD Ryzen 7 PRO 6850H with 32GB RAM, measuring average resolution time over 100 runs.<br>
+          <strong>Simple transients:</strong> classes with no dependencies.
+          <strong>Complex graph:</strong> deep dependency tree with 5+ levels.
+        </p>
+      </div>
+
+      <div class="info-box" style="margin-top: 24px;">
+        <h5 class="info-box-title">💡 About "Complex Graph"</h5>
+        <p>
+          The "Complex Graph" benchmark isn't actually complex - it's just how real enterprise applications are structured.
+          This isn't a contrived "hello world" demo meant to impress with artificial depth.
+        </p>
+        <p style="margin-bottom: 0;">
+          A typical application service (like UserService) needs a repository, which needs an HTTP client, which needs configuration and logging.
+          That's 3-4 dependency levels - exactly what you'd build in any production app. The benchmark measures how fast the container
+          resolves this realistic object graph, not some artificial "look how deep we can go" scenario.
+        </p>
+      </div>
+    </section>
+
+    <!-- Example -->
+    <section class="section">
+      <h2 class="text-center">Real-World Example</h2>
+      <p class="text-center text-secondary" style="margin-bottom: 32px;">Complete application setup with multiple services</p>
+
+      <div class="card">
+        <h3>1. Define Interfaces (Domain Layer)</h3>
+        <pre class="line-numbers"><code class="language-typescript">// interfaces.ts - Clean, no DI knowledge
+interface ILogger {
+  log(message: string): void
+  error(message: string): void
+}
+
+interface IDatabase {
+  query(sql: string): Promise&lt;any&gt;
+}
+
+interface IUserService {
+  getUser(id: string): Promise&lt;User&gt;
+  createUser(data: CreateUserDto): Promise&lt;User&gt;
+}</code></pre>
+
+        <h3 style="margin-top: 32px;">2. Implement Services</h3>
+        <pre class="line-numbers"><code class="language-typescript">// implementations.ts
+class ConsoleLogger implements ILogger {
+  log(message: string) {
+    console.log(`[LOG] ${message}`)
+  }
+  error(message: string) {
+    console.error(`[ERROR] ${message}`)
+  }
+}
+
+class PostgresDatabase implements IDatabase {
+  async query(sql: string) {
+    // ... database logic
+  }
+}
+
+class UserService implements IUserService {
+  constructor(
+    private logger: ILogger,
+    private db: IDatabase
+  ) {}
+
+  async getUser(id: string) {
+    this.logger.log(`Fetching user ${id}`)
+    return this.db.query(`SELECT * FROM users WHERE id = $1`, [id])
+  }
+
+  async createUser(data: CreateUserDto) {
+    this.logger.log(`Creating user ${data.email}`)
+    return this.db.query(`INSERT INTO users ...`, data)
+  }
+}</code></pre>
+
+        <h3 style="margin-top: 32px;">3. Configure DI (Infrastructure Layer)</h3>
+        <pre class="line-numbers"><code class="language-typescript">// composition-root.ts - ALL DI config in ONE place
+const container = new Container()
+  .builder()
+
+  // Register infrastructure services
+  .registerType(ConsoleLogger)
+    .asInterface&lt;ILogger&gt;()
+    .singleInstance()
+
+  .registerType(PostgresDatabase)
+    .asInterface&lt;IDatabase&gt;()
+    .singleInstance()
+
+  // Register domain services with autowiring
+  .registerType(UserService)
+    .asInterface&lt;IUserService&gt;()
+    .autoWire({
+      map: {
+        logger: (c) => c.resolveInterface&lt;ILogger&gt;(),
+        db: (c) => c.resolveInterface&lt;IDatabase&gt;()
+      }
+    })
+    .singleInstance()
+
+  .build()</code></pre>
+
+        <h3 style="margin-top: 32px;">4. Use in Application</h3>
+        <pre class="line-numbers"><code class="language-typescript">// app.ts
+const userService = container.resolveInterface&lt;IUserService&gt;()
+
+// All dependencies automatically injected!
+const user = await userService.getUser('123')
+console.log(user)</code></pre>
+      </div>
+    </section>
+
+    <!-- Getting Started CTA -->
+    <section class="section">
+      <div class="card" style="text-align: center; padding: 48px 32px; background: linear-gradient(135deg, var(--surface) 0%, var(--bg-secondary) 100%);">
+        <h2 style="margin-top: 0;">Ready to Get Started?</h2>
+        <p class="text-secondary" style="margin-bottom: 32px; font-size: 18px;">
+          Build better TypeScript applications with true dependency injection
+        </p>
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+          <a href="getting-started.html" class="btn btn-primary btn-lg">Read Getting Started Documentation</a>
+          <a href="guide.html" class="btn btn-secondary btn-lg">Explore Complete Documentation</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Links Grid -->
+    <section class="section">
+      <h2 class="text-center">Documentation</h2>
+      <div class="grid grid-2" style="margin-top: 32px;">
+        <div class="card">
+          <h3>📘 Getting Started</h3>
+          <p>Learn the basics: installation, first container, core concepts, and common patterns.</p>
+          <a href="getting-started.html">Read Documentation →</a>
+        </div>
+
+        <div class="card">
+          <h3>📗 Complete Documentation</h3>
+          <p>All features from easy to advanced: autowiring, keyed services, child containers, performance.</p>
+          <a href="guide.html">Explore features →</a>
+        </div>
+
+        <div class="card">
+          <h3>📙 DI Theory & Philosophy</h3>
+          <p>Why dependency injection matters and why decorators are an anti-pattern.</p>
+          <a href="why.html">Learn theory →</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <p>
+        <a href="https://github.com/janus007/NovaDI">View on GitHub</a> •
+        <a href="https://www.npmjs.com/package/@novadi/core">npm</a> •
+        <a href="https://github.com/janus007/NovaDI/issues">Report Issue</a>
+      </p>
+      <p class="text-secondary">Built with ❤️ for TypeScript developers</p>
+    </div>
+  </footer>
+
+  <!-- Prism.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+
+  <!-- Docs JavaScript -->
+  <script src="js/docs.js"></script>
+</body>
+</html>

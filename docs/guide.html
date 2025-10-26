@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complete Documentation - NovaDI</title>
+  <meta name="description"
+    content="Complete Documentation to NovaDI: patterns, lifetimes, testing, and real-world examples.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto+Slab:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="css/docs.css">
+
+  <!-- Prism.js for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css"
+    rel="stylesheet" />
+
+  <style>
+    .sidebar {
+      position: sticky;
+      top: 80px;
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+      padding-right: 20px;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 6px 12px;
+      color: #666;
+      text-decoration: none;
+      transition: all 0.2s;
+      border-left: 2px solid transparent;
+    }
+
+    .sidebar a:hover {
+      color: #0066cc;
+      border-left-color: #0066cc;
+    }
+
+    .sidebar a.active {
+      color: #0066cc;
+      border-left-color: #0066cc;
+      font-weight: 500;
+    }
+
+    @media (max-width: 968px) {
+      .sidebar {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header class="main-header">
+    <a href="index.html" class="header-logo">NovaDI</a>
+    <div class="header-links">
+      <a href="https://www.npmjs.com/package/@novadi/core" target="_blank">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+          <path
+            d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z">
+          </path>
+        </svg>
+        npm
+      </a>
+      <a href="https://github.com/janus007/NovaDI" target="_blank">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+          <path
+            d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z">
+          </path>
+        </svg>
+        GitHub
+      </a>
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <span class="theme-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z">
+            </path>
+          </svg>
+        </span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Sidebar Navigation -->
+  <aside class="main-nav">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li class="nav-group">
+          <div class="nav-group-title">Documentation</div>
+          <a href="getting-started.html">Getting Started</a>
+          <a href="guide.html" class="active">Documentation</a>
+          <ul class="nav-sub-links">
+            <li><a href="#core-concepts">Core Concepts</a></li>
+            <li><a href="#autowire">AutoWire Convention</a></li>
+            <li><a href="#lifetimes">Lifetimes</a></li>
+            <li><a href="#real-world">Real-World Example</a></li>
+            <li><a href="#transformer">Transformer Magic</a></li>
+            <li><a href="#testing">Testing Strategies</a></li>
+            <li><a href="#patterns">Common Patterns</a></li>
+            <li><a href="#troubleshooting">Troubleshooting</a></li>
+          </ul>
+          <a href="why.html">Why is DI this important?</a>
+          <a href="design-philosophy.html">Design Philosophy</a>
+        </li>
+        <li class="nav-group">
+          <div class="nav-group-title">Resources</div>
+          <a href="roadmap.html">NovaDI Roadmap & Ideas</a>
+          <a href="demo.html">Performance Benchmarks</a>
+          <a href="examples.html">Examples</a>
+        </li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Hero Section -->
+    <div class="hero">
+      <div class="container">
+        <h1 class="hero-title">Documentation</h1>
+        <p class="hero-subtitle">Decorator-free Dependency Injection for TypeScript</p>
+        <div style="margin-top: 24px;">
+          <span class="tech-badge">TypeScript 5+</span>
+          <span class="tech-badge">Zero Decorators</span>
+          <span class="tech-badge">Browser-First</span>
+          <span class="tech-badge">Type-Safe</span>
+          <span class="tech-badge">3.9KB gzipped</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="container" style="padding: 40px 20px 80px;">
+
+      <hr style="margin: 40px 0;">
+
+      <!-- Core Concepts -->
+      <section id="core-concepts">
+        <h2>Core Concepts</h2>
+        <p>
+          NovaDI is built around three simple concepts: <strong>Container</strong>, <strong>Builder</strong>, and
+          <strong>Convention</strong>.
+        </p>
+        <p>Inspired by Autofac, built for modern TypeScript projects. Fast, type-safe, and framework-agnostic.</p>
+        <h3>Container & Builder</h3>
+        <p>The <code>Container</code> stores your service registrations. The <code>Builder</code> configures them:</p>
+
+        <pre class="line-numbers"><code class="language-typescript">import { Container } from '@novadi/core'
+
+// Step 1: Create container
+const container = new Container()
+const builder = container.builder()
+
+// Step 2: Register services
+builder.registerType(MyService).asInterface<IMyService>().singleInstance()
+
+// Step 3: Build and resolve
+const app = builder.build()
+const service = app.resolveInterface<IMyService>()</code></pre>
+
+        <div class="callout callout-info" style="margin: 24px 0;">
+          <strong>💡 Composition Root Pattern</strong><br>
+          All DI configuration should live in ONE place - your application's entry point.
+          This is called the "Composition Root" and it's a core principle of clean architecture.
+        </div>
+
+        <h3>Registration API</h3>
+        <p>Register services with a fluent API:</p>
+
+        <pre class="line-numbers"><code class="language-typescript">// Register implementation to interface
+builder.registerType(ConsoleLogger).asInterface<ILogger>()
+
+// Register with lifetime
+builder.registerType(Database).asInterface<IDatabase>().singleInstance()
+
+// Register with autowiring
+builder.registerType(UserService).asInterface<UserService>().autoWire()
+
+// Chain everything together
+builder
+  .registerType(PostgresDB)
+  .asInterface<IDatabase>()
+  .singleInstance()
+  .autoWire()</code></pre>
+      </section>
+
+      <hr style="margin: 60px 0;">
+
+      <!-- AutoWire -->
+      <section id="autowire">
+        <h2>AutoWire - Convention Over Configuration</h2>
+        <p>
+          <strong>Autowiring by convention</strong> is THE way to wire dependencies in NovaDI.
+          No manual configuration, no boilerplate - it just works.
+        </p>
+
+        <h3>The Standard Way: Type Injection by Convention</h3>
+        <pre class="line-numbers"><code class="language-typescript">class UserService {
+  constructor(
+    private logger: ILogger,      // Automatically resolves ILogger
+    private database: IDatabase   // Automatically resolves IDatabase
+  ) {}
+}
+
+// This is all you need - autowiring by convention!
+builder.registerType(UserService).asInterface<UserService>().autoWire()</code></pre>
+
+        <p><strong>How it works:</strong></p>
+        <ul style="margin-left: 24px; line-height: 1.8;">
+          <li>Extracts parameter names from constructor (<code>logger</code>, <code>database</code>)</li>
+          <li>Tries multiple naming conventions: <code>ILogger</code>, <code>Logger</code>, <code>logger</code></li>
+          <li>Automatically resolves the matching registered interfaces</li>
+          <li><strong>Zero configuration - pure convention!</strong></li>
+        </ul>
+
+        <div class="callout callout-success" style="margin: 24px 0;">
+          <strong>✅ Best Practice:</strong> Use <code>.autoWire()</code> without arguments for ALL your services.
+          This is how NovaDI is meant to be used.
+        </div>
+
+        <h3>Explicit Mapping (Edge Cases Only)</h3>
+        <p>Only use explicit mapping for rare cases where autowiring can't help:</p>
+
+        <pre class="line-numbers"><code class="language-typescript">builder
+  .registerType(SmartLight)
+  .asInterface<IDevice>()
+  .autoWire({
+    map: {
+      id: () => 'light-123',              // Primitive value injection
+      name: () => 'Living Room Light',    // String injection
+      logger: (c) => c.resolveInterface<ILogger>()  // Custom resolution
+    }
+  })</code></pre>
+
+        <p><strong>Only use explicit mapping when:</strong></p>
+        <ul style="margin-left: 24px; line-height: 1.8;">
+          <li>Injecting primitives, strings, or configuration values</li>
+          <li>You need custom resolution logic (rare)</li>
+          <li>You're NOT using the transformer AND code is minified</li>
+        </ul>
+
+        <div class="callout callout-warning" style="margin: 24px 0;">
+          <strong>⚠️ For regular service dependencies, ALWAYS use <code>.autoWire()</code> without arguments!</strong>
+        </div>
+      </section>
+
+      <hr style="margin: 60px 0;">
+
+      <!-- Lifetimes -->
+      <section id="lifetimes">
+        <h2>Lifetimes</h2>
+        <p>
+          Lifetimes control when and how instances are created. <strong>Default is transient</strong> (new instance
+          every time).
+        </p>
+
+        <h3>Singleton - One Instance Forever</h3>
+        <pre
+          class="line-numbers"><code class="language-typescript">builder.registerType(Database).asInterface<IDatabase>().singleInstance()</code></pre>
+        <p><strong>Use for:</strong> Loggers, database connections, configuration, caches, stateless services</p>
+        <ul style="margin-left: 24px; line-height: 1.8;">
+          <li>✅ One instance created on first resolution</li>
+          <li>✅ Reused for entire application lifetime</li>
+          <li>✅ Thread-safe caching</li>
+          <li>⚡ Ultra-fast (cached lookup)</li>
+        </ul>
+
+        <h3>Transient - New Instance Every Time (DEFAULT)</h3>
+        <pre class="line-numbers"><code class="language-typescript">builder.registerType(RequestHandler).asInterface<IRequestHandler>()
+// No .singleInstance() = transient by default</code></pre>
+        <p><strong>Use for:</strong> Request handlers, commands, stateful operations, short-lived services</p>
+        <ul style="margin-left: 24px; line-height: 1.8;">
+          <li>✅ Fresh instance on every resolution</li>
+          <li>✅ No shared state between uses</li>
+          <li>✅ Safe for concurrent operations</li>
+        </ul>
+
+        <h3>Per-Request - One Instance Per Resolution Tree</h3>
+        <pre
+          class="line-numbers"><code class="language-typescript">builder.registerType(UnitOfWork).asInterface<IUnitOfWork>().instancePerRequest()</code></pre>
+        <p><strong>Use for:</strong> Database transactions, request-scoped state, HTTP request context</p>
+        <ul style="margin-left: 24px; line-height: 1.8;">
+          <li>✅ One instance per resolution tree</li>
+          <li>✅ Shared across dependencies in same resolve call</li>
+          <li>✅ New instance for next top-level resolution</li>
+          <li>💡 Perfect for transactions that span multiple services</li>
+        </ul>
+
+        <div class="callout callout-info" style="margin: 24px 0;">
+          <strong>💡 Choosing the Right Lifetime:</strong><br>
+          <ul style="margin: 8px 0 0 24px; line-height: 1.8;">
+            <li><strong>Singleton:</strong> Can it be safely shared? → Yes → Singleton</li>
+            <li><strong>Transient:</strong> Does it hold state? → Yes → Transient</li>
+            <li><strong>Per-Request:</strong> Needs to be shared in one operation? → Yes → Per-Request</li>
+          </ul>
+        </div>
+      </section>
+
+      <hr style="margin: 60px 0;">
+
+      <!-- Real-World Example -->
+      <section id="real-world">
+        <h2>Real-World Example</h2>
+        <p>A complete example showing typical application architecture:</p>
+
+        <pre class="line-numbers"><code class="language-typescript">import { Container } from '@novadi/core'
+
+// Services (clean code, no framework imports!)
+interface ILogger {
+  info(message: string): void
+  error(message: string, error?: Error): void
+}
+
+class ConsoleLogger implements ILogger {
+  info(message: string) {
+    console.log(`[INFO] ${message}`)
+  }
+  error(message: string, error?: Error) {
+    console.error(`[ERROR] ${message}`, error)
+  }
+}
+
+interface IDatabase {
+  query<T>(sql: string): Promise<T[]>
+}
+
+class PostgresDatabase implements IDatabase {
+  constructor(private logger: ILogger) {}
+
+  async query<T>(sql: string): Promise<T[]> {
+    this.logger.info(`Executing query: ${sql}`)
+    // Implementation...
+    return []
+  }
+}
+
+interface IEmailService {
+  sendEmail(to: string, subject: string, body: string): Promise<void>
+}
+
+class EmailService implements IEmailService {
+  constructor(private logger: ILogger) {}
+
+  async sendEmail(to: string, subject: string, body: string) {
+    this.logger.info(`Sending email to ${to}`)
+    // Implementation...
+  }
+}
+
+class UserService {
+  constructor(
+    private database: IDatabase,
+    private emailService: IEmailService,
+    private logger: ILogger
+  ) {}
+
+  async createUser(email: string, name: string) {
+    this.logger.info(`Creating user: ${name}`)
+
+    // Save to database
+    await this.database.query(`INSERT INTO users...`)
+
+    // Send welcome email
+    await this.emailService.sendEmail(
+      email,
+      'Welcome!',
+      `Hello ${name}!`
+    )
+  }
+}
+
+// ========================================
+// Composition Root - ALL config in ONE place
+// ========================================
+const container = new Container()
+const builder = container.builder()
+
+// Infrastructure (singletons - shared across app)
+builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
+builder.registerType(PostgresDatabase).asInterface<IDatabase>().singleInstance().autoWire()
+builder.registerType(EmailService).asInterface<IEmailService>().singleInstance().autoWire()
+
+// Application services (transient by default)
+builder.registerType(UserService).asInterface<UserService>().autoWire()
+
+const app = builder.build()
+
+// Use it
+const userService = app.resolveInterface<UserService>()
+await userService.createUser('alice@example.com', 'Alice')</code></pre>
+
+        <p><strong>Notice:</strong></p>
+        <ul style="margin-left: 24px; line-height: 1.8;">
+          <li>✅ All service files are pure TypeScript - no decorators, no framework imports</li>
+          <li>✅ <code>.autoWire()</code> handles ALL dependency wiring by convention</li>
+          <li>✅ No manual mapping needed - it just works</li>
+          <li>✅ Configuration lives in ONE place (Composition Root)</li>
+          <li>✅ Testing is trivial: <code>new UserService(mockDB, mockEmail, mockLogger)</code></li>
+        </ul>
+      </section>
+
+      <hr style="margin: 60px 0;">
+
+      <!-- Transformer Magic -->
+      <section id="transformer">
+        <h2>Transformer Magic</h2>
+        <p>
+          The TypeScript transformer is what makes NovaDI's clean API possible. It automatically injects
+          type names at compile-time.
+        </p>
+
+        <h3>What the Transformer Does</h3>
+        <pre class="line-numbers"><code class="language-typescript">// You write:
+builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
+const logger = app.resolveInterface<ILogger>()
+
+// Transformer generates:
+builder.registerType(ConsoleLogger).asInterface<ILogger>("ILogger").singleInstance()
+const logger = app.resolveInterface<ILogger>("ILogger")</code></pre>
+
+        <div class="callout callout-success" style="margin: 24px 0;">
+          <strong>✅ Benefits:</strong>
+          <ul style="margin: 8px 0 0 24px; line-height: 1.8;">
+            <li>Compile-time validation of all dependencies</li>
+            <li>Zero typo risk - TypeScript checks everything</li>
+            <li>Refactoring safety - rename types freely</li>
+            <li>Future: Dependency graph generation, missing registration detection</li>
+          </ul>
+        </div>
+
+        <h3>Bundler Compatibility</h3>
+        <p>The transformer works across all major bundlers via <strong>unplugin</strong>:</p>
+
+        <table style="width: 100%; border-collapse: collapse; margin: 24px 0;">
+          <thead>
+            <tr style="border-bottom: 2px solid #ddd;">
+              <th style="padding: 12px; text-align: left;">Bundler</th>
+              <th style="padding: 12px; text-align: left;">Status</th>
+              <th style="padding: 12px; text-align: left;">Method</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid #eee;">
+              <td style="padding: 12px;"><strong>Vite</strong></td>
+              <td style="padding: 12px;">✅ Works</td>
+              <td style="padding: 12px;">unplugin</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #eee;">
+              <td style="padding: 12px;"><strong>webpack</strong></td>
+              <td style="padding: 12px;">✅ Works</td>
+              <td style="padding: 12px;">unplugin</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #eee;">
+              <td style="padding: 12px;"><strong>Rollup</strong></td>
+              <td style="padding: 12px;">✅ Works</td>
+              <td style="padding: 12px;">unplugin or ts-patch</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #eee;">
+              <td style="padding: 12px;"><strong>esbuild</strong></td>
+              <td style="padding: 12px;">✅ Works</td>
+              <td style="padding: 12px;">unplugin</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #eee;">
+              <td style="padding: 12px;"><strong>tsc</strong></td>
+              <td style="padding: 12px;">✅ Works</td>
+              <td style="padding: 12px;">ts-patch</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>See <a href="getting-started.html#manual-setup">Getting Started</a> for setup instructions.</p>
+      </section>
+
+      <hr style="margin: 60px 0;">
+
+      <!-- Testing -->
+      <section id="testing">
+        <h2>Testing Strategies</h2>
+        <p>
+          One of NovaDI's biggest advantages: your business logic is <strong>completely framework-free</strong>,
+          making testing trivially easy.
+        </p>
+
+        <h3>Unit Testing (No Container Needed)</h3>
+        <pre class="line-numbers"><code class="language-typescript">import { describe, it, expect, vi } from 'vitest'
+
+describe('UserService', () => {
+  it('should create user and send welcome email', async () => {
+    // Create mocks (no framework, just plain TypeScript!)
+    const mockDB: IDatabase = {
+      query: vi.fn().mockResolvedValue([])
+    }
+
+    const mockEmail: IEmailService = {
+      sendEmail: vi.fn().mockResolvedValue(undefined)
+    }
+
+    const mockLogger: ILogger = {
+      info: vi.fn(),
+      error: vi.fn()
+    }
+
+    // Instantiate directly - no container needed!
+    const service = new UserService(mockDB, mockEmail, mockLogger)
+
+    // Test
+    await service.createUser('alice@example.com', 'Alice')
+
+    // Assert
+    expect(mockDB.query).toHaveBeenCalled()
+    expect(mockEmail.sendEmail).toHaveBeenCalledWith(
+      'alice@example.com',
+      'Welcome!',
+      'Hello Alice!'
+    )
+  })
+})</code></pre>
+
+        <div class="callout callout-success" style="margin: 24px 0;">
+          <strong>✅ This is why "no decorators" matters!</strong><br>
+          Your services are just TypeScript classes. No framework coupling. No special test setup. Just pure, testable
+          code.
+        </div>
+
+        <h3>Integration Testing (With Container)</h3>
+        <pre class="line-numbers"><code class="language-typescript">describe('UserService Integration', () => {
+  it('should work with real container', async () => {
+    // Build test container
+    const container = new Container()
+    const builder = container.builder()
+
+    // Register with test implementations
+    builder.registerType(InMemoryDatabase).asInterface<IDatabase>().singleInstance()
+    builder.registerType(MockEmailService).asInterface<IEmailService>().singleInstance()
+    builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
+    builder.registerType(UserService).asInterface<UserService>().autoWire()
+
+    const app = builder.build()
+
+    // Resolve and test
+    const service = app.resolveInterface<UserService>()
+    await service.createUser('bob@example.com', 'Bob')
+
+    // Assert using test implementations
+    const db = app.resolveInterface<IDatabase>() as InMemoryDatabase
+    expect(db.users).toHaveLength(1)
+  })
+})</code></pre>
+      </section>
+
+      <hr style="margin: 60px 0;">
+
+      <!-- Common Patterns -->
+      <section id="patterns">
+        <h2>Common Patterns</h2>
+
+        <h3>Factory Pattern</h3>
+        <pre class="line-numbers"><code class="language-typescript">// Register factory function
+builder.registerFactory<IConfig>(() => {
+  return loadConfigFromFile('./config.json')
+}, 'IConfig').singleInstance()
+
+// Use in services
+class MyService {
+  constructor(private config: IConfig) {}
+}</code></pre>
+
+        <h3>Module Pattern</h3>
+        <pre class="line-numbers"><code class="language-typescript">// Define reusable modules
+const databaseModule = (builder: Builder) => {
+  builder.registerType(PostgresDB).asInterface<IDatabase>().singleInstance()
+  builder.registerType(RedisCache).asInterface<ICache>().singleInstance()
+}
+
+const emailModule = (builder: Builder) => {
+  builder.registerType(SendGridService).asInterface<IEmailService>().singleInstance()
+}
+
+// Apply modules
+databaseModule(builder)
+emailModule(builder)</code></pre>
+
+        <h3>Conditional Registration</h3>
+        <pre class="line-numbers"><code class="language-typescript">// Different implementations based on environment
+if (process.env.NODE_ENV === 'production') {
+  builder.registerType(ProductionLogger).asInterface<ILogger>().singleInstance()
+} else {
+  builder.registerType(DevLogger).asInterface<ILogger>().singleInstance()
+}</code></pre>
+      </section>
+
+      <hr style="margin: 60px 0;">
+
+      <!-- Troubleshooting -->
+      <section id="troubleshooting">
+        <h2>Troubleshooting</h2>
+
+        <h3>Common Issues</h3>
+
+        <div class="callout callout-warning" style="margin: 24px 0;">
+          <strong>❌ Error: "No binding found for interface XYZ"</strong><br>
+          <strong>Cause:</strong> You're trying to resolve an interface that wasn't registered.<br>
+          <strong>Fix:</strong> Make sure you called <code>.registerType(...).asInterface<XYZ>()</code> before building.
+        </div>
+
+        <div class="callout callout-warning" style="margin: 24px 0;">
+          <strong>❌ Error: "Circular dependency detected"</strong><br>
+          <strong>Cause:</strong> Service A depends on B, B depends on C, C depends on A.<br>
+          <strong>Fix:</strong> Refactor to break the cycle. Consider using events, callbacks, or redesigning
+          responsibilities.
+        </div>
+
+        <div class="callout callout-warning" style="margin: 24px 0;">
+          <strong>❌ Transformer not working (type names not injected)</strong><br>
+          <strong>Cause:</strong> Transformer not configured correctly.<br>
+          <strong>Fix:</strong> Check <a href="getting-started.html#manual-setup">setup Documentation</a>. For unplugin,
+          make sure plugin is in config. For ts-patch, run <code>npx ts-patch install</code>.
+        </div>
+
+        <h3>Debugging Tips</h3>
+        <pre class="line-numbers"><code class="language-typescript">// Check what's registered
+console.log('Building container...')
+const app = builder.build()
+console.log('Container built successfully!')
+
+// Check resolution
+try {
+  const service = app.resolveInterface<IMyService>()
+  console.log('Service resolved:', service)
+} catch (error) {
+  console.error('Resolution failed:', error)
+}</code></pre>
+      </section>
+
+      <hr style="margin: 60px 0;">
+
+      <!-- Next Steps -->
+      <section>
+        <h2>🚀 Next Steps</h2>
+        <div
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin: 24px 0;">
+          <div class="card">
+            <h4>🏗️ Design Philosophy</h4>
+            <p>Understand the "why" behind NovaDI's architecture</p>
+            <a href="design.html">Read Design Doc →</a>
+          </div>
+          <div class="card">
+            <h4>💻 GitHub</h4>
+            <p>View source code, examples, and contribute</p>
+            <a href="https://github.com/janus007/NovaDI">View on GitHub →</a>
+          </div>
+          <div class="card">
+            <h4>📦 NPM</h4>
+            <p>Latest version and package details</p>
+            <a href="https://www.npmjs.com/package/@novadi/core">View on NPM →</a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <p>
+        <a href="https://github.com/janus007/NovaDI">View on GitHub</a> •
+        <a href="https://www.npmjs.com/package/@novadi/core">npm</a> •
+        <a href="https://github.com/janus007/NovaDI/issues">Report Issue</a>
+      </p>
+      <p class="text-secondary">Built with ❤️ for TypeScript developers</p>
+    </div>
+  </footer>
+
+  <!-- Prism.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+
+  <script>
+    // Main navigation sub-links active state on scroll
+    const sections = document.querySelectorAll('section[id]');
+    const navSubLinks = document.querySelectorAll('.nav-sub-links a');
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        if (window.pageYOffset >= sectionTop - 150) {
+          current = section.getAttribute('id');
+        }
+      });
+
+      // Update main nav sub-links
+      navSubLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${current}`) {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+
+  <!-- Docs JavaScript -->
+  <script src="js/docs.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design System - NovaDI Documentation</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto+Slab:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/docs.css">
+
+  <!-- Prism.js for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="main-header">
+    <a href="index.html" class="header-logo">NovaDI</a>
+    <div class="header-links">
+      <a href="https://www.npmjs.com/package/@novadi/core" target="_blank">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+          <path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z"></path>
+        </svg>
+        npm
+      </a>
+      <a href="https://github.com/janus007/NovaDI" target="_blank">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path>
+        </svg>
+        GitHub
+      </a>
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <span class="theme-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z"></path></svg>
+        </span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Sidebar Navigation -->
+  <aside class="main-nav">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li class="nav-group">
+          <div class="nav-group-title">Documentation</div>
+          <a href="getting-started.html">Getting Started</a>
+          <a href="guide.html">Documentation</a>
+          <a href="why.html">Why is DI this important?</a>
+          <a href="design-philosophy.html">Design Philosophy</a>
+        </li>
+        <li class="nav-group">
+          <div class="nav-group-title">Resources</div>
+          <a href="roadmap.html">NovaDI Roadmap & Ideas</a>
+          <a href="demo.html">Performance Benchmarks</a>
+          <a href="examples.html">Examples</a>
+        </li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Hero Section -->
+  <div class="hero">
+    <div class="container">
+      <h1 class="hero-title">NovaDI</h1>
+      <p class="hero-subtitle">Decorator-free Dependency Injection for TypeScript</p>
+      <p class="text-secondary" style="max-width: 600px; margin: 0 auto 32px;">
+        Inspired by Autofac, built for modern TypeScript projects. Fast, type-safe, and framework-agnostic.
+      </p>
+      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px;">
+        <a href="https://github.com/janus007/NovaDI" class="btn btn-outline btn-lg">View on GitHub</a>
+      </div>
+      <div style="margin-top: 24px;">
+        <span class="tech-badge">TypeScript 5+</span>
+        <span class="tech-badge">Zero Decorators</span>
+        <span class="tech-badge">Browser-First</span>
+        <span class="tech-badge">Type-Safe</span>
+        <span class="tech-badge">3.9KB gzipped</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container" style="padding-top: 40px; padding-bottom: 80px;">
+
+    <!-- ====================== COLORS ====================== -->
+    <section class="section">
+      <h2>Colors</h2>
+      <p>Our minimal, tech-focused color palette</p>
+
+      <h3>Primary Colors</h3>
+      <div class="grid grid-4" style="margin-bottom: 32px;">
+        <div class="card">
+          <div style="background: var(--accent-teal); height: 80px; border-radius: 4px; margin-bottom: 12px;"></div>
+          <h4 style="margin-top: 0; font-size: 14px;">Accent Teal</h4>
+          <code style="font-size: 12px;">--accent-teal</code>
+          <p style="font-size: 12px; margin-top: 8px;">#14B8A6</p>
+        </div>
+
+        <div class="card">
+          <div style="background: var(--accent-blue); height: 80px; border-radius: 4px; margin-bottom: 12px;"></div>
+          <h4 style="margin-top: 0; font-size: 14px;">Accent Blue</h4>
+          <code style="font-size: 12px;">--accent-blue</code>
+          <p style="font-size: 12px; margin-top: 8px;">#0EA5E9</p>
+        </div>
+
+        <div class="card">
+          <div style="background: var(--accent-green); height: 80px; border-radius: 4px; margin-bottom: 12px;"></div>
+          <h4 style="margin-top: 0; font-size: 14px;">Accent Green</h4>
+          <code style="font-size: 12px;">--accent-green</code>
+          <p style="font-size: 12px; margin-top: 8px;">#10B981</p>
+        </div>
+
+        <div class="card">
+          <div style="background: var(--accent-orange); height: 80px; border-radius: 4px; margin-bottom: 12px;"></div>
+          <h4 style="margin-top: 0; font-size: 14px;">Accent Orange</h4>
+          <code style="font-size: 12px;">--accent-orange</code>
+          <p style="font-size: 12px; margin-top: 8px;">#F59E0B</p>
+        </div>
+      </div>
+
+      <h3>Background Colors</h3>
+      <div class="grid grid-3" style="margin-bottom: 32px;">
+        <div class="card">
+          <div style="background: var(--bg-primary); height: 60px; border: 1px solid var(--border-default); border-radius: 4px; margin-bottom: 12px;"></div>
+          <h4 style="margin-top: 0; font-size: 14px;">Primary</h4>
+          <code style="font-size: 12px;">--bg-primary</code>
+          <p style="font-size: 12px; margin-top: 8px;">#FAFAFA</p>
+        </div>
+
+        <div class="card">
+          <div style="background: var(--bg-secondary); height: 60px; border: 1px solid var(--border-default); border-radius: 4px; margin-bottom: 12px;"></div>
+          <h4 style="margin-top: 0; font-size: 14px;">Secondary</h4>
+          <code style="font-size: 12px;">--bg-secondary</code>
+          <p style="font-size: 12px; margin-top: 8px;">#F5F5F5</p>
+        </div>
+
+        <div class="card">
+          <div style="background: var(--surface); height: 60px; border: 1px solid var(--border-default); border-radius: 4px; margin-bottom: 12px;"></div>
+          <h4 style="margin-top: 0; font-size: 14px;">Surface</h4>
+          <code style="font-size: 12px;">--surface</code>
+          <p style="font-size: 12px; margin-top: 8px;">#FFFFFF</p>
+        </div>
+      </div>
+
+      <h3>Text Colors</h3>
+      <div class="grid grid-3">
+        <div class="card">
+          <p style="color: var(--text-primary); font-size: 24px; margin-bottom: 12px;">Aa</p>
+          <h4 style="margin-top: 0; font-size: 14px;">Primary</h4>
+          <code style="font-size: 12px;">--text-primary</code>
+          <p style="font-size: 12px; margin-top: 8px;">#1A1A1A</p>
+        </div>
+
+        <div class="card">
+          <p style="color: var(--text-secondary); font-size: 24px; margin-bottom: 12px;">Aa</p>
+          <h4 style="margin-top: 0; font-size: 14px;">Secondary</h4>
+          <code style="font-size: 12px;">--text-secondary</code>
+          <p style="font-size: 12px; margin-top: 8px;">#666666</p>
+        </div>
+
+        <div class="card">
+          <p style="color: var(--text-muted); font-size: 24px; margin-bottom: 12px;">Aa</p>
+          <h4 style="margin-top: 0; font-size: 14px;">Muted</h4>
+          <code style="font-size: 12px;">--text-muted</code>
+          <p style="font-size: 12px; margin-top: 8px;">#999999</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== TYPOGRAPHY ====================== -->
+    <section class="section">
+      <h2>Typography</h2>
+      <p>Clean, readable typography using system fonts</p>
+
+      <div class="card" style="margin-bottom: 24px;">
+        <h3 style="margin-top: 0;">Font Families</h3>
+        <p style="font-family: var(--font-primary); font-size: 18px; margin-bottom: 8px;">
+          <strong>Primary Font:</strong> -apple-system, BlinkMacSystemFont, Segoe UI, Roboto
+        </p>
+        <p style="font-family: var(--font-mono); font-size: 16px; margin-bottom: 0;">
+          <strong>Monospace Font:</strong> SF Mono, Monaco, Consolas, Courier New
+        </p>
+      </div>
+
+      <h3>Headings</h3>
+      <div class="card">
+        <h1>Heading 1 - 40px</h1>
+        <h2>Heading 2 - 32px</h2>
+        <h3>Heading 3 - 24px</h3>
+        <h4>Heading 4 - 18px</h4>
+        <h5>Heading 5 - 15px</h5>
+        <h6>Heading 6 - 15px</h6>
+      </div>
+
+      <h3>Body Text</h3>
+      <div class="card">
+        <p>This is regular body text. It uses the primary font family with a font size of 15px and line-height of 1.7 for optimal readability. Body text should be clear, concise, and easy to scan.</p>
+        <p><strong>Bold text</strong> is used for emphasis and <em>italic text</em> for subtle emphasis.</p>
+        <p>You can also use <code>inline code</code> for technical terms, <kbd>Ctrl+C</kbd> for keyboard shortcuts, and <a href="#">links</a> for navigation.</p>
+      </div>
+
+      <h3>Lists</h3>
+      <div class="grid grid-2">
+        <div class="card">
+          <h4 style="margin-top: 0;">Unordered List</h4>
+          <ul>
+            <li>First item in the list</li>
+            <li>Second item with more content</li>
+            <li>Third item
+              <ul>
+                <li>Nested item 1</li>
+                <li>Nested item 2</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4 style="margin-top: 0;">Ordered List</h4>
+          <ol>
+            <li>First step</li>
+            <li>Second step</li>
+            <li>Third step
+              <ol>
+                <li>Sub-step A</li>
+                <li>Sub-step B</li>
+              </ol>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== BUTTONS ====================== -->
+    <section class="section">
+      <h2>Buttons</h2>
+      <p>Various button styles for different actions</p>
+
+      <h3>Button Variants</h3>
+      <div class="card" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+        <button class="btn btn-primary">Primary Button</button>
+        <button class="btn btn-secondary">Secondary Button</button>
+        <button class="btn btn-outline">Outline Button</button>
+        <button class="btn btn-primary" disabled>Disabled</button>
+      </div>
+
+      <h3>Button Sizes</h3>
+      <div class="card" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+        <button class="btn btn-primary btn-sm">Small</button>
+        <button class="btn btn-primary">Default</button>
+        <button class="btn btn-primary btn-lg">Large</button>
+      </div>
+
+      <h3>Code Example</h3>
+      <pre class="line-numbers"><code class="language-html">&lt;button class="btn btn-primary"&gt;Primary Button&lt;/button&gt;
+&lt;button class="btn btn-secondary"&gt;Secondary Button&lt;/button&gt;
+&lt;button class="btn btn-outline"&gt;Outline Button&lt;/button&gt;</code></pre>
+    </section>
+
+    <!-- ====================== BADGES ====================== -->
+    <section class="section">
+      <h2>Badges</h2>
+      <p>Small labels for status, categories, and metadata</p>
+
+      <h3>Badge Colors</h3>
+      <div class="card" style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <span class="badge badge-teal">Teal</span>
+        <span class="badge badge-blue">Blue</span>
+        <span class="badge badge-yellow">Yellow</span>
+        <span class="badge badge-red">Red</span>
+        <span class="badge badge-gray">Gray</span>
+        <span class="badge badge-purple">Purple</span>
+      </div>
+
+      <h3>Tech Badges</h3>
+      <div class="card" style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <span class="tech-badge">TypeScript</span>
+        <span class="tech-badge">Zero Decorators</span>
+        <span class="tech-badge">Browser-First</span>
+        <span class="tech-badge">Type-Safe</span>
+        <span class="tech-badge">ES2020+</span>
+      </div>
+
+      <h3>Code Example</h3>
+      <pre class="line-numbers"><code class="language-html">&lt;span class="badge badge-teal"&gt;Teal&lt;/span&gt;
+&lt;span class="tech-badge"&gt;TypeScript&lt;/span&gt;</code></pre>
+    </section>
+
+    <!-- ====================== CARDS ====================== -->
+    <section class="section">
+      <h2>Cards</h2>
+      <p>Content containers with optional headers and footers</p>
+
+      <h3>Basic Card</h3>
+      <div class="card">
+        <h4 style="margin-top: 0;">Card Title</h4>
+        <p>This is a basic card with some content. Cards are used to group related information together and provide visual separation.</p>
+      </div>
+
+      <h3>Card with Header & Footer</h3>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Advanced Card</h3>
+          <p class="card-subtitle">With header and footer sections</p>
+        </div>
+        <div class="card-body">
+          <p>This card demonstrates the full structure with header, body, and footer sections. Each section can be styled independently.</p>
+        </div>
+        <div class="card-footer">
+          <button class="btn btn-primary btn-sm">Action</button>
+        </div>
+      </div>
+
+      <h3>Feature Cards Grid</h3>
+      <div class="grid grid-3">
+        <div class="feature-card">
+          <div class="feature-card-icon">⚡</div>
+          <h3>Fast Performance</h3>
+          <p>Industry-leading resolution speed with optimized caching strategies.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-icon">🎯</div>
+          <h3>Type Safe</h3>
+          <p>Full TypeScript support without reflect-metadata.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-icon">✨</div>
+          <h3>Zero Decorators</h3>
+          <p>Clean code without framework-specific annotations.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== INFO BOXES ====================== -->
+    <section class="section">
+      <h2>Info Boxes</h2>
+      <p>Callouts for important information, tips, warnings, and errors</p>
+
+      <div class="info-box info-box-info">
+        <h5 class="info-box-title">📘 Information</h5>
+        <p>This is an informational callout. Use it for neutral information that doesn't require immediate action.</p>
+      </div>
+
+      <div class="info-box info-box-tip">
+        <h5 class="info-box-title">💡 Tip</h5>
+        <p>This is a tip callout. Use it for helpful suggestions and best practices.</p>
+      </div>
+
+      <div class="info-box info-box-warning">
+        <h5 class="info-box-title">⚠️ Warning</h5>
+        <p>This is a warning callout. Use it for important information that requires attention.</p>
+      </div>
+
+      <div class="info-box info-box-error">
+        <h5 class="info-box-title">🚨 Error</h5>
+        <p>This is an error callout. Use it for critical information or common mistakes to avoid.</p>
+      </div>
+
+      <h3>Code Example</h3>
+      <pre class="line-numbers"><code class="language-html">&lt;div class="info-box info-box-tip"&gt;
+  &lt;h5 class="info-box-title"&gt;💡 Tip&lt;/h5&gt;
+  &lt;p&gt;Your helpful tip goes here.&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+    </section>
+
+    <!-- ====================== CODE BLOCKS ====================== -->
+    <section class="section">
+      <h2>Code Blocks</h2>
+      <p>Syntax-highlighted code examples</p>
+
+      <h3>TypeScript Example</h3>
+      <pre class="line-numbers"><code class="language-typescript">// Define your interfaces
+interface ILogger {
+  log(message: string): void
+}
+
+// Create implementations
+class ConsoleLogger implements ILogger {
+  log(message: string) {
+    console.log(message)
+  }
+}
+
+// Configure container
+const container = new Container()
+  .builder()
+  .registerType(ConsoleLogger)
+    .asInterface&lt;ILogger&gt;()
+    .singleInstance()
+  .build()
+
+// Resolve and use
+const logger = container.resolveInterface&lt;ILogger&gt;()
+logger.log('Hello NovaDI!')</code></pre>
+
+      <h3>Inline Code</h3>
+      <div class="card">
+        <p>Use <code>inline code</code> for short code snippets, function names like <code>resolve()</code>, or variable names like <code>container</code>.</p>
+        <p>For keyboard shortcuts, use <kbd>Ctrl+C</kbd> or <kbd>Cmd+V</kbd>.</p>
+      </div>
+    </section>
+
+    <!-- ====================== TABLES ====================== -->
+    <section class="section">
+      <h2>Tables</h2>
+      <p>Data presentation in tabular format</p>
+
+      <h3>Basic Table</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Description</th>
+            <th>Return Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>resolve&lt;T&gt;(token)</code></td>
+            <td>Resolves a dependency synchronously</td>
+            <td><code>T</code></td>
+          </tr>
+          <tr>
+            <td><code>resolveAsync&lt;T&gt;(token)</code></td>
+            <td>Resolves a dependency asynchronously</td>
+            <td><code>Promise&lt;T&gt;</code></td>
+          </tr>
+          <tr>
+            <td><code>builder()</code></td>
+            <td>Creates a fluent builder instance</td>
+            <td><code>Builder</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Comparison Table</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Framework</th>
+            <th>Decorators</th>
+            <th>Singleton (ms)</th>
+            <th>Complex Graph (ms)</th>
+            <th>Bundle Size (KB)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background: #D1FAE5;">
+            <td><strong>NovaDI 🏆</strong></td>
+            <td><span class="badge badge-teal">✅ None</span></td>
+            <td><span class="badge badge-teal">0.03 🥇</span></td>
+            <td><span class="badge badge-teal">0.03 🥇</span></td>
+            <td>3.9</td>
+          </tr>
+          <tr>
+            <td>Brandi</td>
+            <td><span class="badge badge-teal">✅ None</span></td>
+            <td>0.11</td>
+            <td>0.07</td>
+            <td><span class="badge badge-teal">2.2 🥇</span></td>
+          </tr>
+          <tr>
+            <td>InversifyJS</td>
+            <td><span class="badge badge-red">❌ Required</span></td>
+            <td>0.14</td>
+            <td>0.12</td>
+            <td>16.8</td>
+          </tr>
+          <tr>
+            <td>TSyringe</td>
+            <td><span class="badge badge-red">❌ Required</span></td>
+            <td>0.19</td>
+            <td>8.45</td>
+            <td>7.4</td>
+          </tr>
+          <tr>
+            <td>TypeDI</td>
+            <td><span class="badge badge-red">❌ Required</span></td>
+            <td>0.03 🥇</td>
+            <td>0.21</td>
+            <td>6.4</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ====================== GRID LAYOUTS ====================== -->
+    <section class="section">
+      <h2>Grid Layouts</h2>
+      <p>Responsive grid systems for organizing content</p>
+
+      <h3>2-Column Grid</h3>
+      <div class="grid grid-2">
+        <div class="card"><p>Column 1</p></div>
+        <div class="card"><p>Column 2</p></div>
+      </div>
+
+      <h3>3-Column Grid</h3>
+      <div class="grid grid-3">
+        <div class="card"><p>Column 1</p></div>
+        <div class="card"><p>Column 2</p></div>
+        <div class="card"><p>Column 3</p></div>
+      </div>
+
+      <h3>4-Column Grid</h3>
+      <div class="grid grid-4">
+        <div class="card"><p>Column 1</p></div>
+        <div class="card"><p>Column 2</p></div>
+        <div class="card"><p>Column 3</p></div>
+        <div class="card"><p>Column 4</p></div>
+      </div>
+
+      <h3>Code Example</h3>
+      <pre class="line-numbers"><code class="language-html">&lt;div class="grid grid-3"&gt;
+  &lt;div class="card"&gt;...&lt;/div&gt;
+  &lt;div class="card"&gt;...&lt;/div&gt;
+  &lt;div class="card"&gt;...&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </section>
+
+    <!-- ====================== SPACING ====================== -->
+    <section class="section">
+      <h2>Spacing Scale</h2>
+      <p>Consistent spacing using CSS variables</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Variable</th>
+            <th>Size</th>
+            <th>Preview</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>--space-xs</code></td>
+            <td>4px</td>
+            <td><div style="background: var(--accent-teal); width: 4px; height: 20px;"></div></td>
+          </tr>
+          <tr>
+            <td><code>--space-sm</code></td>
+            <td>8px</td>
+            <td><div style="background: var(--accent-teal); width: 8px; height: 20px;"></div></td>
+          </tr>
+          <tr>
+            <td><code>--space-md</code></td>
+            <td>16px</td>
+            <td><div style="background: var(--accent-teal); width: 16px; height: 20px;"></div></td>
+          </tr>
+          <tr>
+            <td><code>--space-lg</code></td>
+            <td>24px</td>
+            <td><div style="background: var(--accent-teal); width: 24px; height: 20px;"></div></td>
+          </tr>
+          <tr>
+            <td><code>--space-xl</code></td>
+            <td>32px</td>
+            <td><div style="background: var(--accent-teal); width: 32px; height: 20px;"></div></td>
+          </tr>
+          <tr>
+            <td><code>--space-2xl</code></td>
+            <td>48px</td>
+            <td><div style="background: var(--accent-teal); width: 48px; height: 20px;"></div></td>
+          </tr>
+          <tr>
+            <td><code>--space-3xl</code></td>
+            <td>64px</td>
+            <td><div style="background: var(--accent-teal); width: 64px; height: 20px;"></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <p>
+        <a href="https://github.com/janus007/NovaDI">View on GitHub</a> •
+        <a href="https://www.npmjs.com/package/@novadi/core">npm</a> •
+        <a href="https://github.com/janus007/NovaDI/issues">Report Issue</a>
+      </p>
+      <p class="text-secondary">Built with ❤️ for TypeScript developers</p>
+    </div>
+  </footer>
+
+  <!-- Prism.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+
+  <!-- Docs JavaScript -->
+  <script src="js/docs.js"></script>
+</body>
+</html>
