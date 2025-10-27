@@ -38,12 +38,41 @@ interface RegistrationConfig {
 }
 
 /**
+ * Position-based type information for autowiring
+ * Used by transformer to enable minification-safe autowiring
+ * Stores both parameter name (for refactoring support) and position (for minification support)
+ */
+export interface PositionTypeMapping {
+  parameterName: string
+  index: number
+  typeName: string
+}
+
+/**
  * AutoWire configuration options
  */
 export interface AutoWireOptions {
-  by?: 'paramName' | 'map' | 'class'
+  by?: 'paramName' | 'map' | 'class' | 'positionType'
   strict?: boolean
+
+  /**
+   * Manual map object with parameter names as keys
+   * Note: mapResolvers provides better performance (O(1) array access)
+   */
   map?: Record<string, ((c: Container) => any) | Token<any>>
+
+  /**
+   * Position-based metadata with parameter names (used for smart matching)
+   * Note: mapResolvers provides better performance (O(1) array access)
+   */
+  positions?: PositionTypeMapping[]
+
+  /**
+   * Array of resolvers in parameter position order (transformer-generated)
+   * Provides O(1) array access performance - minification-safe and refactoring-friendly
+   * undefined entries indicate primitive types or parameters without DI
+   */
+  mapResolvers?: Array<((c: Container) => any) | Token<any> | undefined>
 }
 
 /**

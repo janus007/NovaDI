@@ -616,3 +616,259 @@ describe('Autowire - Error Handling', () => {
     expect(service.database).toBeUndefined() // Not in map, undefined passed
   })
 })
+
+describe('Autowire - Minification Support (Position-Based)', () => {
+  let container: Container
+
+  beforeEach(() => {
+    container = new Container()
+  })
+
+  it('should work correctly with position-based autowiring even when parameter names are minified', () => {
+    // Arrange: Create interfaces and implementations
+    interface IEventBus {
+      publish(event: string): void
+    }
+
+    interface ILogger {
+      log(msg: string): void
+    }
+
+    class EventBus implements IEventBus {
+      publish(event: string) {
+        console.log(`Event: ${event}`)
+      }
+    }
+
+    class Logger implements ILogger {
+      log(msg: string) {
+        console.log(msg)
+      }
+    }
+
+    // Minified class - simulates what a bundler does to parameter names
+    // In production, bundler would transform:
+    //   constructor(eventBus: IEventBus, logger: ILogger)
+    // Into:
+    //   constructor(a, b)
+    class ServiceMinified {
+      constructor(
+        public a: IEventBus,  // 'eventBus' became 'a'
+        public b: ILogger     // 'logger' became 'b'
+      ) {}
+    }
+
+    // Register dependencies
+    const builder = container.builder()
+    builder.registerType(EventBus).asInterface<IEventBus>()
+    builder.registerType(Logger).asInterface<ILogger>()
+
+    // NEW SOLUTION: Position-based autowiring (minification-safe!)
+    // Transformer generates position metadata instead of relying on parameter names
+    builder
+      .registerType(ServiceMinified)
+      .asInterface<ServiceMinified>()
+      .autoWire({
+        positions: [
+          { parameterName: 'eventBus', index: 0, typeName: 'IEventBus' },  // Position 0 → IEventBus
+          { parameterName: 'logger', index: 1, typeName: 'ILogger' }       // Position 1 → ILogger
+        ]
+      })
+
+    const builtContainer = builder.build()
+    const service = builtContainer.resolveInterface<ServiceMinified>()
+
+    // Assert: Position-based autowiring works regardless of parameter names!
+    // Dependencies are resolved by position + type, not by parameter names
+    expect(service.a).toBeInstanceOf(EventBus)  // ✅ Now works!
+    expect(service.b).toBeInstanceOf(Logger)    // ✅ Now works!
+  })
+
+  it('should resolve dependencies by position regardless of minified parameter names', () => {
+    // This test demonstrates that position-based strategy ignores parameter names entirely
+    interface IService {
+      doWork(): void
+    }
+
+    interface ILogger {
+      log(msg: string): void
+    }
+
+    class Service implements IService {
+      doWork() {}
+    }
+
+    class Logger implements ILogger {
+      log(msg: string) {}
+    }
+
+    // Minified class with cryptic parameter names
+    class MinifiedClass {
+      constructor(
+        public x: IService,   // Could be any name
+        public y: ILogger     // Could be any name
+      ) {}
+    }
+
+    const builder = container.builder()
+    builder.registerType(Service).asInterface<IService>()
+    builder.registerType(Logger).asInterface<ILogger>()
+    builder
+      .registerType(MinifiedClass)
+      .asInterface<MinifiedClass>()
+      .autoWire({
+        positions: [
+          { parameterName: 'service', index: 0, typeName: 'IService' },
+          { parameterName: 'logger', index: 1, typeName: 'ILogger' }
+        ]
+      })
+
+    const builtContainer = builder.build()
+    const instance = builtContainer.resolveInterface<MinifiedClass>()
+
+    // Position-based resolution works perfectly
+    expect(instance.x).toBeInstanceOf(Service)
+    expect(instance.y).toBeInstanceOf(Logger)
+  })
+
+  it('should handle sparse position mappings (skipping primitive types)', () => {
+    // Real-world scenario: Constructor has mix of DI dependencies and primitive types
+    interface ILogger {
+      log(msg: string): void
+    }
+
+    class Logger implements ILogger {
+      log(msg: string) {}
+    }
+
+    // Constructor with mixed types
+    class MixedService {
+      constructor(
+        public a: ILogger,    // Position 0: DI dependency
+        public b: string,     // Position 1: Primitive (not in positions array)
+        public c: number      // Position 2: Primitive (not in positions array)
+      ) {}
+    }
+
+    const builder = container.builder()
+    builder.registerType(Logger).asInterface<ILogger>()
+    builder
+      .registerType(MixedService)
+      .asInterface<MixedService>()
+      .autoWire({
+        positions: [
+          { parameterName: 'a', index: 0, typeName: 'ILogger' }  // Only position 0 is mapped
+        ]
+      })
+
+    const builtContainer = builder.build()
+    const service = builtContainer.resolveInterface<MixedService>()
+
+    // Logger is injected, primitives are undefined (expected)
+    expect(service.a).toBeInstanceOf(Logger)
+    expect(service.b).toBeUndefined()
+    expect(service.c).toBeUndefined()
+  })
+
+  it('should support parameter name matching for refactoring (reordered parameters)', () => {
+    // Scenario: Developer refactors and reorders constructor parameters
+    // Smart matching uses parameter names to find correct dependencies
+    interface IEventBus {
+      publish(event: string): void
+    }
+
+    interface ILogger {
+      log(msg: string): void
+    }
+
+    class EventBus implements IEventBus {
+      publish(event: string) {}
+    }
+
+    class Logger implements ILogger {
+      log(msg: string) {}
+    }
+
+    // Constructor with parameters in different order than metadata
+    // Metadata was generated when constructor was: (eventBus, logger)
+    // But now it's: (logger, eventBus)
+    class RefactoredService {
+      constructor(
+        public logger: ILogger,      // Position 0 NOW, but was position 1 BEFORE
+        public eventBus: IEventBus   // Position 1 NOW, but was position 0 BEFORE
+      ) {}
+    }
+
+    const builder = container.builder()
+    builder.registerType(EventBus).asInterface<IEventBus>()
+    builder.registerType(Logger).asInterface<ILogger>()
+    builder
+      .registerType(RefactoredService)
+      .asInterface<RefactoredService>()
+      .autoWire({
+        positions: [
+          // Metadata from BEFORE refactoring (eventBus was position 0, logger was position 1)
+          { parameterName: 'eventBus', index: 0, typeName: 'IEventBus' },
+          { parameterName: 'logger', index: 1, typeName: 'ILogger' }
+        ]
+      })
+
+    const builtContainer = builder.build()
+    const service = builtContainer.resolveInterface<RefactoredService>()
+
+    // Smart matching finds correct dependencies by parameter name!
+    // Even though positions don't match, names do
+    expect(service.logger).toBeInstanceOf(Logger)
+    expect(service.eventBus).toBeInstanceOf(EventBus)
+  })
+
+  it('should fallback to position matching when parameter names are minified', () => {
+    // Scenario: Code is minified, so parameter names don't match metadata
+    // Should fallback to position-based matching
+    interface IEventBus {
+      publish(event: string): void
+    }
+
+    interface ILogger {
+      log(msg: string): void
+    }
+
+    class EventBus implements IEventBus {
+      publish(event: string) {}
+    }
+
+    class Logger implements ILogger {
+      log(msg: string) {}
+    }
+
+    // Minified: parameter names are now 'a' and 'b'
+    class MinifiedService {
+      constructor(
+        public a: IEventBus,  // Was 'eventBus', now 'a'
+        public b: ILogger     // Was 'logger', now 'b'
+      ) {}
+    }
+
+    const builder = container.builder()
+    builder.registerType(EventBus).asInterface<IEventBus>()
+    builder.registerType(Logger).asInterface<ILogger>()
+    builder
+      .registerType(MinifiedService)
+      .asInterface<MinifiedService>()
+      .autoWire({
+        positions: [
+          // Metadata from before minification (original parameter names)
+          { parameterName: 'eventBus', index: 0, typeName: 'IEventBus' },
+          { parameterName: 'logger', index: 1, typeName: 'ILogger' }
+        ]
+      })
+
+    const builtContainer = builder.build()
+    const service = builtContainer.resolveInterface<MinifiedService>()
+
+    // Parameter names don't match, but positions do!
+    // Fallback to position-based matching works
+    expect(service.a).toBeInstanceOf(EventBus)
+    expect(service.b).toBeInstanceOf(Logger)
+  })
+})

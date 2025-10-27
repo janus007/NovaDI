@@ -184,6 +184,110 @@ export function resolveByClass(
 }
 
 /**
+ * Resolve dependencies using mapResolvers array strategy
+ * OPTIMAL PERFORMANCE: O(1) array access per parameter
+ * Minification-safe: Uses position-based array
+ * Refactoring-friendly: Transformer regenerates array on recompile
+ *
+ * Requires build-time transformer to generate mapResolvers array
+ */
+export function resolveByMapResolvers(
+  _constructor: new (...args: any[]) => any,
+  container: Container,
+  options: AutoWireOptions
+): any[] {
+  if (!options.mapResolvers || options.mapResolvers.length === 0) {
+    return []
+  }
+
+  const resolvedDeps: any[] = []
+
+  // Simple O(1) array access - ultra fast!
+  for (let i = 0; i < options.mapResolvers.length; i++) {
+    const resolver = options.mapResolvers[i]
+
+    if (resolver === undefined) {
+      // undefined indicates primitive type or parameter without DI
+      resolvedDeps.push(undefined)
+    } else if (typeof resolver === 'function') {
+      // Resolver function: (c) => c.resolveInterface(...)
+      resolvedDeps.push(resolver(container))
+    } else {
+      // Token-based resolution
+      resolvedDeps.push(container.resolve(resolver as Token<any>))
+    }
+  }
+
+  return resolvedDeps
+}
+
+/**
+ * Resolve dependencies using positionType strategy
+ * Minification-safe + Refactoring-friendly
+ *
+ * Smart matching strategy:
+ * 1. Primary: Match on parameter name (supports refactoring/reordering)
+ * 2. Fallback: Match on position (supports minification)
+ *
+ * Note: mapResolvers provides better performance (O(1) array access)
+ * Requires build-time transformer to generate position metadata
+ */
+export function resolveByPositionType(
+  constructor: new (...args: any[]) => any,
+  container: Container,
+  options: AutoWireOptions
+): any[] {
+  if (!options.positions || options.positions.length === 0) {
+    return []
+  }
+
+  // Extract actual parameter names from runtime constructor
+  // (will be minified names if code is minified)
+  const actualParamNames = extractParameterNames(constructor)
+  const resolvedDeps: any[] = []
+
+  // For each parameter position in the constructor
+  for (let i = 0; i < actualParamNames.length; i++) {
+    const actualParamName = actualParamNames[i]
+
+    // Strategy 1: Try to match by parameter name first (refactoring support)
+    // This allows developers to reorder parameters without breaking autowiring
+    let metadata = options.positions.find(p => p.parameterName === actualParamName)
+
+    // Strategy 2: Fallback to position matching (minification support)
+    // If parameter names don't match (due to minification), use position
+    if (!metadata) {
+      metadata = options.positions.find(p => p.index === i)
+    }
+
+    // If we found metadata, resolve the dependency
+    if (metadata) {
+      try {
+        const resolved = container.resolveInterface(metadata.typeName)
+        resolvedDeps.push(resolved)
+      } catch (error) {
+        if (options.strict) {
+          throw new Error(
+            `Cannot resolve dependency at position ${i} (parameter "${actualParamName}") with type "${metadata.typeName}". ` +
+            `No interface registration found. ` +
+            `Make sure the type is registered with .asInterface<${metadata.typeName}>()`
+          )
+        } else {
+          // Non-strict mode: push undefined for unresolvable parameters
+          resolvedDeps.push(undefined)
+        }
+      }
+    } else {
+      // No metadata found for this parameter position
+      // This is expected for primitive types or parameters without DI
+      resolvedDeps.push(undefined)
+    }
+  }
+
+  return resolvedDeps
+}
+
+/**
  * Main autowire function - dispatches to appropriate strategy
  */
 export function autowire(
@@ -197,13 +301,24 @@ export function autowire(
     ...options
   }
 
+  // HIGHEST PRIORITY: mapResolvers array (transformer-generated, optimal performance)
+  // O(1) array access per parameter - minification-safe and refactoring-friendly
+  if (opts.mapResolvers && opts.mapResolvers.length > 0) {
+    return resolveByMapResolvers(constructor, container, opts)
+  }
+
+  // FALLBACK: positions with smart matching
+  if (opts.positions && opts.positions.length > 0) {
+    return resolveByPositionType(constructor, container, opts)
+  }
+
   // Performance: Early exit for constructors with no parameters
   const paramNames = extractParameterNames(constructor)
   if (paramNames.length === 0) {
     return []
   }
 
-  // Map strategy has highest priority if map is provided
+  // Manual map strategy
   if (opts.map && Object.keys(opts.map).length > 0) {
     return resolveByMap(constructor, container, opts)
   }
@@ -216,6 +331,8 @@ export function autowire(
       return resolveByMap(constructor, container, opts)
     case 'class':
       return resolveByClass(constructor, container, opts)
+    case 'positionType':
+      return resolveByPositionType(constructor, container, opts)
     default:
       throw new Error(`Unknown autowire strategy: ${opts.by}`)
   }
