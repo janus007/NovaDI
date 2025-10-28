@@ -169,7 +169,7 @@ builder.registerType(MyService).asInterface<IMyService>().singleInstance()
 
 // Step 3: Build and resolve
 const app = builder.build()
-const service = app.resolveInterface<IMyService>()</code></pre>
+const service = app.resolveType<IMyService>()</code></pre>
 
         <div class="callout callout-info" style="margin: 24px 0;">
           <strong>💡 Composition Root Pattern</strong><br>
@@ -241,7 +241,7 @@ builder.registerType(UserService).asInterface<UserService>().autoWire()</code></
     map: {
       id: () => 'light-123',              // Primitive value injection
       name: () => 'Living Room Light',    // String injection
-      logger: (c) => c.resolveInterface<ILogger>()  // Custom resolution
+      logger: (c) => c.resolveType<ILogger>()  // Custom resolution
     }
   })</code></pre>
 
@@ -399,7 +399,7 @@ builder.registerType(UserService).asInterface<UserService>().autoWire()
 const app = builder.build()
 
 // Use it
-const userService = app.resolveInterface<UserService>()
+const userService = app.resolveType<UserService>()
 await userService.createUser('alice@example.com', 'Alice')</code></pre>
 
         <p><strong>Notice:</strong></p>
@@ -425,11 +425,11 @@ await userService.createUser('alice@example.com', 'Alice')</code></pre>
         <h3>What the Transformer Does</h3>
         <pre class="line-numbers"><code class="language-typescript">// You write:
 builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
-const logger = app.resolveInterface<ILogger>()
+const logger = app.resolveType<ILogger>()
 
 // Transformer generates:
 builder.registerType(ConsoleLogger).asInterface<ILogger>("ILogger").singleInstance()
-const logger = app.resolveInterface<ILogger>("ILogger")</code></pre>
+const logger = app.resolveType<ILogger>("ILogger")</code></pre>
 
         <div class="callout callout-success" style="margin: 24px 0;">
           <strong>✅ Benefits:</strong>
@@ -551,11 +551,11 @@ describe('UserService', () => {
     const app = builder.build()
 
     // Resolve and test
-    const service = app.resolveInterface<UserService>()
+    const service = app.resolveType<UserService>()
     await service.createUser('bob@example.com', 'Bob')
 
     // Assert using test implementations
-    const db = app.resolveInterface<IDatabase>() as InMemoryDatabase
+    const db = app.resolveType<IDatabase>() as InMemoryDatabase
     expect(db.users).toHaveLength(1)
   })
 })</code></pre>
@@ -638,7 +638,7 @@ console.log('Container built successfully!')
 
 // Check resolution
 try {
-  const service = app.resolveInterface<IMyService>()
+  const service = app.resolveType<IMyService>()
   console.log('Service resolved:', service)
 } catch (error) {
   console.error('Resolution failed:', error)

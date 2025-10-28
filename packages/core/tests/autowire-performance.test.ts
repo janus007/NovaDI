@@ -41,17 +41,17 @@ describe('AutoWire Performance Comparison', () => {
     }
 
     const builder = container.builder()
-    builder.registerType(Logger).asInterface<ILogger>()
-    builder.registerType(Database).asInterface<IDatabase>()
-    builder.registerType(Cache).asInterface<ICache>()
+    builder.registerType(Logger).asInterface<ILogger>('ILogger')
+    builder.registerType(Database).asInterface<IDatabase>('IDatabase')
+    builder.registerType(Cache).asInterface<ICache>('ICache')
     builder
       .registerType(Service)
-      .asInterface<Service>()
+      .asInterface<Service>('Service')
       .autoWire({
         mapResolvers: [
-          (c) => c.resolveInterface<ILogger>(),
-          (c) => c.resolveInterface<IDatabase>(),
-          (c) => c.resolveInterface<ICache>()
+          (c) => c.resolveType<ILogger>('ILogger'),
+          (c) => c.resolveType<IDatabase>('IDatabase'),
+          (c) => c.resolveType<ICache>('ICache')
         ]
       })
 
@@ -60,71 +60,13 @@ describe('AutoWire Performance Comparison', () => {
     const iterations = 10000
     const start = performance.now()
     for (let i = 0; i < iterations; i++) {
-      builtContainer.resolveInterface<Service>()
+      builtContainer.resolveType<Service>('Service')
     }
     const elapsed = performance.now() - start
 
     console.log(`mapResolvers (array): ${iterations} resolutions in ${elapsed.toFixed(2)}ms (${(elapsed / iterations * 1000).toFixed(3)}μs per resolve)`)
 
     expect(elapsed).toBeLessThan(100) // Should be very fast
-  })
-
-  it('should benchmark positions with index Map (O(1) Map lookup)', () => {
-    interface ILogger {
-      log(msg: string): void
-    }
-    interface IDatabase {
-      query(): any[]
-    }
-    interface ICache {
-      get(key: string): any
-    }
-
-    class Logger implements ILogger {
-      log(msg: string) {}
-    }
-    class Database implements IDatabase {
-      query() { return [] }
-    }
-    class Cache implements ICache {
-      get(key: string) { return null }
-    }
-
-    class Service {
-      constructor(
-        public logger: ILogger,
-        public database: IDatabase,
-        public cache: ICache
-      ) {}
-    }
-
-    const builder = container.builder()
-    builder.registerType(Logger).asInterface<ILogger>()
-    builder.registerType(Database).asInterface<IDatabase>()
-    builder.registerType(Cache).asInterface<ICache>()
-    builder
-      .registerType(Service)
-      .asInterface<Service>()
-      .autoWire({
-        positions: [
-          { parameterName: 'logger', index: 0, typeName: 'ILogger' },
-          { parameterName: 'database', index: 1, typeName: 'IDatabase' },
-          { parameterName: 'cache', index: 2, typeName: 'ICache' }
-        ]
-      })
-
-    const builtContainer = builder.build()
-
-    const iterations = 10000
-    const start = performance.now()
-    for (let i = 0; i < iterations; i++) {
-      builtContainer.resolveInterface<Service>()
-    }
-    const elapsed = performance.now() - start
-
-    console.log(`positions (Map lookup): ${iterations} resolutions in ${elapsed.toFixed(2)}ms (${(elapsed / iterations * 1000).toFixed(3)}μs per resolve)`)
-
-    expect(elapsed).toBeLessThan(200)
   })
 
   it('should benchmark map object (O(1) hash lookup)', () => {
@@ -157,17 +99,17 @@ describe('AutoWire Performance Comparison', () => {
     }
 
     const builder = container.builder()
-    builder.registerType(Logger).asInterface<ILogger>()
-    builder.registerType(Database).asInterface<IDatabase>()
-    builder.registerType(Cache).asInterface<ICache>()
+    builder.registerType(Logger).asInterface<ILogger>('ILogger')
+    builder.registerType(Database).asInterface<IDatabase>('IDatabase')
+    builder.registerType(Cache).asInterface<ICache>('ICache')
     builder
       .registerType(Service)
-      .asInterface<Service>()
+      .asInterface<Service>('Service')
       .autoWire({
         map: {
-          logger: (c) => c.resolveInterface<ILogger>(),
-          database: (c) => c.resolveInterface<IDatabase>(),
-          cache: (c) => c.resolveInterface<ICache>()
+          logger: (c) => c.resolveType<ILogger>('ILogger'),
+          database: (c) => c.resolveType<IDatabase>('IDatabase'),
+          cache: (c) => c.resolveType<ICache>('ICache')
         }
       })
 
@@ -176,7 +118,7 @@ describe('AutoWire Performance Comparison', () => {
     const iterations = 10000
     const start = performance.now()
     for (let i = 0; i < iterations; i++) {
-      builtContainer.resolveInterface<Service>()
+      builtContainer.resolveType<Service>('Service')
     }
     const elapsed = performance.now() - start
 
@@ -224,12 +166,12 @@ describe('AutoWire Performance Comparison', () => {
 
     const mapResolvers = []
     for (let i = 0; i < 10; i++) {
-      mapResolvers.push((c: Container) => c.resolveInterface<any>(`IService${i}`))
+      mapResolvers.push((c: Container) => c.resolveType<any>(`IService${i}`))
     }
 
     builder
       .registerType(LargeService)
-      .asInterface<LargeService>()
+      .asInterface<LargeService>('LargeService')
       .autoWire({ mapResolvers })
 
     const builtContainer = builder.build()
@@ -237,7 +179,7 @@ describe('AutoWire Performance Comparison', () => {
     const iterations = 5000
     const start = performance.now()
     for (let i = 0; i < iterations; i++) {
-      const service = builtContainer.resolveInterface<LargeService>()
+      const service = builtContainer.resolveType<LargeService>('LargeService')
       expect(service.s0).toBeDefined()
     }
     const elapsed = performance.now() - start

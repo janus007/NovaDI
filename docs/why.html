@@ -228,7 +228,7 @@ builder.registerType(UserService).asInterface<IUserService>().autoWire()
 export const app = builder.build()
 
 // Now use it
-const userService = app.resolveInterface<IUserService>()
+const userService = app.resolveType<IUserService>()
 // Everything wired automatically! ✨</code></pre>
 
         <div class="info-box info-box-tip" style="margin-top: 16px; margin-bottom: 0;">
@@ -585,7 +585,7 @@ export const app = builder.build()</code></pre>
 import { app } from './composition-root'
 
 // Resolve the entire object graph with ONE line
-const userService = app.resolveInterface<IUserService>()
+const userService = app.resolveType<IUserService>()
 
 // Everything is wired automatically:
 // ✅ UserService gets UserRepository, EmailService, Logger

@@ -118,7 +118,7 @@
             ];
             for (const name of namesToTry) {
                 try {
-                    resolved = container.resolveInterface(name);
+                    resolved = container.resolveType(name);
                     foundMatch = true;
                     break;
                 }
@@ -133,7 +133,7 @@
                 throw new Error(`Cannot resolve parameter "${paramName}" on ${constructor.name}. ` +
                     `No interface registration found. Tried: ${namesToTry.join(', ')}. ` +
                     `Suggestions:\n` +
-                    `  - Use .autoWire({ map: { ${paramName}: (c) => c.resolveInterface<I${capitalize(paramName)}>() } })\n` +
+                    `  - Use .autoWire({ map: { ${paramName}: (c) => c.resolveType<I${capitalize(paramName)}>() } })\n` +
                     `  - Register the interface with .asInterface<I${capitalize(paramName)}>()\n` +
                     `  - Mark a default implementation with .asDefaultInterface<I${capitalize(paramName)}>()`);
             }
@@ -421,7 +421,7 @@
          * // Strategy 2: map (minify-safe, explicit)
          * builder.registerType(EventBus).asInterface<IEventBus>().autoWire({
          *   map: {
-         *     logger: (c) => c.resolveInterface<ILogger>()
+         *     logger: (c) => c.resolveType<ILogger>()
          *   }
          * })
          *
@@ -1520,8 +1520,8 @@
             // Measure 1000 cached singleton resolutions
             const start = performance.now();
             for (let i = 0; i < 1000; i++) {
-                app.resolveInterface("ILogger");
-                app.resolveInterface("ICache");
+                app.resolveType("ILogger");
+                app.resolveType("ICache");
             }
             const end = performance.now();
             const timeMs = end - start;
@@ -1538,8 +1538,8 @@
             // Measure 1000 transient resolutions (new instance each time)
             const start = performance.now();
             for (let i = 0; i < 1000; i++) {
-                app.resolveInterface("ILogger");
-                app.resolveInterface("ICache");
+                app.resolveType("ILogger");
+                app.resolveType("ICache");
             }
             const end = performance.now();
             const timeMs = end - start;
@@ -1571,21 +1571,21 @@
                 .registerType(EventBus)
                 .asInterface("IEventBus").autoWire({
                 map: {
-                    logger: c => c.resolveInterface("ILogger")
+                    logger: c => c.resolveType("ILogger")
                 }
-            }).autoWire({ map: { logger: (c) => c.resolveInterface("ILogger") } })
+            }).autoWire({ map: { logger: (c) => c.resolveType("ILogger") } })
                 .singleInstance();
             builder
                 .registerType(AutomationService)
                 .asInterface("AutomationService").autoWire({
                 map: {
-                    logger: c => c.resolveInterface("ILogger"),
-                    eventBus: c => c.resolveInterface("IEventBus")
+                    logger: c => c.resolveType("ILogger"),
+                    eventBus: c => c.resolveType("IEventBus")
                 }
             }).autoWire({
                 map: {
-                    logger: (c) => c.resolveInterface("ILogger"),
-                    eventBus: (c) => c.resolveInterface("IEventBus")
+                    logger: (c) => c.resolveType("ILogger"),
+                    eventBus: (c) => c.resolveType("IEventBus")
                 }
             })
                 .singleInstance();
@@ -1604,18 +1604,18 @@
                 .asInterface("IDevice")
                 .keyed('Thermostat').autoWire({
                 map: {
-                    logger: c => c.resolveInterface("ILogger")
+                    logger: c => c.resolveType("ILogger")
                 }
             }).autoWire({
                 map: {
-                    logger: c => c.resolveInterface("ILogger")
+                    logger: c => c.resolveType("ILogger")
                 }
             }).autoWire({
                 map: {
                     id: () => 'auto-thermo',
                     name: () => 'Auto Thermostat',
                     roomId: () => 'office',
-                    logger: (c) => c.resolveInterface("ILogger")
+                    logger: (c) => c.resolveType("ILogger")
                 }
             });
             builder
@@ -1623,25 +1623,25 @@
                 .asInterface("IDevice")
                 .keyed('Light').autoWire({
                 map: {
-                    logger: c => c.resolveInterface("ILogger")
+                    logger: c => c.resolveType("ILogger")
                 }
             }).autoWire({
                 map: {
-                    logger: c => c.resolveInterface("ILogger")
+                    logger: c => c.resolveType("ILogger")
                 }
             }).autoWire({
                 map: {
                     id: () => 'auto-light',
                     name: () => 'Auto Light',
                     roomId: () => 'office',
-                    logger: (c) => c.resolveInterface("ILogger")
+                    logger: (c) => c.resolveType("ILogger")
                 }
             });
             const app = builder.build();
             // Measure 1000 complex resolutions (resolve the top-level service)
             const start = performance.now();
             for (let i = 0; i < 1000; i++) {
-                app.resolveInterface("AutomationService");
+                app.resolveType("AutomationService");
             }
             const end = performance.now();
             const timeMs = end - start;
@@ -1659,12 +1659,12 @@
             // Core services with manual factory registration (no autowire)
             builder.registerType(ConsoleLogger).asInterface("ILogger").singleInstance();
             builder.register((c) => {
-                const logger = c.resolveInterface("ILogger");
+                const logger = c.resolveType("ILogger");
                 return new EventBus(logger);
             }).asInterface("IEventBus").singleInstance();
             builder.register((c) => {
-                const logger = c.resolveInterface("ILogger");
-                const eventBus = c.resolveInterface("IEventBus");
+                const logger = c.resolveType("ILogger");
+                const eventBus = c.resolveType("IEventBus");
                 return new AutomationService(logger, eventBus);
             }).asInterface("AutomationService").singleInstance();
             // Sensors (instances)
@@ -1678,18 +1678,18 @@
                 .keyed('MotionSensor');
             // Devices with manual factory registration (no autowire)
             builder.register((c) => {
-                const logger = c.resolveInterface("ILogger");
+                const logger = c.resolveType("ILogger");
                 return new SmartThermostat('auto-thermo', 'Auto Thermostat', 'office', logger);
             }).asInterface("IDevice").keyed('Thermostat');
             builder.register((c) => {
-                const logger = c.resolveInterface("ILogger");
+                const logger = c.resolveType("ILogger");
                 return new SmartLight('auto-light', 'Auto Light', 'office', logger);
             }).asInterface("IDevice").keyed('Light');
             const app = builder.build();
             // Measure 1000 complex resolutions
             const start = performance.now();
             for (let i = 0; i < 1000; i++) {
-                app.resolveInterface("AutomationService");
+                app.resolveType("AutomationService");
             }
             const end = performance.now();
             const timeMs = end - start;
@@ -20903,7 +20903,7 @@
         // DEMO 0: Simplest Case - Just Registration and Resolution
         async demo0_SimplestCase() {
             console.group('%c🌟 DEMO 0: Simplest Case', 'font-weight: bold; color: #9C27B0');
-            console.log('Features: Basic .asInterface<T>() and .resolveInterface<T>() - no autowiring!');
+            console.log('Features: Basic .asInterface<T>() and .resolveType<T>() - no autowiring!');
             // Create container
             this.container = new Container$2();
             const builder = this.container.builder();
@@ -20911,11 +20911,11 @@
             builder.registerType(ConsoleLogger).asInterface("ILogger").singleInstance();
             builder.registerType(EventBus).asInterface("IEventBus").singleInstance().autoWire({
                 map: {
-                    logger: c => c.resolveInterface("ILogger")
+                    logger: c => c.resolveType("ILogger")
                 }
             }).autoWire({
                 map: {
-                    logger: c => c.resolveInterface("ILogger")
+                    logger: c => c.resolveType("ILogger")
                 }
             });
             const app = builder.build();
@@ -20927,12 +20927,12 @@ builder.registerType(EventBus).asInterface<IEventBus>().singleInstance()
 
 const app = builder.build()
 
-const logger = app.resolveInterface<ILogger>()
-const eventBus = app.resolveInterface<IEventBus>()`;
+const logger = app.resolveType<ILogger>()
+const eventBus = app.resolveType<IEventBus>()`;
             displayRegistry('demo0', app, 'Simple Registration', code0);
             // Resolve services
-            const logger = app.resolveInterface("ILogger");
-            const eventBus = app.resolveInterface("IEventBus");
+            const logger = app.resolveType("ILogger");
+            const eventBus = app.resolveType("IEventBus");
             console.log('✅ Logger resolved:', logger.constructor.name);
             console.log('✅ EventBus resolved:', eventBus.constructor.name);
             console.log('✅ No Token<T>() needed - transformer does it all!');
@@ -20955,11 +20955,11 @@ const eventBus = app.resolveInterface<IEventBus>()`;
                 .registerType(EventBus)
                 .asInterface("IEventBus").autoWire({
                 map: {
-                    logger: c => c.resolveInterface("ILogger")
+                    logger: c => c.resolveType("ILogger")
                 }
             }).autoWire({
                 map: {
-                    logger: (c) => c.resolveInterface("ILogger")
+                    logger: (c) => c.resolveType("ILogger")
                 }
             })
                 .singleInstance();
@@ -20971,14 +20971,14 @@ builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
 builder
   .registerType(EventBus)
   .asInterface<IEventBus>()
-  .autoWire({ map: { logger: (c) => c.resolveInterface<ILogger>() } })
+  .autoWire({ map: { logger: (c) => c.resolveType<ILogger>() } })
   .singleInstance()
 
 const app = builder.build()`;
             displayRegistry('demo1', app, 'Container Registry', code1);
             // Resolve dependencies
-            const logger = app.resolveInterface("ILogger");
-            const eventBus = app.resolveInterface("IEventBus");
+            const logger = app.resolveType("ILogger");
+            const eventBus = app.resolveType("IEventBus");
             console.log('✅ Logger resolved:', logger.constructor.name);
             console.log('✅ EventBus resolved:', eventBus.constructor.name);
             console.log('✅ EventBus has logger dependency injected');
@@ -21008,7 +21008,7 @@ builder.registerType(FileLogger).asInterface<ILogger>().keyed('file')
 const app = builder.build()`;
             displayRegistry('demo2', app, 'Multiple Logger Implementations', code2);
             // Resolve default and keyed loggers
-            const defaultLogger = app.resolveInterface("ILogger");
+            const defaultLogger = app.resolveType("ILogger");
             const fileLogger = app.resolveInterfaceKeyed('file');
             const allLoggers = app.resolveInterfaceAll("ILogger");
             console.log('✅ Default logger:', defaultLogger.constructor.name);
@@ -21035,14 +21035,14 @@ const app = builder.build()`;
                 .registerType(SmartLight)
                 .asInterface("IDevice").autoWire({
                 map: {
-                    logger: c => c.resolveInterface("ILogger")
+                    logger: c => c.resolveType("ILogger")
                 }
             }).autoWire({
                 map: {
                     id: () => 'light-1',
                     name: () => 'Bedroom Light',
                     roomId: () => 'bedroom',
-                    logger: (c) => c.resolveInterface("ILogger")
+                    logger: (c) => c.resolveType("ILogger")
                 }
             });
             const app = builder.build();
@@ -21064,14 +21064,14 @@ builder
       id: () => 'light-1',
       name: () => 'Bedroom Light',
       roomId: () => 'bedroom',
-      logger: (c) => c.resolveInterface<ILogger>()
+      logger: (c) => c.resolveType<ILogger>()
     }
   })
 
 const app = builder.build()`;
             displayRegistry('demo3', app, 'Autowired Dependencies', code3);
-            const sensor = app.resolveInterface("ISensor");
-            const light = app.resolveInterface("IDevice");
+            const sensor = app.resolveType("ISensor");
+            const light = app.resolveType("IDevice");
             console.log('✅ Temperature sensor resolved:', sensor.name);
             console.log('✅ Smart light resolved with logger injected:', light.name);
             console.log(`✅ Current temperature: ${sensor.getValue()}${sensor.getUnit()}`);
@@ -21100,10 +21100,10 @@ const app = builder.build()`;
             bedroomBuilder.registerInstance(new TemperatureSensor('br-temp', 'Bedroom Temp', 'bedroom', 19)).asInterface("ISensor");
             const bedroomContainer = bedroomBuilder.build();
             // Resolve from each scope
-            const lrSensor = livingRoomContainer.resolveInterface("ISensor");
-            const brSensor = bedroomContainer.resolveInterface("ISensor");
-            const lrLogger = livingRoomContainer.resolveInterface("ILogger");
-            const brLogger = bedroomContainer.resolveInterface("ILogger");
+            const lrSensor = livingRoomContainer.resolveType("ISensor");
+            const brSensor = bedroomContainer.resolveType("ISensor");
+            const lrLogger = livingRoomContainer.resolveType("ILogger");
+            const brLogger = bedroomContainer.resolveType("ILogger");
             console.log(`✅ Living Room temp: ${lrSensor.getValue()}°C (${lrSensor.name})`);
             console.log(`✅ Bedroom temp: ${brSensor.getValue()}°C (${brSensor.name})`);
             console.log('✅ Each room has isolated sensor instance');
@@ -21142,21 +21142,21 @@ const bedroomContainer = bedroomBuilder.build()`;
                 .registerType(EventBus)
                 .asInterface("IEventBus").autoWire({
                 map: {
-                    logger: c => c.resolveInterface("ILogger")
+                    logger: c => c.resolveType("ILogger")
                 }
-            }).autoWire({ map: { logger: (c) => c.resolveInterface("ILogger") } })
+            }).autoWire({ map: { logger: (c) => c.resolveType("ILogger") } })
                 .singleInstance();
             builder
                 .registerType(AutomationService)
                 .asInterface("AutomationService").autoWire({
                 map: {
-                    logger: c => c.resolveInterface("ILogger"),
-                    eventBus: c => c.resolveInterface("IEventBus")
+                    logger: c => c.resolveType("ILogger"),
+                    eventBus: c => c.resolveType("IEventBus")
                 }
             }).autoWire({
                 map: {
-                    logger: (c) => c.resolveInterface("ILogger"),
-                    eventBus: (c) => c.resolveInterface("IEventBus")
+                    logger: (c) => c.resolveType("ILogger"),
+                    eventBus: (c) => c.resolveType("IEventBus")
                 }
             })
                 .singleInstance();
@@ -21175,18 +21175,18 @@ const bedroomContainer = bedroomBuilder.build()`;
                 .asInterface("IDevice")
                 .keyed('Thermostat').autoWire({
                 map: {
-                    logger: c => c.resolveInterface("ILogger")
+                    logger: c => c.resolveType("ILogger")
                 }
             }).autoWire({
                 map: {
-                    logger: c => c.resolveInterface("ILogger")
+                    logger: c => c.resolveType("ILogger")
                 }
             }).autoWire({
                 map: {
                     id: () => 'auto-thermo',
                     name: () => 'Auto Thermostat',
                     roomId: () => 'office',
-                    logger: (c) => c.resolveInterface("ILogger")
+                    logger: (c) => c.resolveType("ILogger")
                 }
             });
             builder
@@ -21194,18 +21194,18 @@ const bedroomContainer = bedroomBuilder.build()`;
                 .asInterface("IDevice")
                 .keyed('Light').autoWire({
                 map: {
-                    logger: c => c.resolveInterface("ILogger")
+                    logger: c => c.resolveType("ILogger")
                 }
             }).autoWire({
                 map: {
-                    logger: c => c.resolveInterface("ILogger")
+                    logger: c => c.resolveType("ILogger")
                 }
             }).autoWire({
                 map: {
                     id: () => 'auto-light',
                     name: () => 'Auto Light',
                     roomId: () => 'office',
-                    logger: (c) => c.resolveInterface("ILogger")
+                    logger: (c) => c.resolveType("ILogger")
                 }
             });
             const app = builder.build();
@@ -21215,7 +21215,7 @@ builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
 builder
   .registerType(EventBus)
   .asInterface<IEventBus>()
-  .autoWire({ map: { logger: (c) => c.resolveInterface<ILogger>() } })
+  .autoWire({ map: { logger: (c) => c.resolveType<ILogger>() } })
   .singleInstance()
 
 builder
@@ -21223,8 +21223,8 @@ builder
   .asInterface<AutomationService>()
   .autoWire({
     map: {
-      logger: (c) => c.resolveInterface<ILogger>(),
-      eventBus: (c) => c.resolveInterface<IEventBus>()
+      logger: (c) => c.resolveType<ILogger>(),
+      eventBus: (c) => c.resolveType<IEventBus>()
     }
   })
   .singleInstance()
@@ -21250,7 +21250,7 @@ builder
       id: () => 'auto-thermo',
       name: () => 'Auto Thermostat',
       roomId: () => 'office',
-      logger: (c) => c.resolveInterface<ILogger>()
+      logger: (c) => c.resolveType<ILogger>()
     }
   })
 
@@ -21263,14 +21263,14 @@ builder
       id: () => 'auto-light',
       name: () => 'Auto Light',
       roomId: () => 'office',
-      logger: (c) => c.resolveInterface<ILogger>()
+      logger: (c) => c.resolveType<ILogger>()
     }
   })`;
             displayRegistry('demo5', app, 'Complete Automation System Registry', code5);
             // Resolve all components
-            const logger = app.resolveInterface("ILogger");
-            const eventBus = app.resolveInterface("IEventBus");
-            const automationService = app.resolveInterface("AutomationService");
+            const logger = app.resolveType("ILogger");
+            const eventBus = app.resolveType("IEventBus");
+            const automationService = app.resolveType("AutomationService");
             const tempSensor = app.resolveInterfaceKeyed('TempSensor');
             const motionSensor = app.resolveInterfaceKeyed('MotionSensor');
             const thermostat = app.resolveInterfaceKeyed('Thermostat');

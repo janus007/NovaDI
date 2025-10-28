@@ -890,8 +890,8 @@ builder.registerType(Cache).asInterface&lt;ICache&gt;().singleInstance()
 
 // Measure 1000 cached singleton resolutions
 for (let i = 0; i < 1000; i++) {
-  app.resolveInterface&lt;ILogger&gt;()
-  app.resolveInterface&lt;ICache&gt;()
+  app.resolveType&lt;ILogger&gt;()
+  app.resolveType&lt;ICache&gt;()
 }</code></pre>
       </div>
 
@@ -912,7 +912,7 @@ builder.registerType(ConsoleLogger).asInterface&lt;ILogger&gt;().singleInstance(
 builder
   .registerType(EventBus)
   .asInterface&lt;IEventBus&gt;()
-  .autoWire({ map: { logger: (c) => c.resolveInterface&lt;ILogger&gt;() } })
+  .autoWire({ map: { logger: (c) => c.resolveType&lt;ILogger&gt;() } })
   .singleInstance()
 
 builder
@@ -920,8 +920,8 @@ builder
   .asInterface&lt;AutomationService&gt;()
   .autoWire({
     map: {
-      logger: (c) => c.resolveInterface&lt;ILogger&gt;(),
-      eventBus: (c) => c.resolveInterface&lt;IEventBus&gt;()
+      logger: (c) => c.resolveType&lt;ILogger&gt;(),
+      eventBus: (c) => c.resolveType&lt;IEventBus&gt;()
     }
   })
   .singleInstance()
@@ -932,11 +932,11 @@ builder.registerInstance(new MotionSensor(...)).asInterface&lt;ISensor&gt;().key
 
 // Devices (with autowired logger dependency)
 builder.registerType(SmartThermostat).asInterface&lt;IDevice&gt;().keyed('Thermostat')
-  .autoWire({ map: { logger: (c) => c.resolveInterface&lt;ILogger&gt;(), ... } })
+  .autoWire({ map: { logger: (c) => c.resolveType&lt;ILogger&gt;(), ... } })
 
 // Measure 1000 complex resolutions
 for (let i = 0; i < 1000; i++) {
-  app.resolveInterface&lt;AutomationService&gt;()  // Resolves Logger + EventBus chain
+  app.resolveType&lt;AutomationService&gt;()  // Resolves Logger + EventBus chain
 }</code></pre>
       </div>
 
@@ -946,17 +946,17 @@ for (let i = 0; i < 1000; i++) {
         <p style="margin-bottom: 10px; font-size: 0.9em; color: var(--text-muted);">
           Uses direct factory registration instead of .autoWire() to eliminate function call overhead.
         </p>
-        <pre class="line-numbers"><code class="language-typescript">// Instead of .autoWire({ map: { logger: (c) => c.resolveInterface&lt;ILogger&gt;() } })
+        <pre class="line-numbers"><code class="language-typescript">// Instead of .autoWire({ map: { logger: (c) => c.resolveType&lt;ILogger&gt;() } })
 // Use direct factory:
 
 builder.register((c) => {
-  const logger = c.resolveInterface&lt;ILogger&gt;()
+  const logger = c.resolveType&lt;ILogger&gt;()
   return new EventBus(logger)
 }).asInterface&lt;IEventBus&gt;().singleInstance()
 
 builder.register((c) => {
-  const logger = c.resolveInterface&lt;ILogger&gt;()
-  const eventBus = c.resolveInterface&lt;IEventBus&gt;()
+  const logger = c.resolveType&lt;ILogger&gt;()
+  const eventBus = c.resolveType&lt;IEventBus&gt;()
   return new AutomationService(logger, eventBus)
 }).asInterface&lt;AutomationService&gt;().singleInstance()
 

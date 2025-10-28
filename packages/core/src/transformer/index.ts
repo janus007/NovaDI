@@ -3,7 +3,7 @@
  *
  * Automatically injects type names into:
  * - .asInterface<T>() → .asInterface<T>("TypeName")
- * - .resolveInterface<T>() → .resolveInterface<T>("TypeName")
+ * - .resolveType<T>() → .resolveType<T>("TypeName")
  * - .bindInterface<T>(value) → .bindInterface<T>(value, "TypeName")
  * - .registerType(X) → .registerType(X).autoWire({ mapResolvers: [...] }) (default autowiring)
  *
@@ -11,9 +11,9 @@
  * The transformer generates a resolver array in parameter position order:
  * Example: constructor(eventBus: IEventBus, apiKey: string, logger: ILogger)
  * Transforms to: .autoWire({ mapResolvers: [
- *   (c) => c.resolveInterface("IEventBus"),  // Position 0
+ *   (c) => c.resolveType("IEventBus"),  // Position 0
  *   undefined,                                // Position 1 (primitive)
- *   (c) => c.resolveInterface("ILogger")      // Position 2
+ *   (c) => c.resolveType("ILogger")      // Position 2
  * ]})
  *
  * Benefits:
@@ -42,7 +42,7 @@ export default function novadiTransformer(program: ts.Program | null): ts.Transf
   return (context: ts.TransformationContext) => {
     return (sourceFile: ts.SourceFile) => {
       const visitor = (node: ts.Node): ts.Node => {
-        // Transform .asInterface<T>(), .resolveInterface<T>(), and .bindInterface<T>() calls
+        // Transform .asInterface<T>(), .resolveType<T>(), and .bindInterface<T>() calls
         if (ts.isCallExpression(node)) {
           // IMPORTANT: Transform default autowiring FIRST (before type name injection)
           // This allows transformDefaultAutowiring to see the original type arguments
@@ -166,21 +166,21 @@ function transformBindInterface(
 }
 
 /**
- * Transform .resolveInterface<T>() to .resolveInterface<T>("TypeName")
+ * Transform .resolveType<T>() to .resolveType<T>("TypeName")
  */
 function transformResolveInterface(
   node: ts.CallExpression,
   context: ts.TransformationContext
 ): ts.Node {
-  // Check if this is a .resolveInterface() call
+  // Check if this is a .resolveType() call
   if (!ts.isPropertyAccessExpression(node.expression)) {
     return node
   }
 
   const propAccess = node.expression
-  if (propAccess.name.text !== 'resolveInterface' &&
-      propAccess.name.text !== 'resolveInterfaceKeyed' &&
-      propAccess.name.text !== 'resolveInterfaceAll') {
+  if (propAccess.name.text !== 'resolveType' &&
+      propAccess.name.text !== 'resolveTypeKeyed' &&
+      propAccess.name.text !== 'resolveTypeAll') {
     return node
   }
 
@@ -189,8 +189,8 @@ function transformResolveInterface(
     return node
   }
 
-  // For resolveInterfaceKeyed, skip if already has 1+ arguments (the key)
-  if (propAccess.name.text === 'resolveInterfaceKeyed' && node.arguments.length > 0) {
+  // For resolveTypeKeyed, skip if already has 1+ arguments (the key)
+  if (propAccess.name.text === 'resolveTypeKeyed' && node.arguments.length > 0) {
     return node
   }
 
@@ -549,7 +549,7 @@ function findClassDeclarationInChain(
 }
 
 /**
- * Create AST for .autoWire({ mapResolvers: [(c) => c.resolveInterface("IEventBus"), undefined, ...] })
+ * Create AST for .autoWire({ mapResolvers: [(c) => c.resolveType("IEventBus"), undefined, ...] })
  * Array-based autowiring with optimal O(1) performance
  * Minification-safe and refactoring-friendly (transformer regenerates on recompile)
  */
@@ -559,13 +559,13 @@ function createAutoWireMapResolversCall(
 ): ts.CallExpression {
   const factory = context.factory
 
-  // Create array of resolvers: [(c) => c.resolveInterface("TypeName"), undefined, ...]
+  // Create array of resolvers: [(c) => c.resolveType("TypeName"), undefined, ...]
   const resolverExpressions = entries.map(entry => {
     if (entry.typeName === null) {
       // Primitive type → undefined
       return factory.createIdentifier('undefined')
     } else {
-      // Interface type → (c) => c.resolveInterface("TypeName")
+      // Interface type → (c) => c.resolveType("TypeName")
       return factory.createArrowFunction(
         undefined, // modifiers
         undefined, // type parameters
@@ -579,11 +579,11 @@ function createAutoWireMapResolversCall(
         )],
         undefined, // type
         factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
-        // c.resolveInterface("TypeName")
+        // c.resolveType("TypeName")
         factory.createCallExpression(
           factory.createPropertyAccessExpression(
             factory.createIdentifier('c'),
-            'resolveInterface'
+            'resolveType'
           ),
           undefined,
           [factory.createStringLiteral(entry.typeName)]

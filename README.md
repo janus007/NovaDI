@@ -43,10 +43,10 @@ const builder = container.builder()
 
 builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
 builder.registerType(PostgresDatabase).asInterface<IDatabase>().singleInstance()
-builder.registerType(UserService).asInterface<UserService>().autoWire()
+builder.registerType(UserService).asInterface<UserService>()
 
 const app = builder.build()
-const userService = app.resolveInterface<UserService>()
+const userService = app.resolveType<UserService>()
 ```
 
 **Your business logic stays framework-agnostic. Your tests stay simple. Your architecture stays clean.**
@@ -56,7 +56,7 @@ const userService = app.resolveInterface<UserService>()
 ## Features
 
 - **Zero Annotations** - No decorators in your business code
-- **Convention Over Configuration** - `.autoWire()` automatically wires ALL dependencies by convention
+- **Transformer-Powered AutoWire** - Automatically wires ALL dependencies via compile-time type analysis
 - **It Just Works** - No manual configuration needed
 - **Blazing Fast** - Multi-tier caching, object pooling, zero-overhead singletons
 - **Type-Safe** - Full TypeScript type inference and compile-time checking
@@ -168,14 +168,14 @@ If you must use manual type names:
 ```typescript
 // ⚠️ NOT RECOMMENDED - Manual type name literals
 builder.registerType(ConsoleLogger).asInterface<ILogger>("ILogger")
-const logger = app.resolveInterface<ILogger>("ILogger")
+const logger = app.resolveType<ILogger>("ILogger")
 
 builder
   .registerType(UserService)
   .asInterface<UserService>("UserService")
   .autoWire({
     map: {
-      logger: (c) => c.resolveInterface<ILogger>("ILogger")
+      logger: (c) => c.resolveType<ILogger>("ILogger")
     }
   })
 ```
@@ -184,7 +184,7 @@ builder
 ```typescript
 // ✅ With transformer - type names auto-injected
 .asInterface<ILogger>()           // Becomes: .asInterface<ILogger>("ILogger")
-.resolveInterface<ILogger>()      // Becomes: .resolveInterface<ILogger>("ILogger")
+.resolveType<ILogger>()      // Becomes: .resolveType<ILogger>("ILogger")
 
 // Plus you get:
 // ✅ Compile-time validation of all dependencies
@@ -234,51 +234,85 @@ const builder = container.builder()
 // Register implementations
 builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
 
-// AutoWire does ALL the wiring by convention!
-builder.registerType(UserService).asInterface<UserService>().autoWire()
+// Transformer automatically wires ALL dependencies!
+builder.registerType(UserService).asInterface<UserService>()
 
 const app = builder.build()
 
 // 3. Resolve and use
-const userService = app.resolveInterface<UserService>()
+const userService = app.resolveType<UserService>()
 userService.createUser('Alice') // [LOG] Creating user: Alice
 ```
 
-**That's it!** No manual configuration. No mapping. Just `.autoWire()` - convention over configuration.
+**That's it!** No manual configuration. No mapping. The transformer does it all automatically.
 
-The `logger` parameter automatically resolves to the registered `ILogger` interface by naming convention. This is THE way to use NovaDI.
+The `logger` parameter automatically resolves to `ILogger` via the transformer-generated `mapResolvers`. The transformer analyzes your TypeScript types at compile-time and generates the wiring automatically - zero runtime overhead, minification-safe, and refactoring-friendly.
 
 ---
 
-## AutoWire - Convention Over Configuration
+## AutoWire - Transformer-Powered Dependency Injection
 
-**Autowiring by convention** is THE way you wire dependencies. No manual configuration, no boilerplate - it just works.
+**The transformer analyzes your TypeScript types at compile-time and automatically generates dependency wiring.** Zero runtime overhead, minification-safe, refactoring-friendly.
 
-### The Standard Way - Type Injection by Convention
+### With Transformer (Recommended ⭐)
+
+The transformer sees your constructor parameter **TYPES** and generates `mapResolvers` automatically:
 
 ```typescript
+// You write clean code:
 class UserService {
   constructor(
-    private logger: ILogger,      // Automatically resolves ILogger by convention
-    private database: IDatabase   // Automatically resolves IDatabase by convention
+    private logger: ILogger,      // Transformer analyzes TYPE: ILogger
+    private database: IDatabase   // Transformer analyzes TYPE: IDatabase
   ) {}
 }
 
-// This is all you need - autowiring by convention!
-builder.registerType(UserService).asInterface<UserService>().autoWire()
+// Simple registration - transformer does the rest!
+builder.registerType(UserService).asInterface<UserService>()
+
+// At compile-time, transformer automatically generates:
+builder.registerType(UserService).asInterface<UserService>().autoWire({
+  mapResolvers: [
+    (c) => c.resolveType<ILogger>(),    // Index 0: ILogger
+    (c) => c.resolveType<IDatabase>()   // Index 1: IDatabase
+  ]
+})
 ```
 
-**How it works:**
-- Extracts parameter names from constructor (`logger`, `database`)
-- Tries multiple naming conventions (`ILogger`, `Logger`, `logger`)
-- Automatically resolves the matching registered interfaces
-- **Zero configuration - pure convention!**
+**Why This Approach is Superior:**
+- ✅ **Minification-safe** - Uses array index position, not parameter names
+- ✅ **Zero runtime overhead** - All type info captured at compile-time
+- ✅ **Refactoring-friendly** - Rename parameters freely, types are what matter
+- ✅ **Type-safe** - TypeScript compiler validates all dependencies
+- ✅ **O(1) performance** - Array index lookup is blazing fast
 
-**This is how you should wire ALL your services.** Convention over configuration - always.
+**This is THE way to use NovaDI.** Always use the transformer.
 
-### Explicit Mapping (Edge Cases Only)
+### Without Transformer (Manual Wiring)
 
-Only use explicit mapping for rare cases where autowiring can't help:
+If you cannot use the transformer (e.g., runtime-only environments), use explicit `map`:
+
+```typescript
+// Manual wiring with parameter names
+builder
+  .registerType(UserService)
+  .asInterface<UserService>()
+  .autoWire({
+    map: {
+      logger: (c) => c.resolveType<ILogger>(),
+      database: (c) => c.resolveType<IDatabase>()
+    }
+  })
+```
+
+**Limitations without transformer:**
+- ❌ **Not minification-safe** - Relies on parameter names being preserved
+- ❌ **More verbose** - Must manually list every dependency
+- ❌ **Manual maintenance** - Refactoring requires updating map
+
+### Explicit Mapping (Special Cases)
+
+Use explicit mapping for primitives, configuration values, or custom logic:
 
 ```typescript
 builder
@@ -286,19 +320,17 @@ builder
   .asInterface<IDevice>()
   .autoWire({
     map: {
-      id: () => 'light-123',              // Primitive value injection
-      name: () => 'Living Room Light',    // String injection
-      logger: (c) => c.resolveInterface<ILogger>()  // Custom resolution logic
+      id: () => 'light-123',              // Primitive value
+      name: () => 'Living Room Light',    // String value
+      logger: (c) => c.resolveType<ILogger>()  // Service dependency
     }
   })
 ```
 
-**Only use explicit mapping when:**
+**Use explicit mapping when:**
 - Injecting primitives, strings, or configuration values
-- You need custom resolution logic (rare)
-- You're NOT using the transformer AND code is minified
-
-**For regular service dependencies, always use `.autoWire()` without arguments!**
+- You need custom resolution logic
+- Working without transformer (not recommended for production)
 
 ---
 
@@ -377,19 +409,19 @@ const container = new Container()
 const builder = container.builder()
 
 builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
-builder.registerType(PostgresDatabase).asInterface<IDatabase>().singleInstance().autoWire()
-builder.registerType(UserService).asInterface<UserService>().autoWire()
+builder.registerType(PostgresDatabase).asInterface<IDatabase>().singleInstance()
+builder.registerType(UserService).asInterface<UserService>()
 
 const app = builder.build()
 
 // Use it
-const userService = app.resolveInterface<UserService>()
+const userService = app.resolveType<UserService>()
 await userService.getUser(123)
 ```
 
 **Notice:**
 - All service files are pure TypeScript - no decorators, no framework imports
-- `.autoWire()` handles ALL dependency wiring by convention
+- Transformer handles ALL dependency wiring automatically
 - No manual mapping needed - it just works
 - Configuration lives in ONE place
 - Testing is trivial: `new UserService(mockDB, mockLogger)`
@@ -446,8 +478,8 @@ class OrderService {
 const container = new Container()
 const builder = container.builder()
 
-// Convention over configuration - autowiring by parameter names
-builder.registerType(OrderService).asInterface<OrderService>().autoWire()
+// Transformer-powered autowiring - analyzes constructor types at compile-time
+builder.registerType(OrderService).asInterface<OrderService>()
 ```
 
 **Benefits:**
@@ -519,21 +551,21 @@ const builder = container.builder()
 
 // Infrastructure layer - singletons
 builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
-builder.registerType(PostgresDatabase).asInterface<IDatabase>().singleInstance().autoWire()
+builder.registerType(PostgresDatabase).asInterface<IDatabase>().singleInstance()
 builder.registerType(StripePayment).asInterface<IPaymentGateway>().singleInstance()
 builder.registerType(SendGridEmail).asInterface<IEmailService>().singleInstance()
 
-// Service layer - autowired by convention
-builder.registerType(OrderService).asInterface<OrderService>().autoWire()
-builder.registerType(UserService).asInterface<UserService>().autoWire()
+// Service layer - autowired by transformer
+builder.registerType(OrderService).asInterface<OrderService>()
+builder.registerType(UserService).asInterface<UserService>()
 
 // Application layer
-builder.registerType(Application).asInterface<Application>().autoWire()
+builder.registerType(Application).asInterface<Application>()
 
 const app = builder.build()
 
 // Start application
-const application = app.resolveInterface<Application>()
+const application = app.resolveType<Application>()
 application.start()
 ```
 
@@ -593,8 +625,8 @@ export class OrderService {
 // main.ts (Composition Root)
 const container = new Container()
 const builder = container.builder()
-builder.registerType(UserService).asInterface<UserService>().autoWire()
-builder.registerType(OrderService).asInterface<OrderService>().autoWire()
+builder.registerType(UserService).asInterface<UserService>()
+builder.registerType(OrderService).asInterface<OrderService>()
 const app = builder.build()
 
 // Business code knows nothing about DI!
@@ -611,8 +643,8 @@ const app = builder.build()
 ```typescript
 builder
   .register((c) => {
-    const config = c.resolveInterface<IConfig>()
-    const logger = c.resolveInterface<ILogger>()
+    const config = c.resolveType<IConfig>()
+    const logger = c.resolveType<ILogger>()
     return new ComplexService(config, logger, new Date())
   })
   .asInterface<IComplexService>()
@@ -637,7 +669,7 @@ app.use((req, res, next) => {
 })
 
 // Resolve per-request services
-const handler = req.container.resolveInterface<IRequestHandler>()
+const handler = req.container.resolveType<IRequestHandler>()
 ```
 
 ### Keyed Services
@@ -826,7 +858,7 @@ Key Principles:
 - Package: @novadi/core
 - NO decorators/annotations in business code
 - Convention over configuration
-- Uses .asInterface<T>() and .resolveInterface<T>()
+- Uses .asInterface<T>() and .resolveType<T>()
 - TypeScript transformer handles type names automatically
 
 Core API:
@@ -839,23 +871,25 @@ Core API:
 3. Register services:
    builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
 
-4. Autowire dependencies BY CONVENTION (recommended):
-   builder.registerType(UserService).asInterface<UserService>().autoWire()
-   // Parameters automatically match registered interfaces by naming convention
+4. Register services with dependencies:
+   builder.registerType(UserService).asInterface<UserService>()
+   // Transformer analyzes constructor types and auto-generates .autoWire() with mapResolvers array
 
 5. Build and resolve:
    const app = builder.build()
-   const service = app.resolveInterface<UserService>()
+   const service = app.resolveType<UserService>()
 
 Lifetimes:
 - .singleInstance() - singleton
 - .instancePerDependency() - transient (DEFAULT)
 - .instancePerRequest() - per resolution tree
 
-AutoWire (Convention Over Configuration):
-- Automatic: .autoWire() - matches parameters to interfaces by naming convention
-- Explicit: .autoWire({ map: { logger: (c) => c.resolveInterface<ILogger>() } })
-- Use automatic for ALL services, explicit only for primitives/values
+AutoWire (Transformer-Powered):
+- Transformer automatically injects .autoWire() with mapResolvers from constructor types
+- Just register the type: builder.registerType(UserService).asInterface<UserService>()
+- Manual wiring (if no transformer): .autoWire({ map: { logger: (c) => c.resolveType<ILogger>() } })
+- Always use transformer for production - minification-safe and O(1) performance
+- Use explicit map only for primitives/config values or when transformer unavailable
 
 Transformer Setup (tsconfig.json):
 {
@@ -895,10 +929,10 @@ const container = new Container()
 const builder = container.builder()
 
 builder.registerType(ConsoleGreeter).asInterface<IGreeter>().singleInstance()
-builder.registerType(Application).asInterface<Application>().autoWire() // Convention!
+builder.registerType(Application).asInterface<Application>() // Transformer auto-wires dependencies!
 
 const app = builder.build()
-const application = app.resolveInterface<Application>()
+const application = app.resolveType<Application>()
 application.run() // Outputs: Hello, World!
 ```
 

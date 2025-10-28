@@ -134,7 +134,7 @@ const container = new Container()
     .singleInstance()
   .build()
 
-const logger = container.resolveInterface&lt;ILogger&gt;()
+const logger = container.resolveType&lt;ILogger&gt;()
 logger.log('Hello NovaDI!')</code></pre>
         </div>
       </div>
@@ -425,8 +425,8 @@ const container = new Container()
     .asInterface&lt;IUserService&gt;()
     .autoWire({
       map: {
-        logger: (c) => c.resolveInterface&lt;ILogger&gt;(),
-        db: (c) => c.resolveInterface&lt;IDatabase&gt;()
+        logger: (c) => c.resolveType&lt;ILogger&gt;(),
+        db: (c) => c.resolveType&lt;IDatabase&gt;()
       }
     })
     .singleInstance()
@@ -435,7 +435,7 @@ const container = new Container()
 
         <h3 style="margin-top: 32px;">4. Use in Application</h3>
         <pre class="line-numbers"><code class="language-typescript">// app.ts
-const userService = container.resolveInterface&lt;IUserService&gt;()
+const userService = container.resolveType&lt;IUserService&gt;()
 
 // All dependencies automatically injected!
 const user = await userService.getUser('123')

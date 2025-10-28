@@ -38,20 +38,20 @@ describe('Autowire - Map Strategy', () => {
 
     // Act
     const builder = container.builder()
-    builder.registerType(Logger).asInterface<ILogger>().singleInstance()
-    builder.registerType(Database).asInterface<IDatabase>().singleInstance()
+    builder.registerType(Logger).asInterface<ILogger>('ILogger').singleInstance()
+    builder.registerType(Database).asInterface<IDatabase>('IDatabase').singleInstance()
     builder
       .registerType(UserService)
-      .asInterface<UserService>()
+      .asInterface<UserService>('UserService')
       .autoWire({
         map: {
-          logger: (c) => c.resolveInterface<ILogger>(),
-          database: (c) => c.resolveInterface<IDatabase>()
+          logger: (c) => c.resolveType<ILogger>('ILogger'),
+          database: (c) => c.resolveType<IDatabase>('IDatabase')
         }
       })
 
     const builtContainer = builder.build()
-    const service = builtContainer.resolveInterface<UserService>()
+    const service = builtContainer.resolveType<UserService>('UserService')
 
     // Assert
     expect(service).toBeInstanceOf(UserService)
@@ -77,18 +77,18 @@ describe('Autowire - Map Strategy', () => {
 
     // Act
     const builder = container.builder()
-    builder.registerType(Logger).asInterface<ILogger>()
+    builder.registerType(Logger).asInterface<ILogger>('ILogger')
     builder
       .registerType(UserService)
-      .asInterface<UserService>()
+      .asInterface<UserService>('UserService')
       .autoWire({
         map: {
-          logger: (c) => c.resolveInterface<ILogger>()
+          logger: (c) => c.resolveType<ILogger>('ILogger')
         }
       })
 
     const builtContainer = builder.build()
-    const service = builtContainer.resolveInterface<UserService>()
+    const service = builtContainer.resolveType<UserService>('UserService')
 
     // Assert
     expect(service).toBeInstanceOf(UserService)
@@ -117,28 +117,28 @@ describe('Autowire - Map Strategy', () => {
 
     // Act
     const builder = container.builder()
-    builder.registerType(Database).asInterface<Database>().singleInstance()
+    builder.registerType(Database).asInterface<Database>('Database').singleInstance()
     builder
       .registerType(Logger)
-      .asInterface<Logger>()
+      .asInterface<Logger>('Logger')
       .autoWire({
         map: {
-          db: (c) => c.resolveInterface<Database>()
+          db: (c) => c.resolveType<Database>('Database')
         }
       })
       .singleInstance()
     builder
       .registerType(UserService)
-      .asInterface<UserService>()
+      .asInterface<UserService>('UserService')
       .autoWire({
         map: {
-          logger: (c) => c.resolveInterface<Logger>(),
-          db: (c) => c.resolveInterface<Database>()
+          logger: (c) => c.resolveType<Logger>('Logger'),
+          db: (c) => c.resolveType<Database>('Database')
         }
       })
 
     const builtContainer = builder.build()
-    const service = builtContainer.resolveInterface<UserService>()
+    const service = builtContainer.resolveType<UserService>('UserService')
 
     // Assert
     expect(service).toBeInstanceOf(UserService)
@@ -168,14 +168,14 @@ describe('Autowire - Parameter Overrides', () => {
     const builder = container.builder()
     builder
       .registerType(ConfigService)
-      .asInterface<ConfigService>()
+      .asInterface<ConfigService>('ConfigService')
       .withParameters({
         apiKey: 'test-api-key',
         timeout: 5000
       })
 
     const builtContainer = builder.build()
-    const service = builtContainer.resolveInterface<ConfigService>()
+    const service = builtContainer.resolveType<ConfigService>('ConfigService')
 
     // Assert
     expect(service.apiKey).toBe('test-api-key')
@@ -202,20 +202,20 @@ describe('Autowire - Parameter Overrides', () => {
 
     // Act
     const builder = container.builder()
-    builder.registerType(Logger).asInterface<ILogger>()
+    builder.registerType(Logger).asInterface<ILogger>('ILogger')
     builder
       .registerType(ApiService)
-      .asInterface<ApiService>()
+      .asInterface<ApiService>('ApiService')
       .autoWire({
         map: {
-          logger: (c) => c.resolveInterface<ILogger>(),
+          logger: (c) => c.resolveType<ILogger>('ILogger'),
           apiKey: () => 'abc123',
           baseUrl: () => 'https://api.example.com'
         }
       })
 
     const builtContainer = builder.build()
-    const service = builtContainer.resolveInterface<ApiService>()
+    const service = builtContainer.resolveType<ApiService>('ApiService')
 
     // Assert
     expect(service.logger).toBeInstanceOf(Logger)
@@ -238,19 +238,19 @@ describe('Autowire - Parameter Overrides', () => {
 
     // Act
     const builder = container.builder()
-    builder.registerType(Logger).asInterface<Logger>()
+    builder.registerType(Logger).asInterface<Logger>('Logger')
     builder
       .registerType(ApiService)
-      .asInterface<ApiService>()
+      .asInterface<ApiService>('ApiService')
       .autoWire({
         map: {
-          logger: (c) => c.resolveInterface<Logger>(),
+          logger: (c) => c.resolveType<Logger>('Logger'),
           apiKey: () => 'my-api-key'
         }
       })
 
     const builtContainer = builder.build()
-    const service = builtContainer.resolveInterface<ApiService>()
+    const service = builtContainer.resolveType<ApiService>('ApiService')
 
     // Assert
     expect(service.logger).toBeInstanceOf(Logger)
@@ -284,13 +284,13 @@ describe('Autowire - Factory Autowiring', () => {
     builder.registerType(Logger).asInterface<ILogger>("ILogger")
     builder
       .register<UserService>((c) => {
-        const logger = c.resolveInterface<ILogger>("ILogger")
+        const logger = c.resolveType<ILogger>("ILogger")
         return new UserService(logger)
       })
       .asInterface<UserService>("UserService")
 
     const builtContainer = builder.build()
-    const service = builtContainer.resolveInterface<UserService>("UserService")
+    const service = builtContainer.resolveType<UserService>("UserService")
 
     // Assert
     expect(service).toBeInstanceOf(UserService)
@@ -314,13 +314,13 @@ describe('Autowire - Factory Autowiring', () => {
     // Using factory for custom instantiation
     builder
       .register<Logger>((c) => {
-        const db = c.resolveInterface<Database>("Database")
+        const db = c.resolveType<Database>("Database")
         return new Logger(db)
       })
       .asInterface<Logger>("Logger")
 
     const builtContainer = builder.build()
-    const logger = builtContainer.resolveInterface<Logger>("Logger")
+    const logger = builtContainer.resolveType<Logger>("Logger")
 
     // Assert
     expect(logger).toBeInstanceOf(Logger)
@@ -328,191 +328,6 @@ describe('Autowire - Factory Autowiring', () => {
   })
 })
 
-describe('Autowire - Default ParamName Strategy', () => {
-  let container: Container
-
-  beforeEach(() => {
-    container = new Container()
-  })
-
-  it('should autowire dependencies automatically without .autoWire() call', () => {
-    // Arrange
-    interface ILogger {
-      log(message: string): void
-    }
-    interface IEventBus {
-      publish(event: string): void
-    }
-
-    class Logger implements ILogger {
-      log(message: string) {
-        console.log(message)
-      }
-    }
-
-    class EventBus implements IEventBus {
-      constructor(public logger: ILogger) {}
-      publish(event: string) {
-        this.logger.log(`Event: ${event}`)
-      }
-    }
-
-    // Act - NO .autoWire() call - should use default paramName strategy
-    const builder = container.builder()
-    builder.registerType(Logger).asInterface<ILogger>().singleInstance()
-    builder.registerType(EventBus).asInterface<IEventBus>().singleInstance()
-
-    const builtContainer = builder.build()
-    const eventBus = builtContainer.resolveInterface<IEventBus>()
-
-    // Assert - logger should be auto-injected via paramName matching
-    expect(eventBus).toBeInstanceOf(EventBus)
-    expect(eventBus.logger).toBeInstanceOf(Logger)
-  })
-
-  it('should match parameter names to interface names using smart naming conventions', () => {
-    // Arrange
-    interface ILogger {
-      log(msg: string): void
-    }
-
-    class ConsoleLogger implements ILogger {
-      log(msg: string) {}
-    }
-
-    class Service {
-      // Parameter is "logger" but interface is "ILogger"
-      constructor(public logger: ILogger) {}
-    }
-
-    // Act - Default autowiring should try: "logger", "Logger", "ILogger"
-    const builder = container.builder()
-    builder.registerType(ConsoleLogger).asInterface<ILogger>()
-    builder.registerType(Service).asInterface<Service>()
-
-    const builtContainer = builder.build()
-    const service = builtContainer.resolveInterface<Service>()
-
-    // Assert - Should match "logger" → "ILogger"
-    expect(service.logger).toBeInstanceOf(ConsoleLogger)
-  })
-
-  it('should handle multiple dependencies with default autowiring', () => {
-    // Arrange
-    interface ILogger {
-      log(msg: string): void
-    }
-    interface IDatabase {
-      query(): any[]
-    }
-    interface ICache {
-      get(key: string): any
-    }
-
-    class Logger implements ILogger {
-      log(msg: string) {}
-    }
-
-    class Database implements IDatabase {
-      query() {
-        return []
-      }
-    }
-
-    class Cache implements ICache {
-      get(key: string) {
-        return null
-      }
-    }
-
-    class UserService {
-      constructor(
-        public logger: ILogger,
-        public database: IDatabase,
-        public cache: ICache
-      ) {}
-    }
-
-    // Act - All dependencies should be auto-resolved
-    const builder = container.builder()
-    builder.registerType(Logger).asInterface<ILogger>()
-    builder.registerType(Database).asInterface<IDatabase>()
-    builder.registerType(Cache).asInterface<ICache>()
-    builder.registerType(UserService).asInterface<UserService>()
-
-    const builtContainer = builder.build()
-    const service = builtContainer.resolveInterface<UserService>()
-
-    // Assert
-    expect(service.logger).toBeInstanceOf(Logger)
-    expect(service.database).toBeInstanceOf(Database)
-    expect(service.cache).toBeInstanceOf(Cache)
-  })
-
-  it('should allow .autoWire() to override default behavior', () => {
-    // Arrange
-    interface ILogger {
-      log(msg: string): void
-    }
-
-    class ConsoleLogger implements ILogger {
-      log(msg: string) {}
-    }
-
-    class FileLogger implements ILogger {
-      log(msg: string) {}
-    }
-
-    class Service {
-      constructor(public logger: ILogger) {}
-    }
-
-    // Act - Use explicit autowire to override default
-    const builder = container.builder()
-    builder.registerType(ConsoleLogger).asInterface<ILogger>()
-    builder.registerType(FileLogger).asInterface<ILogger>('FileLogger')
-    builder
-      .registerType(Service)
-      .asInterface<Service>()
-      .autoWire({
-        map: {
-          logger: (c) => c.resolveInterface<ILogger>('FileLogger')
-        }
-      })
-
-    const builtContainer = builder.build()
-    const service = builtContainer.resolveInterface<Service>()
-
-    // Assert - Should use FileLogger via explicit autowire
-    expect(service.logger).toBeInstanceOf(FileLogger)
-  })
-
-  it('should pass undefined for unresolvable parameters in non-strict mode (default)', () => {
-    // Arrange
-    interface ILogger {
-      log(msg: string): void
-    }
-
-    class Service {
-      constructor(
-        public logger: ILogger,
-        public config: any // Not registered
-      ) {}
-    }
-
-    // Act
-    const builder = container.builder()
-    builder.registerInstance({ log: () => {} }).asInterface<ILogger>()
-    builder.registerType(Service).asInterface<Service>()
-
-    const builtContainer = builder.build()
-    const service = builtContainer.resolveInterface<Service>()
-
-    // Assert - logger resolved, config is undefined
-    expect(service.logger).toBeDefined()
-    expect(service.config).toBeUndefined()
-  })
-})
 
 describe('Autowire - Error Handling', () => {
   let container: Container
@@ -533,10 +348,10 @@ describe('Autowire - Error Handling', () => {
     // Note: Logger is NOT registered
     builder
       .registerType(UserService)
-      .asInterface<UserService>()
+      .asInterface<UserService>('UserService')
       .autoWire({
         map: {
-          logger: (c) => c.resolveInterface<Logger>()
+          logger: (c) => c.resolveType<Logger>('Logger')
         }
       })
 
@@ -544,7 +359,7 @@ describe('Autowire - Error Handling', () => {
 
     // Assert
     expect(() => {
-      builtContainer.resolveInterface<UserService>()
+      builtContainer.resolveType<UserService>('UserService')
     }).toThrow(/Logger/)
   })
 
@@ -563,19 +378,19 @@ describe('Autowire - Error Handling', () => {
 
     // Act
     const builder = container.builder()
-    builder.registerInstance({ log: () => {} }).asInterface<ILogger>()
+    builder.registerInstance({ log: () => {} }).asInterface<ILogger>('ILogger')
     builder
       .registerType(UserService)
-      .asInterface<UserService>()
+      .asInterface<UserService>('UserService')
       .autoWire({
         map: {
-          logger: (c) => c.resolveInterface<ILogger>()
+          logger: (c) => c.resolveType<ILogger>('ILogger')
           // Logger is in the map but database is not - will pass undefined in non-strict mode
         }
       })
 
     const builtContainer = builder.build()
-    const service = builtContainer.resolveInterface<UserService>()
+    const service = builtContainer.resolveType<UserService>('UserService')
 
     // Assert - in non-strict mode, missing parameters get undefined
     expect(service.logger).toBeDefined()
@@ -597,19 +412,19 @@ describe('Autowire - Error Handling', () => {
 
     // Act
     const builder = container.builder()
-    builder.registerInstance({ log: () => {} }).asInterface<ILogger>()
+    builder.registerInstance({ log: () => {} }).asInterface<ILogger>('ILogger')
     builder
       .registerType(UserService)
-      .asInterface<UserService>()
+      .asInterface<UserService>('UserService')
       .autoWire({
         map: {
-          logger: (c) => c.resolveInterface<ILogger>()
+          logger: (c) => c.resolveType<ILogger>('ILogger')
           // Missing 'database' - will pass undefined in non-strict mode
         }
       })
 
     const builtContainer = builder.build()
-    const service = builtContainer.resolveInterface<UserService>()
+    const service = builtContainer.resolveType<UserService>('UserService')
 
     // Assert
     expect(service.logger).toBeDefined() // Resolved from interface
@@ -617,205 +432,3 @@ describe('Autowire - Error Handling', () => {
   })
 })
 
-describe('Autowire - Minification Support (Position-Based)', () => {
-  let container: Container
-
-  beforeEach(() => {
-    container = new Container()
-  })
-
-  it('should work correctly with position-based autowiring even when parameter names are minified', () => {
-    // Arrange: Create interfaces and implementations
-    interface IEventBus {
-      publish(event: string): void
-    }
-
-    interface ILogger {
-      log(msg: string): void
-    }
-
-    class EventBus implements IEventBus {
-      publish(event: string) {
-        console.log(`Event: ${event}`)
-      }
-    }
-
-    class Logger implements ILogger {
-      log(msg: string) {
-        console.log(msg)
-      }
-    }
-
-    // Minified class - simulates what a bundler does to parameter names
-    // In production, bundler would transform:
-    //   constructor(eventBus: IEventBus, logger: ILogger)
-    // Into:
-    //   constructor(a, b)
-    class ServiceMinified {
-      constructor(
-        public a: IEventBus,  // 'eventBus' became 'a'
-        public b: ILogger     // 'logger' became 'b'
-      ) {}
-    }
-
-    // Register dependencies
-    const builder = container.builder()
-    builder.registerType(EventBus).asInterface<IEventBus>()
-    builder.registerType(Logger).asInterface<ILogger>()
-
-    // NEW SOLUTION: Position-based autowiring (minification-safe!)
-    // Transformer generates position metadata instead of relying on parameter names
-    builder
-      .registerType(ServiceMinified)
-      .asInterface<ServiceMinified>()
-      .autoWire({
-        positions: [
-          { parameterName: 'eventBus', index: 0, typeName: 'IEventBus' },  // Position 0 → IEventBus
-          { parameterName: 'logger', index: 1, typeName: 'ILogger' }       // Position 1 → ILogger
-        ]
-      })
-
-    const builtContainer = builder.build()
-    const service = builtContainer.resolveInterface<ServiceMinified>()
-
-    // Assert: Position-based autowiring works regardless of parameter names!
-    // Dependencies are resolved by position + type, not by parameter names
-    expect(service.a).toBeInstanceOf(EventBus)  // ✅ Now works!
-    expect(service.b).toBeInstanceOf(Logger)    // ✅ Now works!
-  })
-
-  it('should resolve dependencies by position regardless of minified parameter names', () => {
-    // This test demonstrates that position-based strategy ignores parameter names entirely
-    interface IService {
-      doWork(): void
-    }
-
-    interface ILogger {
-      log(msg: string): void
-    }
-
-    class Service implements IService {
-      doWork() {}
-    }
-
-    class Logger implements ILogger {
-      log(msg: string) {}
-    }
-
-    // Minified class with cryptic parameter names
-    class MinifiedClass {
-      constructor(
-        public x: IService,   // Could be any name
-        public y: ILogger     // Could be any name
-      ) {}
-    }
-
-    const builder = container.builder()
-    builder.registerType(Service).asInterface<IService>()
-    builder.registerType(Logger).asInterface<ILogger>()
-    builder
-      .registerType(MinifiedClass)
-      .asInterface<MinifiedClass>()
-      .autoWire({
-        positions: [
-          { parameterName: 'service', index: 0, typeName: 'IService' },
-          { parameterName: 'logger', index: 1, typeName: 'ILogger' }
-        ]
-      })
-
-    const builtContainer = builder.build()
-    const instance = builtContainer.resolveInterface<MinifiedClass>()
-
-    // Position-based resolution works perfectly
-    expect(instance.x).toBeInstanceOf(Service)
-    expect(instance.y).toBeInstanceOf(Logger)
-  })
-
-  it('should handle sparse position mappings (skipping primitive types)', () => {
-    // Real-world scenario: Constructor has mix of DI dependencies and primitive types
-    interface ILogger {
-      log(msg: string): void
-    }
-
-    class Logger implements ILogger {
-      log(msg: string) {}
-    }
-
-    // Constructor with mixed types
-    class MixedService {
-      constructor(
-        public a: ILogger,    // Position 0: DI dependency
-        public b: string,     // Position 1: Primitive (not in positions array)
-        public c: number      // Position 2: Primitive (not in positions array)
-      ) {}
-    }
-
-    const builder = container.builder()
-    builder.registerType(Logger).asInterface<ILogger>()
-    builder
-      .registerType(MixedService)
-      .asInterface<MixedService>()
-      .autoWire({
-        positions: [
-          { parameterName: 'a', index: 0, typeName: 'ILogger' }  // Only position 0 is mapped
-        ]
-      })
-
-    const builtContainer = builder.build()
-    const service = builtContainer.resolveInterface<MixedService>()
-
-    // Logger is injected, primitives are undefined (expected)
-    expect(service.a).toBeInstanceOf(Logger)
-    expect(service.b).toBeUndefined()
-    expect(service.c).toBeUndefined()
-  })
-
-  it('should use position matching regardless of parameter names (minification-safe)', () => {
-    // Scenario: Code is minified, parameter names are mangled
-    // Position-based matching always uses index, ignoring parameter names
-    interface IEventBus {
-      publish(event: string): void
-    }
-
-    interface ILogger {
-      log(msg: string): void
-    }
-
-    class EventBus implements IEventBus {
-      publish(event: string) {}
-    }
-
-    class Logger implements ILogger {
-      log(msg: string) {}
-    }
-
-    // Minified: parameter names are now 'a' and 'b'
-    class MinifiedService {
-      constructor(
-        public a: IEventBus,  // Was 'eventBus', now 'a'
-        public b: ILogger     // Was 'logger', now 'b'
-      ) {}
-    }
-
-    const builder = container.builder()
-    builder.registerType(EventBus).asInterface<IEventBus>()
-    builder.registerType(Logger).asInterface<ILogger>()
-    builder
-      .registerType(MinifiedService)
-      .asInterface<MinifiedService>()
-      .autoWire({
-        positions: [
-          // Position-based: matches on index only, parameter names are ignored
-          { parameterName: 'eventBus', index: 0, typeName: 'IEventBus' },
-          { parameterName: 'logger', index: 1, typeName: 'ILogger' }
-        ]
-      })
-
-    const builtContainer = builder.build()
-    const service = builtContainer.resolveInterface<MinifiedService>()
-
-    // Position-based matching works regardless of parameter names
-    expect(service.a).toBeInstanceOf(EventBus)
-    expect(service.b).toBeInstanceOf(Logger)
-  })
-})

@@ -46,7 +46,7 @@ builder.registerType(Database).asInterface<IDatabase>()
 builder.registerType(UserService).asInterface<UserService>()  // Should auto-generate .autoWire()
 
 const builtContainer = builder.build()
-const service = builtContainer.resolveInterface<UserService>()
+const service = builtContainer.resolveType<UserService>()
 
 console.log('Service created:', service)
 console.log('Logger injected:', service.logger)

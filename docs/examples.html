@@ -486,7 +486,7 @@
           </div>
           <span class="expand-icon expanded" id="demo0-expand">▼</span>
         </div>
-        <p>The absolute simplest usage - just .asInterface&lt;T&gt;() and .resolveInterface&lt;T&gt;()!</p>
+        <p>The absolute simplest usage - just .asInterface&lt;T&gt;() and .resolveType&lt;T&gt;()!</p>
         <ul class="features-list">
           <li>No Token&lt;T&gt;() needed - transformer injects type names</li>
           <li>No .autoWire() configuration needed</li>
@@ -506,8 +506,8 @@ builder.registerType(EventBus).asInterface&lt;IEventBus&gt;().singleInstance()
 const app = builder.build()
 
 // Resolve services
-const logger = app.resolveInterface&lt;ILogger&gt;()
-const eventBus = app.resolveInterface&lt;IEventBus&gt;()
+const logger = app.resolveType&lt;ILogger&gt;()
+const eventBus = app.resolveType&lt;IEventBus&gt;()
 
 // Use them
 logger.info('Simple registration works!', 'Demo0')
@@ -544,7 +544,7 @@ builder
   .asInterface&lt;IEventBus&gt;()
   .autoWire({
     map: {
-      logger: (c) => c.resolveInterface&lt;ILogger&gt;()
+      logger: (c) => c.resolveType&lt;ILogger&gt;()
     }
   })
   .singleInstance()
@@ -552,8 +552,8 @@ builder
 const app = builder.build()
 
 // Resolve dependencies
-const logger = app.resolveInterface&lt;ILogger&gt;()
-const eventBus = app.resolveInterface&lt;IEventBus&gt;()
+const logger = app.resolveType&lt;ILogger&gt;()
+const eventBus = app.resolveType&lt;IEventBus&gt;()
 
 logger.info('Smart Home system initialized', 'Demo1')
 eventBus.publish('system:ready', { timestamp: Date.now() })</code></pre>
@@ -586,7 +586,7 @@ builder.registerType(FileLogger).asInterface&lt;ILogger&gt;().keyed('file')
 const app = builder.build()
 
 // Resolve default and keyed loggers
-const defaultLogger = app.resolveInterface&lt;ILogger&gt;()
+const defaultLogger = app.resolveType&lt;ILogger&gt;()
 const fileLogger = app.resolveInterfaceKeyed&lt;ILogger&gt;('file')
 const allLoggers = app.resolveInterfaceAll&lt;ILogger&gt;()
 
@@ -633,14 +633,14 @@ builder
       id: () => 'light-1',
       name: () => 'Bedroom Light',
       roomId: () => 'bedroom',
-      logger: (c) => c.resolveInterface&lt;ILogger&gt;()
+      logger: (c) => c.resolveType&lt;ILogger&gt;()
     }
   })
 
 const app = builder.build()
 
-const sensor = app.resolveInterface&lt;ISensor&gt;()
-const light = app.resolveInterface&lt;IDevice&gt;()
+const sensor = app.resolveType&lt;ISensor&gt;()
+const light = app.resolveType&lt;IDevice&gt;()
 
 console.log(`Temperature: ${sensor.getValue()}${sensor.getUnit()}`)
 light.turnOn()</code></pre>
@@ -683,10 +683,10 @@ bedroomBuilder.registerInstance(
 const bedroomContainer = bedroomBuilder.build()
 
 // Resolve from each scope
-const lrSensor = livingRoomContainer.resolveInterface&lt;ISensor&gt;()
-const brSensor = bedroomContainer.resolveInterface&lt;ISensor&gt;()
-const lrLogger = livingRoomContainer.resolveInterface&lt;ILogger&gt;()
-const brLogger = bedroomContainer.resolveInterface&lt;ILogger&gt;()
+const lrSensor = livingRoomContainer.resolveType&lt;ISensor&gt;()
+const brSensor = bedroomContainer.resolveType&lt;ISensor&gt;()
+const lrLogger = livingRoomContainer.resolveType&lt;ILogger&gt;()
+const brLogger = bedroomContainer.resolveType&lt;ILogger&gt;()
 
 console.log(`Living Room temp: ${lrSensor.getValue()}°C`)
 console.log(`Bedroom temp: ${brSensor.getValue()}°C`)
@@ -719,7 +719,7 @@ builder.registerType(ConsoleLogger).asInterface&lt;ILogger&gt;().singleInstance(
 builder
   .registerType(EventBus)
   .asInterface&lt;IEventBus&gt;()
-  .autoWire({ map: { logger: (c) => c.resolveInterface&lt;ILogger&gt;() } })
+  .autoWire({ map: { logger: (c) => c.resolveType&lt;ILogger&gt;() } })
   .singleInstance()
 
 builder
@@ -727,8 +727,8 @@ builder
   .asInterface&lt;AutomationService&gt;()
   .autoWire({
     map: {
-      logger: (c) => c.resolveInterface&lt;ILogger&gt;(),
-      eventBus: (c) => c.resolveInterface&lt;IEventBus&gt;()
+      logger: (c) => c.resolveType&lt;ILogger&gt;(),
+      eventBus: (c) => c.resolveType&lt;IEventBus&gt;()
     }
   })
   .singleInstance()
@@ -754,14 +754,14 @@ builder
       id: () => 'auto-thermo',
       name: () => 'Auto Thermostat',
       roomId: () => 'office',
-      logger: (c) => c.resolveInterface&lt;ILogger&gt;()
+      logger: (c) => c.resolveType&lt;ILogger&gt;()
     }
   })
 
 const app = builder.build()
 
 // Resolve all components
-const automationService = app.resolveInterface&lt;AutomationService&gt;()
+const automationService = app.resolveType&lt;AutomationService&gt;()
 const tempSensor = app.resolveInterfaceKeyed&lt;ISensor&gt;('TempSensor')
 const thermostat = app.resolveInterfaceKeyed&lt;IDevice&gt;('Thermostat')
 

@@ -156,11 +156,11 @@ class ConsoleLogger implements ILogger {
           <h4 style="margin-top: 0; color: #065F46;">✅ NovaDI Solution: Compile-Time Transformer</h4>
           <pre class="line-numbers"><code class="language-typescript">// Clean, intuitive API
 builder.registerType(ConsoleLogger).asInterface&lt;ILogger&gt;()
-const logger = app.resolveInterface&lt;ILogger&gt;()
+const logger = app.resolveType&lt;ILogger&gt;()
 
 // The transformer automatically converts to:
 builder.registerType(ConsoleLogger).asInterface&lt;ILogger&gt;("ILogger")
-const logger = app.resolveInterface&lt;ILogger&gt;("ILogger")</code></pre>
+const logger = app.resolveType&lt;ILogger&gt;("ILogger")</code></pre>
           <p><strong>Benefits:</strong> Clean code, type-safe, zero runtime overhead, works with minification, no decorators needed.</p>
         </div>
 
@@ -261,12 +261,12 @@ contextPool.release(context)             // ✅ Return to pool</code></pre>
 // With optimization: 1 full resolution + 2 cache hits
 
 // First resolution builds the entire graph
-app.resolveInterface&lt;AutomationService&gt;()
+app.resolveType&lt;AutomationService&gt;()
   → resolves EventBus (cached)
     → resolves Logger (cached)
 
 // Second resolution: all cache hits
-app.resolveInterface&lt;AutomationService&gt;()  // ~0.002ms (14x faster!)</code></pre>
+app.resolveType&lt;AutomationService&gt;()  // ~0.002ms (14x faster!)</code></pre>
 
         <h3 style="margin-top: 32px;">Performance Results</h3>
         <div class="benchmark-results" style="background: var(--surface); padding: 16px; border-radius: 4px; border: 1px solid var(--border-default); margin-top: 16px;">
@@ -335,7 +335,7 @@ app.resolveInterface&lt;AutomationService&gt;()  // ~0.002ms (14x faster!)</code
           NovaDI encourages programming to interfaces, not implementations:
         </p>
         <pre class="line-numbers"><code class="language-typescript">// ✅ Good: Depend on interface
-const logger = app.resolveInterface&lt;ILogger&gt;()
+const logger = app.resolveType&lt;ILogger&gt;()
 
 // ❌ Discouraged: Depend on concrete class
 const logger = app.resolve(ConsoleLogger)</code></pre>
@@ -369,7 +369,7 @@ builder
   .asInterface&lt;IEventBus&gt;()
   .autoWire({
     map: {
-      logger: (c) => c.resolveInterface&lt;ILogger&gt;()
+      logger: (c) => c.resolveType&lt;ILogger&gt;()
     }
   })</code></pre>
             <p><strong>Best for:</strong> Production builds, primitive parameters, complex resolution logic</p>
@@ -414,7 +414,7 @@ builder.registerType(EventBus).asInterface&lt;IEventBus&gt;()
 const app = builder.build()
 
 // 3. Runtime: Resolve services (immutable, fast)
-const logger = app.resolveInterface&lt;ILogger&gt;()  // Cannot add new registrations</code></pre>
+const logger = app.resolveType&lt;ILogger&gt;()  // Cannot add new registrations</code></pre>
 
         <p>
           This separation allows NovaDI to optimize the container structure after all registrations are known,
@@ -448,8 +448,8 @@ child.registerType(RequestContext).asInterface&lt;IRequestContext&gt;()
 const childApp = child.build()
 
 // Child can resolve from parent
-childApp.resolveInterface&lt;ILogger&gt;()          // ✅ From parent
-childApp.resolveInterface&lt;IRequestContext&gt;()  // ✅ From child</code></pre>
+childApp.resolveType&lt;ILogger&gt;()          // ✅ From parent
+childApp.resolveType&lt;IRequestContext&gt;()  // ✅ From child</code></pre>
       </section>
 
       <!-- Trade-offs -->

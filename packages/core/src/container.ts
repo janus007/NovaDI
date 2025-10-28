@@ -135,7 +135,7 @@ export class Container {
   private currentContext?: ResolutionContext
   protected readonly interfaceRegistry: Map<string, Token<any>> = new Map()
   private bindingCache?: Map<Token<any>, Binding> // Performance: Flat cache of all bindings including parent chain
-  private interfaceTokenCache: Map<string, Token<any>> = new Map() // Performance: Cache for resolveInterface() lookups
+  private interfaceTokenCache: Map<string, Token<any>> = new Map() // Performance: Cache for resolveType() lookups
   private readonly fastTransientCache: Map<Token<any>, () => any> = new Map() // Performance: Fast path for simple transients
   private static contextPool = new ResolutionContextPool() // Performance: Pooled contexts reduce allocations
   private readonly ultraFastSingletonCache: Map<Token<any>, any> = new Map() // Performance: Ultra-fast singleton-only cache
@@ -484,7 +484,7 @@ export class Container {
   /**
    * Resolve a dependency by interface type without explicit token
    */
-  resolveInterface<T>(typeName?: string): T {
+  resolveType<T>(typeName?: string): T {
     // Performance: Cache token lookups to avoid repeated interfaceRegistry access
     const key = typeName || ''
     let token = this.interfaceTokenCache.get(key)
@@ -500,7 +500,7 @@ export class Container {
   /**
    * Resolve a keyed interface
    */
-  resolveInterfaceKeyed<T>(key: string | symbol, _typeName?: string): T {
+  resolveTypeKeyed<T>(key: string | symbol, _typeName?: string): T {
     // For keyed interfaces, we use the existing resolveKeyed mechanism
     return this.resolveKeyed<T>(key)
   }
@@ -508,7 +508,7 @@ export class Container {
   /**
    * Resolve all registrations for an interface type
    */
-  resolveInterfaceAll<T>(typeName?: string): T[] {
+  resolveTypeAll<T>(typeName?: string): T[] {
     const token = this.interfaceToken<T>(typeName)
     return this.resolveAll(token)
   }

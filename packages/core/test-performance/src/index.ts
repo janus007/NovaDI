@@ -68,9 +68,9 @@ console.log(`[Performance Test] Container setup completed in ${setupTime.toFixed
 console.log('[Performance Test] Testing service resolution...')
 const resolveStart = performance.now()
 
-const userService = builtContainer.resolveInterface<IUserService>()
-const orderService = builtContainer.resolveInterface<IOrderService>()
-const productService = builtContainer.resolveInterface<IProductService>()
+const userService = builtContainer.resolveType<IUserService>()
+const orderService = builtContainer.resolveType<IOrderService>()
+const productService = builtContainer.resolveType<IProductService>()
 
 const resolveTime = performance.now() - resolveStart
 console.log(`[Performance Test] Resolved 3 services in ${resolveTime.toFixed(2)}ms`)

@@ -121,7 +121,7 @@ Key Principles:
 - Package: @novadi/core
 - NO decorators/annotations in business code
 - Convention over configuration
-- Uses .asInterface&lt;T&gt;() and .resolveInterface&lt;T&gt;()
+- Uses .asInterface&lt;T&gt;() and .resolveType&lt;T&gt;()
 - TypeScript transformer handles type names automatically
 
 Core API:
@@ -140,7 +140,7 @@ Core API:
 
 5. Build and resolve:
    const app = builder.build()
-   const service = app.resolveInterface&lt;UserService&gt;()
+   const service = app.resolveType&lt;UserService&gt;()
 
 Lifetimes:
 - .singleInstance() - singleton
@@ -149,7 +149,7 @@ Lifetimes:
 
 AutoWire (Convention Over Configuration):
 - Automatic: .autoWire() - matches parameters to interfaces by naming convention
-- Explicit: .autoWire({ map: { logger: (c) =&gt; c.resolveInterface&lt;ILogger&gt;() } })
+- Explicit: .autoWire({ map: { logger: (c) =&gt; c.resolveType&lt;ILogger&gt;() } })
 - Use automatic for ALL services, explicit only for primitives/values
 
 Transformer Setup (tsconfig.json):
@@ -193,7 +193,7 @@ builder.registerType(ConsoleGreeter).asInterface&lt;IGreeter&gt;().singleInstanc
 builder.registerType(Application).asInterface&lt;Application&gt;().autoWire() // Convention!
 
 const app = builder.build()
-const application = app.resolveInterface&lt;Application&gt;()
+const application = app.resolveType&lt;Application&gt;()
 application.run() // Outputs: Hello, World!
 ```
 
@@ -361,7 +361,7 @@ builder.registerType(UserService).asInterface<UserService>().autoWire()
 const app = builder.build()
 
 // 3. Resolve and use
-const userService = app.resolveInterface<UserService>()
+const userService = app.resolveType<UserService>()
 userService.createUser('Alice') // [LOG] Creating user: Alice</code></pre>
 
       <div class="callout callout-success" style="margin: 32px 0;">

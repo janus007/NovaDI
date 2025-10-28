@@ -1,6 +1,6 @@
 /**
  * AutoWire - Automatic dependency injection for NovaDI
- * Supports three strategies: paramName, map, and class
+ * Supports two strategies: mapResolvers (transformer-generated) and map (manual override)
  */
 
 import type { Container } from './container.js'
@@ -17,6 +17,8 @@ const paramNameCache = new WeakMap<Function, string[]>()
  * Extract parameter names from a constructor function
  * Uses regex to parse the toString() representation
  * Performance optimized: Results are cached per constructor
+ *
+ * Note: Only used by resolveByMap() for manual map strategy
  */
 export function extractParameterNames(constructor: new (...args: any[]) => any): string[] {
   // Check cache first - avoids expensive regex parsing
@@ -58,62 +60,6 @@ export function extractParameterNames(constructor: new (...args: any[]) => any):
   // Cache result for future calls
   paramNameCache.set(constructor, params)
   return params
-}
-
-/**
- * Resolve dependencies using paramName strategy
- * Matches parameter names to interface registry tokens
- */
-export function resolveByParamName(
-  constructor: new (...args: any[]) => any,
-  container: Container,
-  options: AutoWireOptions
-): any[] {
-  const paramNames = extractParameterNames(constructor)
-  const resolvedDeps: any[] = []
-
-  for (const paramName of paramNames) {
-    let resolved: any = undefined
-    let foundMatch = false
-
-    // Try multiple naming conventions to match TypeScript interfaces
-    const namesToTry = [
-      paramName,                           // Direct: "logger"
-      capitalize(paramName),               // Capitalized: "Logger"
-      'I' + capitalize(paramName)          // Interface convention: "ILogger"
-    ]
-
-    for (const name of namesToTry) {
-      try {
-        resolved = container.resolveInterface(name)
-        foundMatch = true
-        break
-      } catch {
-        // Try next naming convention
-      }
-    }
-
-    if (foundMatch) {
-      resolvedDeps.push(resolved)
-    } else if (options.strict) {
-      throw new Error(
-        `Cannot resolve parameter "${paramName}" on ${constructor.name}. ` +
-        `No interface registration found. Tried: ${namesToTry.join(', ')}. ` +
-        `Suggestions:\n` +
-        `  - Use .autoWire({ map: { ${paramName}: (c) => c.resolveInterface<I${capitalize(paramName)}>() } })\n` +
-        `  - Register the interface with .asInterface<I${capitalize(paramName)}>()\n` +
-        `  - Mark a default implementation with .asDefaultInterface<I${capitalize(paramName)}>()`
-      )
-    } else {
-      // Non-strict mode: silently push undefined for unresolvable parameters
-      // This is expected behavior: parameters that can't be resolved are typically
-      // primitive types (string, number, etc.) that should use .withParameters()
-      // instead of dependency injection
-      resolvedDeps.push(undefined)
-    }
-  }
-
-  return resolvedDeps
 }
 
 /**
@@ -163,25 +109,6 @@ export function resolveByMap(
   return resolvedDeps
 }
 
-/**
- * Resolve dependencies using class strategy
- * Requires build-time codegen to work properly
- */
-export function resolveByClass(
-  _constructor: new (...args: any[]) => any,
-  _container: Container,
-  _options: AutoWireOptions
-): any[] {
-  throw new Error(
-    `AutoWire strategy 'class' requires build-time code generation. ` +
-    `The 'class' strategy uses TypeScript AST analysis to extract parameter types ` +
-    `and generate an explicit autowire map at build time. ` +
-    `\n\nOptions:\n` +
-    `  1. Use 'paramName' strategy (default): .autoWire({ by: 'paramName' })\n` +
-    `  2. Use 'map' strategy (minify-safe): .autoWire({ map: { param: resolver } })\n` +
-    `  3. Set up NovaDI transformer/plugin for build-time 'class' support (coming soon)`
-  )
-}
 
 /**
  * Resolve dependencies using mapResolvers array strategy
@@ -210,7 +137,7 @@ export function resolveByMapResolvers(
       // undefined indicates primitive type or parameter without DI
       resolvedDeps.push(undefined)
     } else if (typeof resolver === 'function') {
-      // Resolver function: (c) => c.resolveInterface(...)
+      // Resolver function: (c) => c.resolveType(...)
       resolvedDeps.push(resolver(container))
     } else {
       // Token-based resolution
@@ -221,76 +148,10 @@ export function resolveByMapResolvers(
   return resolvedDeps
 }
 
-/**
- * Resolve dependencies using positionType strategy
- * Minification-safe: Matches on array index position
- *
- * Position-based matching:
- * - Match on parameter position (index)
- * - If parameters are reordered, rebuild generates new positions
- * - Minification-safe: Works even when parameter names are mangled
- * - Performance: O(1) lookup per parameter using index Map
- *
- * Note: mapResolvers provides better performance (O(1) array access)
- * Requires build-time transformer to generate position metadata
- */
-export function resolveByPositionType(
-  constructor: new (...args: any[]) => any,
-  container: Container,
-  options: AutoWireOptions
-): any[] {
-  if (!options.positions || options.positions.length === 0) {
-    return []
-  }
-
-  // Build index lookup map once (O(n))
-  // Avoids O(n*m) cost of repeated .find() calls
-  const indexMap = new Map<number, typeof options.positions[0]>()
-  for (const pos of options.positions) {
-    indexMap.set(pos.index, pos)
-  }
-
-  // Extract actual parameter names from runtime constructor
-  // (will be minified names if code is minified)
-  const actualParamNames = extractParameterNames(constructor)
-  const resolvedDeps: any[] = []
-
-  // For each parameter position in the constructor
-  for (let i = 0; i < actualParamNames.length; i++) {
-    const actualParamName = actualParamNames[i]
-
-    // O(1) lookup by position index
-    const metadata = indexMap.get(i)
-
-    // If we found metadata, resolve the dependency
-    if (metadata) {
-      try {
-        const resolved = container.resolveInterface(metadata.typeName)
-        resolvedDeps.push(resolved)
-      } catch (error) {
-        if (options.strict) {
-          throw new Error(
-            `Cannot resolve dependency at position ${i} (parameter "${actualParamName}") with type "${metadata.typeName}". ` +
-            `No interface registration found. ` +
-            `Make sure the type is registered with .asInterface<${metadata.typeName}>()`
-          )
-        } else {
-          // Non-strict mode: push undefined for unresolvable parameters
-          resolvedDeps.push(undefined)
-        }
-      }
-    } else {
-      // No metadata found for this parameter position
-      // This is expected for primitive types or parameters without DI
-      resolvedDeps.push(undefined)
-    }
-  }
-
-  return resolvedDeps
-}
 
 /**
  * Main autowire function - dispatches to appropriate strategy
+ * Priority: mapResolvers (transformer-generated) > map (manual override)
  */
 export function autowire(
   constructor: new (...args: any[]) => any,
@@ -309,40 +170,11 @@ export function autowire(
     return resolveByMapResolvers(constructor, container, opts)
   }
 
-  // FALLBACK: positions with smart matching
-  if (opts.positions && opts.positions.length > 0) {
-    return resolveByPositionType(constructor, container, opts)
-  }
-
-  // Performance: Early exit for constructors with no parameters
-  const paramNames = extractParameterNames(constructor)
-  if (paramNames.length === 0) {
-    return []
-  }
-
-  // Manual map strategy
+  // FALLBACK: Manual map strategy for explicit overrides
   if (opts.map && Object.keys(opts.map).length > 0) {
     return resolveByMap(constructor, container, opts)
   }
 
-  // Dispatch to selected strategy
-  switch (opts.by) {
-    case 'paramName':
-      return resolveByParamName(constructor, container, opts)
-    case 'map':
-      return resolveByMap(constructor, container, opts)
-    case 'class':
-      return resolveByClass(constructor, container, opts)
-    case 'positionType':
-      return resolveByPositionType(constructor, container, opts)
-    default:
-      throw new Error(`Unknown autowire strategy: ${opts.by}`)
-  }
-}
-
-/**
- * Helper: capitalize first letter
- */
-function capitalize(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1)
+  // No autowiring configured, return empty array
+  return []
 }

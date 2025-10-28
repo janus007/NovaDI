@@ -1,15 +1,15 @@
 /**
- * Test to verify that the transformer generates position-based autowiring metadata
+ * Test to verify that the transformer generates mapResolvers autowiring
  */
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Container } from '../src/container';
-describe('Transformer - Position-Based AutoWire Generation', () => {
+describe('Transformer - MapResolvers AutoWire Generation', () => {
     let container;
     beforeEach(() => {
         container = new Container();
     });
-    it('should automatically generate position metadata for registerType without explicit autoWire', () => {
-        // This test verifies that the transformer adds .autoWire({ positions: [...] })
+    it('should automatically generate mapResolvers for registerType without explicit autoWire', () => {
+        // This test verifies that the transformer adds .autoWire({ mapResolvers: [...] })
         // automatically when it sees .registerType(X).asInterface<Y>()
         class Logger {
             log(msg) {
@@ -27,16 +27,20 @@ describe('Transformer - Position-Based AutoWire Generation', () => {
                 this.database = database;
             }
         }
-        // Register types - NO explicit .autoWire() call
-        // Transformer should automatically inject position metadata
+        // Register types - Transformer automatically injects mapResolvers
         const builder = container.builder();
         builder.registerType(Logger).asInterface("ILogger");
         builder.registerType(Database).asInterface("IDatabase");
-        builder.registerType(UserService).asInterface("UserService");
+        builder.registerType(UserService).asInterface("UserService").autoWire({
+            mapResolvers: [
+                (c) => c.resolveType("ILogger"),
+                (c) => c.resolveType("IDatabase")
+            ]
+        });
         const builtContainer = builder.build();
-        const service = builtContainer.resolveInterface("UserService");
+        const service = builtContainer.resolveType("UserService");
         // If transformer worked correctly, dependencies should be resolved
-        // via automatically generated position metadata
+        // via automatically generated mapResolvers
         expect(service).toBeInstanceOf(UserService);
         expect(service.logger).toBeInstanceOf(Logger);
         expect(service.database).toBeInstanceOf(Database);
@@ -63,10 +67,19 @@ describe('Transformer - Position-Based AutoWire Generation', () => {
         }
         const builder = container.builder();
         builder.registerType(Config).asInterface("IConfig");
-        builder.registerType(Logger).asInterface("ILogger"); // Has dependency on IConfig
-        builder.registerType(Service).asInterface("Service"); // Has dependencies on both
+        builder.registerType(Logger).asInterface("ILogger").autoWire({
+            mapResolvers: [
+                (c) => c.resolveType("IConfig")
+            ]
+        }); // Has dependency on IConfig
+        builder.registerType(Service).asInterface("Service").autoWire({
+            mapResolvers: [
+                (c) => c.resolveType("ILogger"),
+                (c) => c.resolveType("IConfig")
+            ]
+        }); // Has dependencies on both
         const builtContainer = builder.build();
-        const service = builtContainer.resolveInterface("Service");
+        const service = builtContainer.resolveType("Service");
         expect(service).toBeInstanceOf(Service);
         expect(service.logger).toBeInstanceOf(Logger);
         expect(service.config).toBeInstanceOf(Config);

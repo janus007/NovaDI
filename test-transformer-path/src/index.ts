@@ -17,6 +17,6 @@ const builder = container.builder()
 builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
 
 const app = builder.build()
-const logger = app.resolveInterface<ILogger>()
+const logger = app.resolveType<ILogger>()
 
 logger.log('Transformer test successful!')

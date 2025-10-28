@@ -58,8 +58,8 @@ builder
   .asInterface<Application>()
   .autoWire({
     map: {
-      greeter: (c) => c.resolveInterface<IGreeter>(),
-      logger: (c) => c.resolveInterface<ILogger>()
+      greeter: (c) => c.resolveType<IGreeter>(),
+      logger: (c) => c.resolveType<ILogger>()
     }
   })
 
@@ -67,7 +67,7 @@ const app = builder.build()
 
 // Resolve and run
 try {
-  const application = app.resolveInterface<Application>()
+  const application = app.resolveType<Application>()
   application.run()
   console.log('✅ SUCCESS: NovaDI unplugin working perfectly with Vite!')
 } catch (error) {

@@ -4,7 +4,7 @@
 
 NovaDI is a modern dependency injection container that keeps your business logic clean from framework code. No decorators, no annotations, no runtime reflection - just pure TypeScript and compile-time type safety.
 
-[![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)](https://github.com/janus007/NovaDI)
+[![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)](https://github.com/janus007/NovaDI)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-blue.svg)](https://www.typescriptlang.org/)
 [![Bundle Size](https://img.shields.io/badge/bundle-59KB-success.svg)](dist/)
@@ -46,7 +46,7 @@ builder.registerType(PostgresDatabase).asInterface<IDatabase>().singleInstance()
 builder.registerType(UserService).asInterface<UserService>().autoWire()
 
 const app = builder.build()
-const userService = app.resolveInterface<UserService>()
+const userService = app.resolveType<UserService>()
 ```
 
 **Your business logic stays framework-agnostic. Your tests stay simple. Your architecture stays clean.**
@@ -168,14 +168,14 @@ If you must use manual type names:
 ```typescript
 // ⚠️ NOT RECOMMENDED - Manual type name literals
 builder.registerType(ConsoleLogger).asInterface<ILogger>("ILogger")
-const logger = app.resolveInterface<ILogger>("ILogger")
+const logger = app.resolveType<ILogger>("ILogger")
 
 builder
   .registerType(UserService)
   .asInterface<UserService>("UserService")
   .autoWire({
     map: {
-      logger: (c) => c.resolveInterface<ILogger>("ILogger")
+      logger: (c) => c.resolveType<ILogger>("ILogger")
     }
   })
 ```
@@ -184,7 +184,7 @@ builder
 ```typescript
 // ✅ With transformer - type names auto-injected
 .asInterface<ILogger>()           // Becomes: .asInterface<ILogger>("ILogger")
-.resolveInterface<ILogger>()      // Becomes: .resolveInterface<ILogger>("ILogger")
+.resolveType<ILogger>()      // Becomes: .resolveType<ILogger>("ILogger")
 
 // Plus you get:
 // ✅ Compile-time validation of all dependencies
@@ -240,7 +240,7 @@ builder.registerType(UserService).asInterface<UserService>().autoWire()
 const app = builder.build()
 
 // 3. Resolve and use
-const userService = app.resolveInterface<UserService>()
+const userService = app.resolveType<UserService>()
 userService.createUser('Alice') // [LOG] Creating user: Alice
 ```
 
@@ -288,7 +288,7 @@ builder
     map: {
       id: () => 'light-123',              // Primitive value injection
       name: () => 'Living Room Light',    // String injection
-      logger: (c) => c.resolveInterface<ILogger>()  // Custom resolution logic
+      logger: (c) => c.resolveType<ILogger>()  // Custom resolution logic
     }
   })
 ```
@@ -383,7 +383,7 @@ builder.registerType(UserService).asInterface<UserService>().autoWire()
 const app = builder.build()
 
 // Use it
-const userService = app.resolveInterface<UserService>()
+const userService = app.resolveType<UserService>()
 await userService.getUser(123)
 ```
 
@@ -533,7 +533,7 @@ builder.registerType(Application).asInterface<Application>().autoWire()
 const app = builder.build()
 
 // Start application
-const application = app.resolveInterface<Application>()
+const application = app.resolveType<Application>()
 application.start()
 ```
 
@@ -611,8 +611,8 @@ const app = builder.build()
 ```typescript
 builder
   .register((c) => {
-    const config = c.resolveInterface<IConfig>()
-    const logger = c.resolveInterface<ILogger>()
+    const config = c.resolveType<IConfig>()
+    const logger = c.resolveType<ILogger>()
     return new ComplexService(config, logger, new Date())
   })
   .asInterface<IComplexService>()
@@ -637,7 +637,7 @@ app.use((req, res, next) => {
 })
 
 // Resolve per-request services
-const handler = req.container.resolveInterface<IRequestHandler>()
+const handler = req.container.resolveType<IRequestHandler>()
 ```
 
 ### Keyed Services
@@ -826,7 +826,7 @@ Key Principles:
 - Package: @novadi/core
 - NO decorators/annotations in business code
 - Convention over configuration
-- Uses .asInterface<T>() and .resolveInterface<T>()
+- Uses .asInterface<T>() and .resolveType<T>()
 - TypeScript transformer handles type names automatically
 
 Core API:
@@ -845,7 +845,7 @@ Core API:
 
 5. Build and resolve:
    const app = builder.build()
-   const service = app.resolveInterface<UserService>()
+   const service = app.resolveType<UserService>()
 
 Lifetimes:
 - .singleInstance() - singleton
@@ -854,7 +854,7 @@ Lifetimes:
 
 AutoWire (Convention Over Configuration):
 - Automatic: .autoWire() - matches parameters to interfaces by naming convention
-- Explicit: .autoWire({ map: { logger: (c) => c.resolveInterface<ILogger>() } })
+- Explicit: .autoWire({ map: { logger: (c) => c.resolveType<ILogger>() } })
 - Use automatic for ALL services, explicit only for primitives/values
 
 Transformer Setup (tsconfig.json):
@@ -898,7 +898,7 @@ builder.registerType(ConsoleGreeter).asInterface<IGreeter>().singleInstance()
 builder.registerType(Application).asInterface<Application>().autoWire() // Convention!
 
 const app = builder.build()
-const application = app.resolveInterface<Application>()
+const application = app.resolveType<Application>()
 application.run() // Outputs: Hello, World!
 ```
 
