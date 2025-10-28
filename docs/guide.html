@@ -1,28 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Complete Documentation - NovaDI</title>
-  <meta name="description"
-    content="Complete Documentation to NovaDI: patterns, lifetimes, testing, and real-world examples.">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Documentation - NovaDI</title>
+    <meta name="description"
 
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto+Slab:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
-    rel="stylesheet">
+    <!-- Theme Init - Must load BEFORE CSS to prevent flash -->
+    <script>
+      (function() {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const savedTheme = localStorage.getItem('theme');
+        const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+      content="Complete Documentation to NovaDI: patterns, lifetimes, testing, and real-world examples.">
 
-  <link rel="stylesheet" href="css/docs.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto+Slab:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=optional"
+      rel="stylesheet">
 
-  <!-- Prism.js for syntax highlighting -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css"
-    rel="stylesheet" />
+    <link rel="stylesheet" href="css/docs.css">
 
-  <style>
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css"
+      rel="stylesheet">
+
+    <style>
     .sidebar {
       position: sticky;
       top: 80px;
@@ -56,107 +66,115 @@
         display: none;
       }
     }
-  </style>
-</head>
+    </style>
+  </head>
 
-<body>
+  <body>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-button" aria-label="Toggle navigation menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
 
-  <!-- Header -->
-  <header class="main-header">
-    <a href="index.html" class="header-logo">NovaDI</a>
-    <div class="header-links">
-      <a href="https://www.npmjs.com/package/@novadi/core" target="_blank">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-          <path
-            d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z">
-          </path>
-        </svg>
-        npm
-      </a>
-      <a href="https://github.com/janus007/NovaDI" target="_blank">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-          <path
-            d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z">
-          </path>
-        </svg>
-        GitHub
-      </a>
-      <button id="theme-toggle" aria-label="Toggle theme">
-        <span class="theme-icon">
-          <svg viewBox="0 0 24 24" fill="currentColor">
+    <!-- Mobile Menu Backdrop -->
+    <div class="mobile-menu-backdrop"></div>
+
+    <!-- Header -->
+    <header class="main-header">
+      <a href="index.html" class="header-logo">NovaDI</a>
+      <div class="header-links">
+        <a href="https://www.npmjs.com/package/@novadi/core" target="_blank">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
             <path
-              d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z">
+              d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z">
             </path>
           </svg>
-        </span>
-      </button>
-    </div>
-  </header>
+          npm
+        </a>
+        <a href="https://github.com/janus007/NovaDI" target="_blank">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path
+              d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z">
+            </path>
+          </svg>
+          GitHub
+        </a>
+        <button type="submit" id="theme-toggle" aria-label="Toggle theme">
+          <span class="theme-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z">
+              </path>
+            </svg>
+          </span>
+        </button>
+      </div>
+    </header>
 
-  <!-- Sidebar Navigation -->
-  <aside class="main-nav">
-    <div class="nav-container">
-      <ul class="nav-links">
-        <li class="nav-group">
-          <div class="nav-group-title">Documentation</div>
-          <a href="getting-started.html">Getting Started</a>
-          <a href="guide.html" class="active">Documentation</a>
-          <ul class="nav-sub-links">
-            <li><a href="#core-concepts">Core Concepts</a></li>
-            <li><a href="#autowire">AutoWire Convention</a></li>
-            <li><a href="#lifetimes">Lifetimes</a></li>
-            <li><a href="#real-world">Real-World Example</a></li>
-            <li><a href="#transformer">Transformer Magic</a></li>
-            <li><a href="#testing">Testing Strategies</a></li>
-            <li><a href="#patterns">Common Patterns</a></li>
-            <li><a href="#troubleshooting">Troubleshooting</a></li>
-          </ul>
-          <a href="why.html">Why is DI this important?</a>
-          <a href="design-philosophy.html">Design Philosophy</a>
-        </li>
-        <li class="nav-group">
-          <div class="nav-group-title">Resources</div>
-          <a href="roadmap.html">NovaDI Roadmap & Ideas</a>
-          <a href="demo.html">Performance Benchmarks</a>
-          <a href="examples.html">Examples</a>
-        </li>
-      </ul>
-    </div>
-  </aside>
+    <!-- Sidebar Navigation -->
+    <aside class="main-nav">
+      <div class="nav-container">
+        <ul class="nav-links">
+          <li class="nav-group">
+            <div class="nav-group-title">Documentation</div>
+            <a href="getting-started.html">Getting Started</a>
+            <a href="guide.html" class="active">Documentation</a>
+            <ul class="nav-sub-links">
+              <li><a href="#core-concepts">Core Concepts</a></li>
+              <li><a href="#autowire">AutoWire Convention</a></li>
+              <li><a href="#lifetimes">Lifetimes</a></li>
+              <li><a href="#real-world">Real-World Example</a></li>
+              <li><a href="#transformer">Transformer Magic</a></li>
+              <li><a href="#testing">Testing Strategies</a></li>
+              <li><a href="#patterns">Common Patterns</a></li>
+              <li><a href="#troubleshooting">Troubleshooting</a></li>
+            </ul>
+            <a href="why.html">Why is DI this important?</a>
+            <a href="design-philosophy.html">Design Philosophy</a>
+          </li>
+          <li class="nav-group">
+            <div class="nav-group-title">Resources</div>
+            <a href="roadmap.html">NovaDI Roadmap & Ideas</a>
+            <a href="demo.html">Performance Benchmarks</a>
+            <a href="examples.html">Examples</a>
+          </li>
+        </ul>
+      </div>
+    </aside>
 
-  <!-- Main Content -->
-  <main class="main-content">
+    <!-- Main Content -->
+    <main class="main-content">
 
-    <!-- Hero Section -->
-    <div class="hero">
-      <div class="container">
-        <h1 class="hero-title">Documentation</h1>
-        <p class="hero-subtitle">Decorator-free Dependency Injection for TypeScript</p>
-        <div style="margin-top: 24px;">
-          <span class="tech-badge">TypeScript 5+</span>
-          <span class="tech-badge">Zero Decorators</span>
-          <span class="tech-badge">Browser-First</span>
-          <span class="tech-badge">Type-Safe</span>
-          <span class="tech-badge">3.9KB gzipped</span>
+      <!-- Hero Section -->
+      <div class="hero">
+        <div class="container">
+          <h1 class="hero-title">Documentation</h1>
+          <p class="hero-subtitle">Decorator-free Dependency Injection for TypeScript</p>
+          <div >
+            <span class="tech-badge">TypeScript 5+</span>
+            <span class="tech-badge">Zero Decorators</span>
+            <span class="tech-badge">Browser-First</span>
+            <span class="tech-badge">Type-Safe</span>
+            <span class="tech-badge">3.9KB gzipped</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Content -->
-    <div class="container" style="padding: 40px 20px 80px;">
-
-      <hr style="margin: 40px 0;">
-
-      <!-- Core Concepts -->
-      <section id="core-concepts">
-        <h2>Core Concepts</h2>
-        <p>
-          NovaDI is built around three simple concepts: <strong>Container</strong>, <strong>Builder</strong>, and
-          <strong>Convention</strong>.
-        </p>
-        <p>Inspired by Autofac, built for modern TypeScript projects. Fast, type-safe, and framework-agnostic.</p>
-        <h3>Container & Builder</h3>
-        <p>The <code>Container</code> stores your service registrations. The <code>Builder</code> configures them:</p>
+      <!-- Content -->
+      <div class="container" class="py-section">
+        <!-- Core Concepts -->
+        <section id="core-concepts">
+          <h2>Core Concepts</h2>
+          <p>
+            NovaDI is built around three simple concepts: <strong>Container</strong>, <strong>Builder</strong>, and
+            <strong>Convention</strong>.
+          </p>
+          <p>Inspired by Autofac, built for modern TypeScript projects. Fast, type-safe, and framework-agnostic.</p>
+          <h3>Container & Builder</h3>
+          <p>The <code>Container</code> stores your service registrations. The <code>Builder</code> configures them:</p>
 
         <pre class="line-numbers"><code class="language-typescript">import { Container } from '@novadi/core'
 
@@ -171,7 +189,7 @@ builder.registerType(MyService).as<IMyService>().singleInstance()
 const app = builder.build()
 const service = app.resolveType<IMyService>()</code></pre>
 
-        <div class="callout callout-info" style="margin: 24px 0;">
+        <div class="callout callout-info" class="my-24">
           <strong>💡 Composition Root Pattern</strong><br>
           All DI configuration should live in ONE place - your application's entry point.
           This is called the "Composition Root" and it's a core principle of clean architecture.
@@ -197,7 +215,7 @@ builder
   .autoWire()</code></pre>
       </section>
 
-      <hr style="margin: 60px 0;">
+      <hr class="my-60">
 
       <!-- AutoWire -->
       <section id="autowire">
@@ -219,14 +237,14 @@ builder
 builder.registerType(UserService).as<UserService>().autoWire()</code></pre>
 
         <p><strong>How it works:</strong></p>
-        <ul style="margin-left: 24px; line-height: 1.8;">
+        <ul class="ml-24 lh-relaxed">
           <li>Extracts parameter names from constructor (<code>logger</code>, <code>database</code>)</li>
           <li>Tries multiple naming conventions: <code>ILogger</code>, <code>Logger</code>, <code>logger</code></li>
           <li>Automatically resolves the matching registered interfaces</li>
           <li><strong>Zero configuration - pure convention!</strong></li>
         </ul>
 
-        <div class="callout callout-success" style="margin: 24px 0;">
+        <div class="callout callout-success" class="my-24">
           <strong>✅ Best Practice:</strong> Use <code>.autoWire()</code> without arguments for ALL your services.
           This is how NovaDI is meant to be used.
         </div>
@@ -246,18 +264,18 @@ builder.registerType(UserService).as<UserService>().autoWire()</code></pre>
   })</code></pre>
 
         <p><strong>Only use explicit mapping when:</strong></p>
-        <ul style="margin-left: 24px; line-height: 1.8;">
+        <ul class="ml-24 lh-relaxed">
           <li>Injecting primitives, strings, or configuration values</li>
           <li>You need custom resolution logic (rare)</li>
           <li>You're NOT using the transformer AND code is minified</li>
         </ul>
 
-        <div class="callout callout-warning" style="margin: 24px 0;">
+        <div class="callout callout-warning" class="my-24">
           <strong>⚠️ For regular service dependencies, ALWAYS use <code>.autoWire()</code> without arguments!</strong>
         </div>
       </section>
 
-      <hr style="margin: 60px 0;">
+      <hr class="my-60">
 
       <!-- Lifetimes -->
       <section id="lifetimes">
@@ -271,7 +289,7 @@ builder.registerType(UserService).as<UserService>().autoWire()</code></pre>
         <pre
           class="line-numbers"><code class="language-typescript">builder.registerType(Database).as<IDatabase>().singleInstance()</code></pre>
         <p><strong>Use for:</strong> Loggers, database connections, configuration, caches, stateless services</p>
-        <ul style="margin-left: 24px; line-height: 1.8;">
+        <ul class="ml-24 lh-relaxed">
           <li>✅ One instance created on first resolution</li>
           <li>✅ Reused for entire application lifetime</li>
           <li>✅ Thread-safe caching</li>
@@ -282,7 +300,7 @@ builder.registerType(UserService).as<UserService>().autoWire()</code></pre>
         <pre class="line-numbers"><code class="language-typescript">builder.registerType(RequestHandler).as<IRequestHandler>()
 // No .singleInstance() = transient by default</code></pre>
         <p><strong>Use for:</strong> Request handlers, commands, stateful operations, short-lived services</p>
-        <ul style="margin-left: 24px; line-height: 1.8;">
+        <ul class="ml-24 lh-relaxed">
           <li>✅ Fresh instance on every resolution</li>
           <li>✅ No shared state between uses</li>
           <li>✅ Safe for concurrent operations</li>
@@ -292,16 +310,16 @@ builder.registerType(UserService).as<UserService>().autoWire()</code></pre>
         <pre
           class="line-numbers"><code class="language-typescript">builder.registerType(UnitOfWork).as<IUnitOfWork>().instancePerRequest()</code></pre>
         <p><strong>Use for:</strong> Database transactions, request-scoped state, HTTP request context</p>
-        <ul style="margin-left: 24px; line-height: 1.8;">
+        <ul class="ml-24 lh-relaxed">
           <li>✅ One instance per resolution tree</li>
           <li>✅ Shared across dependencies in same resolve call</li>
           <li>✅ New instance for next top-level resolution</li>
           <li>💡 Perfect for transactions that span multiple services</li>
         </ul>
 
-        <div class="callout callout-info" style="margin: 24px 0;">
+        <div class="callout callout-info" class="my-24">
           <strong>💡 Choosing the Right Lifetime:</strong><br>
-          <ul style="margin: 8px 0 0 24px; line-height: 1.8;">
+          <ul class="my-8 ml-24 lh-relaxed">
             <li><strong>Singleton:</strong> Can it be safely shared? → Yes → Singleton</li>
             <li><strong>Transient:</strong> Does it hold state? → Yes → Transient</li>
             <li><strong>Per-Request:</strong> Needs to be shared in one operation? → Yes → Per-Request</li>
@@ -309,7 +327,7 @@ builder.registerType(UserService).as<UserService>().autoWire()</code></pre>
         </div>
       </section>
 
-      <hr style="margin: 60px 0;">
+      <hr class="my-60">
 
       <!-- Real-World Example -->
       <section id="real-world">
@@ -403,7 +421,7 @@ const userService = app.resolveType<UserService>()
 await userService.createUser('alice@example.com', 'Alice')</code></pre>
 
         <p><strong>Notice:</strong></p>
-        <ul style="margin-left: 24px; line-height: 1.8;">
+        <ul class="ml-24 lh-relaxed">
           <li>✅ All service files are pure TypeScript - no decorators, no framework imports</li>
           <li>✅ <code>.autoWire()</code> handles ALL dependency wiring by convention</li>
           <li>✅ No manual mapping needed - it just works</li>
@@ -412,7 +430,7 @@ await userService.createUser('alice@example.com', 'Alice')</code></pre>
         </ul>
       </section>
 
-      <hr style="margin: 60px 0;">
+      <hr class="my-60">
 
       <!-- Transformer Magic -->
       <section id="transformer">
@@ -431,9 +449,9 @@ const logger = app.resolveType<ILogger>()
 builder.registerType(ConsoleLogger).as<ILogger>("ILogger").singleInstance()
 const logger = app.resolveType<ILogger>("ILogger")</code></pre>
 
-        <div class="callout callout-success" style="margin: 24px 0;">
+        <div class="callout callout-success" class="my-24">
           <strong>✅ Benefits:</strong>
-          <ul style="margin: 8px 0 0 24px; line-height: 1.8;">
+          <ul class="my-8 ml-24 lh-relaxed">
             <li>Compile-time validation of all dependencies</li>
             <li>Zero typo risk - TypeScript checks everything</li>
             <li>Refactoring safety - rename types freely</li>
@@ -444,39 +462,39 @@ const logger = app.resolveType<ILogger>("ILogger")</code></pre>
         <h3>Bundler Compatibility</h3>
         <p>The transformer works across all major bundlers via <strong>unplugin</strong>:</p>
 
-        <table style="width: 100%; border-collapse: collapse; margin: 24px 0;">
+        <table class="full-width my-24">
           <thead>
-            <tr style="border-bottom: 2px solid #ddd;">
-              <th style="padding: 12px; text-align: left;">Bundler</th>
-              <th style="padding: 12px; text-align: left;">Status</th>
-              <th style="padding: 12px; text-align: left;">Method</th>
+            <tr >
+              <th class="p-12 text-left">Bundler</th>
+              <th class="p-12 text-left">Status</th>
+              <th class="p-12 text-left">Method</th>
             </tr>
           </thead>
           <tbody>
-            <tr style="border-bottom: 1px solid #eee;">
-              <td style="padding: 12px;"><strong>Vite</strong></td>
-              <td style="padding: 12px;">✅ Works</td>
-              <td style="padding: 12px;">unplugin</td>
+            <tr >
+              <td class="p-12"><strong>Vite</strong></td>
+              <td class="p-12">✅ Works</td>
+              <td class="p-12">unplugin</td>
             </tr>
-            <tr style="border-bottom: 1px solid #eee;">
-              <td style="padding: 12px;"><strong>webpack</strong></td>
-              <td style="padding: 12px;">✅ Works</td>
-              <td style="padding: 12px;">unplugin</td>
+            <tr >
+              <td class="p-12"><strong>webpack</strong></td>
+              <td class="p-12">✅ Works</td>
+              <td class="p-12">unplugin</td>
             </tr>
-            <tr style="border-bottom: 1px solid #eee;">
-              <td style="padding: 12px;"><strong>Rollup</strong></td>
-              <td style="padding: 12px;">✅ Works</td>
-              <td style="padding: 12px;">unplugin or ts-patch</td>
+            <tr >
+              <td class="p-12"><strong>Rollup</strong></td>
+              <td class="p-12">✅ Works</td>
+              <td class="p-12">unplugin or ts-patch</td>
             </tr>
-            <tr style="border-bottom: 1px solid #eee;">
-              <td style="padding: 12px;"><strong>esbuild</strong></td>
-              <td style="padding: 12px;">✅ Works</td>
-              <td style="padding: 12px;">unplugin</td>
+            <tr >
+              <td class="p-12"><strong>esbuild</strong></td>
+              <td class="p-12">✅ Works</td>
+              <td class="p-12">unplugin</td>
             </tr>
-            <tr style="border-bottom: 1px solid #eee;">
-              <td style="padding: 12px;"><strong>tsc</strong></td>
-              <td style="padding: 12px;">✅ Works</td>
-              <td style="padding: 12px;">ts-patch</td>
+            <tr >
+              <td class="p-12"><strong>tsc</strong></td>
+              <td class="p-12">✅ Works</td>
+              <td class="p-12">ts-patch</td>
             </tr>
           </tbody>
         </table>
@@ -484,7 +502,7 @@ const logger = app.resolveType<ILogger>("ILogger")</code></pre>
         <p>See <a href="getting-started.html#manual-setup">Getting Started</a> for setup instructions.</p>
       </section>
 
-      <hr style="margin: 60px 0;">
+      <hr class="my-60">
 
       <!-- Testing -->
       <section id="testing">
@@ -529,7 +547,7 @@ describe('UserService', () => {
   })
 })</code></pre>
 
-        <div class="callout callout-success" style="margin: 24px 0;">
+        <div class="callout callout-success" class="my-24">
           <strong>✅ This is why "no decorators" matters!</strong><br>
           Your services are just TypeScript classes. No framework coupling. No special test setup. Just pure, testable
           code.
@@ -561,7 +579,7 @@ describe('UserService', () => {
 })</code></pre>
       </section>
 
-      <hr style="margin: 60px 0;">
+      <hr class="my-60">
 
       <!-- Common Patterns -->
       <section id="patterns">
@@ -602,7 +620,7 @@ if (process.env.NODE_ENV === 'production') {
 }</code></pre>
       </section>
 
-      <hr style="margin: 60px 0;">
+      <hr class="my-60">
 
       <!-- Troubleshooting -->
       <section id="troubleshooting">
@@ -610,20 +628,20 @@ if (process.env.NODE_ENV === 'production') {
 
         <h3>Common Issues</h3>
 
-        <div class="callout callout-warning" style="margin: 24px 0;">
+        <div class="callout callout-warning" class="my-24">
           <strong>❌ Error: "No binding found for interface XYZ"</strong><br>
           <strong>Cause:</strong> You're trying to resolve an interface that wasn't registered.<br>
           <strong>Fix:</strong> Make sure you called <code>.registerType(...).as<XYZ>()</code> before building.
         </div>
 
-        <div class="callout callout-warning" style="margin: 24px 0;">
+        <div class="callout callout-warning" class="my-24">
           <strong>❌ Error: "Circular dependency detected"</strong><br>
           <strong>Cause:</strong> Service A depends on B, B depends on C, C depends on A.<br>
           <strong>Fix:</strong> Refactor to break the cycle. Consider using events, callbacks, or redesigning
           responsibilities.
         </div>
 
-        <div class="callout callout-warning" style="margin: 24px 0;">
+        <div class="callout callout-warning" class="my-24">
           <strong>❌ Transformer not working (type names not injected)</strong><br>
           <strong>Cause:</strong> Transformer not configured correctly.<br>
           <strong>Fix:</strong> Check <a href="getting-started.html#manual-setup">setup Documentation</a>. For unplugin,
@@ -645,13 +663,13 @@ try {
 }</code></pre>
       </section>
 
-      <hr style="margin: 60px 0;">
+      <hr class="my-60">
 
       <!-- Next Steps -->
       <section>
         <h2>🚀 Next Steps</h2>
         <div
-          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin: 24px 0;">
+          >
           <div class="card">
             <h4>🏗️ Design Philosophy</h4>
             <p>Understand the "why" behind NovaDI's architecture</p>

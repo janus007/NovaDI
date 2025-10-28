@@ -64,6 +64,54 @@ function initSidebar() {
 }
 
 // ============================================
+// Mobile Menu Toggle
+// ============================================
+function initMobileMenu() {
+  const menuButton = document.querySelector('.mobile-menu-button')
+  const mainNav = document.querySelector('.main-nav')
+  const backdrop = document.querySelector('.mobile-menu-backdrop')
+
+  if (!menuButton || !mainNav) return
+
+  // Toggle menu
+  menuButton.addEventListener('click', () => {
+    mainNav.classList.toggle('open')
+    if (backdrop) {
+      backdrop.classList.toggle('active')
+    }
+  })
+
+  // Close menu when clicking backdrop
+  if (backdrop) {
+    backdrop.addEventListener('click', () => {
+      mainNav.classList.remove('open')
+      backdrop.classList.remove('active')
+    })
+  }
+
+  // Close menu when clicking a link
+  const navLinks = mainNav.querySelectorAll('a')
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      mainNav.classList.remove('open')
+      if (backdrop) {
+        backdrop.classList.remove('active')
+      }
+    })
+  })
+
+  // Close menu on ESC key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && mainNav.classList.contains('open')) {
+      mainNav.classList.remove('open')
+      if (backdrop) {
+        backdrop.classList.remove('active')
+      }
+    }
+  })
+}
+
+// ============================================
 // Smooth Scroll for Anchor Links
 // ============================================
 function initSmoothScroll() {
@@ -156,16 +204,10 @@ function initThemeToggle() {
   const toggle = document.getElementById('theme-toggle')
   if (!toggle) return
 
-  // Get system preference
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  const systemTheme = prefersDark ? 'dark' : 'light'
+  // Get current theme (already set by inline script in <head>)
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light'
 
-  // Check localStorage first, fallback to system preference
-  const savedTheme = localStorage.getItem('theme')
-  const currentTheme = savedTheme || systemTheme
-
-  // Set initial theme
-  document.documentElement.setAttribute('data-theme', currentTheme)
+  // Update icon to match current theme
   updateThemeIcon(toggle, currentTheme)
 
   // Toggle theme on click
@@ -315,6 +357,7 @@ function initBackToTop() {
 document.addEventListener('DOMContentLoaded', () => {
   initCollapsibles()
   initSidebar()
+  initMobileMenu()
   initSmoothScroll()
   // initCodeCopy() - Handled by Prism.js plugin
   generateTableOfContents()

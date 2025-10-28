@@ -1,145 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Why is DI this important? - NovaDI</title>
-  <meta name="description" content="Understanding why dependency injection matters for TypeScript projects.">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why is DI this important? - NovaDI</title>
+    <meta name="description" content="Understanding why dependency injection matters for TypeScript projects.">
 
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto+Slab:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Theme Init - Must load BEFORE CSS to prevent flash -->
+    <script>
+      (function() {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const savedTheme = localStorage.getItem('theme');
+        const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
 
-  <link rel="stylesheet" href="css/docs.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto+Slab:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=optional" rel="stylesheet">
 
-  <!-- Prism.js for syntax highlighting -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
-</head>
-<body>
+    <link rel="stylesheet" href="css/docs.css">
 
-  <!-- Header -->
-  <header class="main-header">
-    <a href="index.html" class="header-logo">NovaDI</a>
-    <div class="header-links">
-      <a href="https://www.npmjs.com/package/@novadi/core" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z"></path></svg>
-        npm
-      </a>
-      <a href="https://github.com/janus007/NovaDI" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg>
-        GitHub
-      </a>
-      <button id="theme-toggle" aria-label="Toggle theme">
-        <span class="theme-icon">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z"></path></svg>
-        </span>
-      </button>
-    </div>
-  </header>
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-button" aria-label="Toggle navigation menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
 
-  <!-- Sidebar Navigation -->
-  <aside class="main-nav">
-    <div class="nav-container">
-      <ul class="nav-links">
-        <li class="nav-group">
-          <div class="nav-group-title">Documentation</div>
-          <a href="getting-started.html">Getting Started</a>
-          <a href="guide.html">Documentation</a>
-          <a href="why.html" class="active">Why is DI this important?</a>
-          <a href="design-philosophy.html">Design Philosophy</a>
-        </li>
-        <li class="nav-group">
-          <div class="nav-group-title">Resources</div>
-          <a href="roadmap.html">NovaDI Roadmap & Ideas</a>
-          <a href="demo.html">Performance Benchmarks</a>
-          <a href="examples.html">Examples</a>
-        </li>
-      </ul>
-    </div>
-  </aside>
+    <!-- Mobile Menu Backdrop -->
+    <div class="mobile-menu-backdrop"></div>
 
-  <!-- Main Content -->
-  <main class="main-content">
-    <!-- Hero Section -->
-  <div class="hero">
-    <div class="container">
-      <h1 class="hero-title">Why is DI this important?</h1>
-      <p class="hero-subtitle">Understanding the value of dependency injection</p>
-      <div style="margin-top: 24px;">
-        <span class="tech-badge">Convention over Configuration</span>
-        <span class="tech-badge">Testability</span>
-        <span class="tech-badge">Security by Design</span>
-        <span class="tech-badge">DRY Principle</span>
+    <!-- Header -->
+    <header class="main-header">
+      <a href="index.html" class="header-logo">NovaDI</a>
+      <div class="header-links">
+        <a href="https://www.npmjs.com/package/@novadi/core" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z"></path></svg>
+          npm
+        </a>
+        <a href="https://github.com/janus007/NovaDI" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg>
+          GitHub
+        </a>
+        <button type="submit" id="theme-toggle" aria-label="Toggle theme">
+          <span class="theme-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z"></path></svg>
+          </span>
+        </button>
       </div>
-    </div>
-  </div>
+    </header>
 
-  <!-- Content -->
-  <div class="container" style="padding: 40px 20px 80px;">
-
-    <!-- Introduction -->
-    <section class="section">
-      <p class="text-large text-center" style="max-width: 800px; margin: 0 auto 48px;">
-        Dependency Injection isn't just a fancy pattern - it's the difference between maintainable, testable code
-        and a tangled mess that breaks every time you make a change.
-      </p>
-
-      <div class="info-box" style="margin-top: 32px;">
-        <h3 style="margin-top: 0;">Built on Proven Principles</h3>
-        <p>
-          NovaDI is inspired by <strong>Autofac</strong> (the renowned .NET DI container) and the teachings of
-          <strong>Mark Seemann</strong>, author of "Dependency Injection in .NET" and one of the world's leading
-          experts on DI patterns and practices.
-        </p>
-        <p>
-          Mark Seemann advocates for several key principles that NovaDI follows religiously:
-        </p>
-        <ul style="margin: 16px 0 0 20px; color: var(--text-secondary); line-height: 1.8;">
-          <li>
-            <strong>The Composition Root Pattern:</strong> All DI configuration must be in ONE place at your
-            application's entry point. NovaDI enforces this - you configure everything in your composition root,
-            not scattered across your codebase.
+    <!-- Sidebar Navigation -->
+    <aside class="main-nav">
+      <div class="nav-container">
+        <ul class="nav-links">
+          <li class="nav-group">
+            <div class="nav-group-title">Documentation</div>
+            <a href="getting-started.html">Getting Started</a>
+            <a href="guide.html">Documentation</a>
+            <a href="why.html" class="active">Why is DI this important?</a>
+            <a href="design-philosophy.html">Design Philosophy</a>
           </li>
-          <li>
-            <strong>Constructor Injection:</strong> Dependencies should be explicitly declared in constructors,
-            making them visible and testable. NovaDI uses constructor injection exclusively - no property injection,
-            no hidden dependencies.
-          </li>
-          <li>
-            <strong>Don't Pollute Domain Code with Infrastructure:</strong> Your business logic should have zero
-            knowledge of the DI framework. NovaDI achieves this by requiring zero decorators in your domain code -
-            no <code>@Injectable()</code>, no framework imports in your services.
-          </li>
-          <li>
-            <strong>Convention over Configuration:</strong> Reduce boilerplate and potential errors by following
-            naming conventions. NovaDI's <code>.autoWire()</code> automatically matches constructor parameters
-            to registered interfaces by name.
-          </li>
-          <li>
-            <strong>Explicit Lifetime Management:</strong> Be deliberate about object lifetimes (Singleton, Transient, Scoped).
-            NovaDI provides clear lifetime options: <code>.singleInstance()</code>, <code>.instancePerRequest()</code>,
-            and <code>.instancePerLifetimeScope()</code>.
+          <li class="nav-group">
+            <div class="nav-group-title">Resources</div>
+            <a href="roadmap.html">NovaDI Roadmap & Ideas</a>
+            <a href="demo.html">Performance Benchmarks</a>
+            <a href="examples.html">Examples</a>
           </li>
         </ul>
-        <p style="margin-top: 16px; margin-bottom: 0;">
-          By following these battle-tested principles from the .NET ecosystem, NovaDI brings enterprise-grade
-          dependency injection patterns to TypeScript.
-        </p>
       </div>
-    </section>
+    </aside>
 
-    <!-- The Problem -->
-    <section class="section">
-      <h2>The Problem: Manual Instantiation</h2>
-      <p>
-        Let's say you're building a real application. You have a <code>UserService</code> that needs to call a backend API,
-        handle user repo and send emails. Without DI, you're stuck creating everything manually.
-      </p>
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Hero Section -->
+      <div class="hero">
+        <div class="container">
+          <h1 class="hero-title">Why is DI this important?</h1>
+          <p class="hero-subtitle">Understanding the value of dependency injection</p>
+          <div class="mt-24">
+            <span class="tech-badge">Convention over Configuration</span>
+            <span class="tech-badge">Testability</span>
+            <span class="tech-badge">Security by Design</span>
+            <span class="tech-badge">DRY Principle</span>
+          </div>
+        </div>
+      </div>
 
-      <div class="card" style="margin: 24px 0;">
-        <h3>❌ Without DI - The Nightmare</h3>
+      <!-- Content -->
+      <div class="container" class="py-section">
+
+        <!-- Introduction -->
+        <section class="section">
+          <p class="text-large text-center">
+            Dependency Injection isn't just a fancy pattern - it's the difference between maintainable, testable code
+            and a tangled mess that breaks every time you make a change.
+          </p>
+
+          <div class="info-box" class="mt-32">
+            <h3 class="mt-0">Built on Proven Principles</h3>
+            <p>
+              NovaDI is inspired by <strong>Autofac</strong> (the renowned .NET DI container) and the teachings of
+              <strong>Mark Seemann</strong>, author of "Dependency Injection in .NET" and one of the world's leading
+              experts on DI patterns and practices.
+            </p>
+            <p>
+              Mark Seemann advocates for several key principles that NovaDI follows religiously:
+            </p>
+            <ul>
+              <li>
+                <strong>The Composition Root Pattern:</strong> All DI configuration must be in ONE place at your
+                application's entry point. NovaDI enforces this - you configure everything in your composition root,
+                not scattered across your codebase.
+              </li>
+              <li>
+                <strong>Constructor Injection:</strong> Dependencies should be explicitly declared in constructors,
+                making them visible and testable. NovaDI uses constructor injection exclusively - no property injection,
+                no hidden dependencies.
+              </li>
+              <li>
+                <strong>Don't Pollute Domain Code with Infrastructure:</strong> Your business logic should have zero
+                knowledge of the DI framework. NovaDI achieves this by requiring zero decorators in your domain code -
+                no <code>@Injectable()</code>, no framework imports in your services.
+              </li>
+              <li>
+                <strong>Convention over Configuration:</strong> Reduce boilerplate and potential errors by following
+                naming conventions. NovaDI's <code>.autoWire()</code> automatically matches constructor parameters
+                to registered interfaces by name.
+              </li>
+              <li>
+                <strong>Explicit Lifetime Management:</strong> Be deliberate about object lifetimes (Singleton, Transient, Scoped).
+                NovaDI provides clear lifetime options: <code>.singleInstance()</code>, <code>.instancePerRequest()</code>,
+                and <code>.instancePerLifetimeScope()</code>.
+              </li>
+            </ul>
+            <p class="mt-16 mb-0">
+              By following these battle-tested principles from the .NET ecosystem, NovaDI brings enterprise-grade
+              dependency injection patterns to TypeScript.
+            </p>
+          </div>
+        </section>
+
+        <!-- The Problem -->
+        <section class="section">
+          <h2>The Problem: Manual Instantiation</h2>
+          <p>
+            Let's say you're building a real application. You have a <code>UserService</code> that needs to call a backend API,
+            handle user repo and send emails. Without DI, you're stuck creating everything manually.
+          </p>
+
+          <div class="card" class="my-24">
+            <h3>❌ Without DI - The Nightmare</h3>
         <pre class="line-numbers"><code class="language-typescript">// Every single place that needs UserService has to know ALL its dependencies
 const apiConfig = {
   baseUrl: process.env.API_BASE_URL,
@@ -153,8 +174,8 @@ const userApi = new UserApi(httpClient)
 const userRepository = new UserRepository(userApi)
 
 /***********
-in this example we are injecting dependencies, sometimes code is 
-written in such a way that UserService instantiates userRepository and emailService 
+in this example we are injecting dependencies, sometimes code is
+written in such a way that UserService instantiates userRepository and emailService
 (which is an even bigger problem, because then it is impossible to test)
 ***********
 */
@@ -163,22 +184,22 @@ const userService = new UserService(userRepository, emailService)
 // Now imagine doing having this pattern in 15 different files...
 // Good luck testing this without mocking all HTTP calls.</code></pre>
 
-        <div class="info-box info-box-error" style="margin-top: 16px; margin-bottom: 0;">
-          <strong>Problems:</strong>
-          <ul style="margin: 12px 0 0 20px; color: var(--text-secondary);">
-            <li>API keys and secrets scattered everywhere in your code</li>
-            <li>Every file needs to know the entire dependency tree</li>
-            <li>Impossible to test without hitting real API endpoints</li>
-            <li>One constructor change breaks dozens of files</li>
-            <li>No way to swap implementations (production vs test vs mock)</li>
-          </ul>
-        </div>
-      </div>
+            <div class="info-box info-box-error" class="mt-16 mb-0">
+              <strong>Problems:</strong>
+              <ul>
+                <li>API keys and secrets scattered everywhere in your code</li>
+                <li>Every file needs to know the entire dependency tree</li>
+                <li>Impossible to test without hitting real API endpoints</li>
+                <li>One constructor change breaks dozens of files</li>
+                <li>No way to swap implementations (production vs test vs mock)</li>
+              </ul>
+            </div>
+          </div>
 
-      <div class="card">
-        <h3>✅ With DI - Clean and Simple</h3>
+          <div class="card">
+            <h3>✅ With DI - Clean and Simple</h3>
 
-        <h4 style="margin-top: 0;">Your Business Code (Clean!)</h4>
+            <h4 class="mt-0">Your Business Code (Clean!)</h4>
         <pre class="line-numbers"><code class="language-typescript">// Anywhere in your code - just ask for what you need
 class UserService {
   constructor(
@@ -190,7 +211,7 @@ class UserService {
 // That's it. No API keys. No configuration. No mess.
 // Just declare what you need in the constructor.</code></pre>
 
-        <h4 style="margin-top: 24px;">Configuration (ONE Place, ONE Time)</h4>
+            <h4 class="mt-24">Configuration (ONE Place, ONE Time)</h4>
         <pre class="line-numbers"><code class="language-typescript">// composition-root.ts - ALL secrets and wiring in ONE file
 import { Container } from '@novadi/core'
 
@@ -231,9 +252,9 @@ export const app = builder.build()
 const userService = app.resolveType<IUserService>()
 // Everything wired automatically! ✨</code></pre>
 
-        <div class="info-box info-box-tip" style="margin-top: 16px; margin-bottom: 0;">
+        <div class="info-box info-box-tip" class="mt-16 mb-0">
           <strong>Benefits:</strong>
-          <ul style="margin: 12px 0 0 20px; color: var(--text-secondary);">
+          <ul>
             <li><strong>Secrets in ONE place:</strong> All API keys and passwords in composition root (or .env)</li>
             <li><strong>Clean business code:</strong> Controllers and services have zero configuration</li>
             <li><strong>Easy testing:</strong> Just pass mock implementations to constructors</li>
@@ -252,10 +273,10 @@ const userService = app.resolveType<IUserService>()
         NovaDI takes a different approach: <strong>Convention over Configuration</strong>.
       </p>
 
-      <div class="grid grid-2" style="margin: 32px 0;">
-        <div class="card" style="border-left: 3px solid var(--accent-red);">
-          <h3 style="color: var(--accent-red); margin-top: 0;">❌ Token-Based DI (some random)</h3>
-          <pre class="line-numbers" style="margin: 0;"><code class="language-typescript">// tokens.ts - Separate file for all injection tokens
+      <div class="grid grid-2" class="my-32">
+        <div class="card" class="card-error">
+          <h3>❌ Token-Based DI (some random)</h3>
+          <pre class="line-numbers" class="m-0"><code class="language-typescript">// tokens.ts - Separate file for all injection tokens
 const TYPES = {
   IUserRepository: Symbol.for('IUserRepository'),
   IEmailService: Symbol.for('IEmailService'),
@@ -297,8 +318,8 @@ container.bind(TYPES.IOrderRepository).to(OrderRepository)
 container.bind(TYPES.IPaymentService).to(PaymentService)</code></pre>
         </div>
 
-        <div class="card" style="border-left: 3px solid var(--accent-teal);">
-          <h3 style="color: var(--accent-teal); margin-top: 0;">✅ Convention-Based (NovaDI)</h3>
+        <div class="card" class="card-success">
+          <h3>✅ Convention-Based (NovaDI)</h3>
           <pre class="line-numbers"><code class="language-typescript">// Clean domain code - NO decorators!
 class UserService {
   constructor(
@@ -338,7 +359,7 @@ builder.registerType(OrderService).as<IOrderService>().autoWire()
           A parameter named <code>userRepo</code> automatically resolves <code>IUserRepository</code>.
           A parameter named <code>logger</code> resolves <code>ILogger</code>.
         </p>
-        <p style="margin-bottom: 0;">
+        <p class="mb-0">
           <strong>Result:</strong> Less configuration, fewer bugs, cleaner code.
         </p>
       </div>
@@ -391,7 +412,7 @@ interface IUserService {
   createUser(email: string, name: string): Promise<User>
 }</code></pre>
 
-        <h3 style="margin-top: 32px;">Step 2: Implement Services (Still No DI!)</h3>
+        <h3 class="mt-32">Step 2: Implement Services (Still No DI!)</h3>
         <pre class="line-numbers"><code class="language-typescript">// Implementations - just declare what you need in the constructor
 class ConsoleLogger implements ILogger {
   log(message: string) { console.log(`[LOG] ${message}`) }
@@ -513,7 +534,7 @@ class UserService implements IUserService {
   }
 }</code></pre>
 
-        <h3 style="margin-top: 32px;">Step 3: Configure DI (ONE Place, ONE Time)</h3>
+        <h3 class="mt-32">Step 3: Configure DI (ONE Place, ONE Time)</h3>
         <pre class="line-numbers"><code class="language-typescript">// composition-root.ts - ALL configuration in ONE place
 import { Container } from '@novadi/core'
 
@@ -580,7 +601,7 @@ builder.registerType(UserService)
 
 export const app = builder.build()</code></pre>
 
-        <h3 style="margin-top: 32px;">Step 4: Use It - Simple and Clean</h3>
+        <h3 class="mt-32">Step 4: Use It - Simple and Clean</h3>
         <pre class="line-numbers"><code class="language-typescript">// In your application code
 import { app } from './composition-root'
 
@@ -606,7 +627,7 @@ console.log(newUser)</code></pre>
 
       <div class="info-box info-box-tip">
         <h5 class="info-box-title">🎯 Key Takeaways</h5>
-        <ul style="margin: 12px 0 0 20px; color: var(--text-secondary);">
+        <ul>
           <li><strong>Configuration in ONE place:</strong> All API keys, secrets, and wiring in composition root</li>
           <li><strong>Clean domain code:</strong> No framework knowledge in your business logic</li>
           <li><strong>Convention over configuration:</strong> <code>.autoWire()</code> handles wiring automatically</li>
@@ -701,12 +722,12 @@ test('UserRepository uses cache and falls back to API', async () => {
 
     <!-- Conclusion -->
     <section class="section">
-      <div class="card" style="text-align: center; padding: 48px 32px; background: linear-gradient(135deg, var(--surface) 0%, var(--bg-secondary) 100%);">
-        <h2 style="margin-top: 0;">Ready to Build Better Applications?</h2>
-        <p class="text-secondary" style="margin-bottom: 32px; font-size: 18px;">
+      <div class="card" class="cta-card">
+        <h2 class="mt-0">Ready to Build Better Applications?</h2>
+        <p class="text-secondary">
           Stop fighting with manual instantiation and start using proper dependency injection
         </p>
-        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <div class="flex-gap-12">
           <a href="getting-started.html" class="btn btn-primary btn-lg">Get Started with NovaDI</a>
           <a href="guide.html" class="btn btn-secondary btn-lg">Read Complete Documentation</a>
         </div>

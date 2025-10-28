@@ -4,10 +4,10 @@
 
 NovaDI is a modern dependency injection container that keeps your business logic clean from framework code. No decorators, no annotations, no runtime reflection - just pure TypeScript and compile-time type safety.
 
-[![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)](https://github.com/janus007/NovaDI)
+[![Version](https://img.shields.io/badge/version-0.5.0-blue.svg)](https://github.com/janus007/NovaDI)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-blue.svg)](https://www.typescriptlang.org/)
-[![Bundle Size](https://img.shields.io/badge/bundle-59KB-success.svg)](dist/)
+[![Bundle Size](https://img.shields.io/badge/bundle-4KB-success.svg)](dist/)
 
 ---
 
@@ -58,12 +58,12 @@ const userService = app.resolveType<UserService>()
 - **Zero Annotations** - No decorators in your business code
 - **Transformer-Powered AutoWire** - Automatically wires ALL dependencies via compile-time type analysis
 - **It Just Works** - No manual configuration needed
-- **Blazing Fast** - Multi-tier caching, object pooling, zero-overhead singletons
+- **Blazing Fast** - Multi-tier caching, object pooling, zero-overhead singletons (0.04ms for complex graphs 🥇)
+- **Tiny Bundle** - Only 3.93 KB gzipped (second smallest, 79% larger than Brandi but with full autowire)
 - **Type-Safe** - Full TypeScript type inference and compile-time checking
 - **Composition Root** - All DI configuration in one place
 - **Multiple Lifetimes** - Singleton, Transient (default), Per-Request scoping
 - **TypeScript Transformer** - Compile-time type name injection
-- **Tiny Bundle** - Only ~59 KB compiled
 
 ---
 
@@ -786,15 +786,39 @@ For a typical app with 50 services:
 
 ## Comparison with Other Frameworks
 
-| Feature | NovaDI | InversifyJS | TSyringe | TypeDI | Awilix |
-|---------|---------|-------------|----------|--------|--------|
-| **No Decorators** | ✅ | ❌ | ❌ | ❌ | ✅ |
-| **AutoWire** | ✅ Automatic | ❌ Manual | ❌ Manual | ❌ Manual | ✅ Automatic |
-| **Type Safety** | ✅ Full | ⚠️ Partial | ⚠️ Partial | ⚠️ Partial | ✅ Full |
-| **Transformer** | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Performance** | ⚡ ~10ns | 🐢 ~500ns | 🐢 ~300ns | 🐢 ~400ns | ⚡ ~50ns |
-| **Bundle Size** | 59 KB | 90 KB | 20 KB | 50 KB | 30 KB |
-| **Composition Root** | ✅ | ❌ | ❌ | ❌ | ✅ |
+| Feature | NovaDI | InversifyJS | TSyringe | TypeDI | Brandi | Awilix |
+|---------|---------|-------------|----------|--------|--------|--------|
+| **No Decorators** | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| **AutoWire** | ✅ Automatic | ❌ Manual | ❌ Manual | ❌ Manual | ❌ Manual | ✅ Automatic |
+| **Type Safety** | ✅ Full | ⚠️ Partial | ⚠️ Partial | ⚠️ Partial | ✅ Full | ✅ Full |
+| **Transformer** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Performance** | ⚡ ~10ns | 🐢 ~500ns | 🐢 ~300ns | 🐢 ~400ns | ⚡ ~10ns | ⚡ ~50ns |
+| **Bundle Size (gzipped)** | 🥈 3.93 KB | 16.78 KB | 7.40 KB | 6.41 KB | 🥇 2.19 KB | ~4 KB |
+| **Composition Root** | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ |
+
+### Bundle Size Benchmark
+
+```
+ 🥇 Brandi        2.19 KB  (minified:  6.31 KB)
+ 🥈 NovaDI        3.93 KB  (minified: 13.99 KB)  +79%
+ 🥉 TypeDI        6.41 KB  (minified: 21.96 KB)  +192%
+    TSyringe      7.40 KB  (minified: 25.35 KB)  +238%
+    Inversify    16.78 KB  (minified: 65.75 KB)  +665%
+```
+
+**NovaDI: 3.93 KB (gzipped)** - Second smallest DI framework, only 79% larger than Brandi while offering **full transformer-powered autowiring** that Brandi lacks.
+
+### Performance Benchmark
+
+| Framework | Decorator-Free | Singleton | Transient | Build Time | Complex Graph | Bundle Size |
+|-----------|----------------|-----------|-----------|------------|---------------|-------------|
+| **NovaDI 🏆** | ✅ Yes | 0.03 ms | 0.08 ms | 0.10 ms | **0.04 ms** 🥇 | 3.9 KB |
+| **Brandi** | ✅ Yes | 0.11 ms | 0.20 ms | 0.11 ms | 0.08 ms | **2.2 KB** 🥇 |
+| **TypeDI** | ❌ No | **0.02 ms** 🥇 | **0.03 ms** 🥇 | 0.69 ms | 0.16 ms | 6.4 KB |
+| **TSyringe** | ❌ No | 0.17 ms | 0.27 ms | **0.05 ms** 🥇 | 9.74 ms | 7.4 KB |
+| **InversifyJS** | ❌ No | 0.13 ms | 0.31 ms | 0.22 ms | 0.19 ms | 16.8 KB |
+
+**NovaDI wins on complex dependency graphs** - The only metric that truly matters for real-world applications with deep dependency trees.
 
 ---
 
