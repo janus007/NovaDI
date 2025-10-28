@@ -770,61 +770,9 @@ describe('Autowire - Minification Support (Position-Based)', () => {
     expect(service.c).toBeUndefined()
   })
 
-  it('should support parameter name matching for refactoring (reordered parameters)', () => {
-    // Scenario: Developer refactors and reorders constructor parameters
-    // Smart matching uses parameter names to find correct dependencies
-    interface IEventBus {
-      publish(event: string): void
-    }
-
-    interface ILogger {
-      log(msg: string): void
-    }
-
-    class EventBus implements IEventBus {
-      publish(event: string) {}
-    }
-
-    class Logger implements ILogger {
-      log(msg: string) {}
-    }
-
-    // Constructor with parameters in different order than metadata
-    // Metadata was generated when constructor was: (eventBus, logger)
-    // But now it's: (logger, eventBus)
-    class RefactoredService {
-      constructor(
-        public logger: ILogger,      // Position 0 NOW, but was position 1 BEFORE
-        public eventBus: IEventBus   // Position 1 NOW, but was position 0 BEFORE
-      ) {}
-    }
-
-    const builder = container.builder()
-    builder.registerType(EventBus).asInterface<IEventBus>()
-    builder.registerType(Logger).asInterface<ILogger>()
-    builder
-      .registerType(RefactoredService)
-      .asInterface<RefactoredService>()
-      .autoWire({
-        positions: [
-          // Metadata from BEFORE refactoring (eventBus was position 0, logger was position 1)
-          { parameterName: 'eventBus', index: 0, typeName: 'IEventBus' },
-          { parameterName: 'logger', index: 1, typeName: 'ILogger' }
-        ]
-      })
-
-    const builtContainer = builder.build()
-    const service = builtContainer.resolveInterface<RefactoredService>()
-
-    // Smart matching finds correct dependencies by parameter name!
-    // Even though positions don't match, names do
-    expect(service.logger).toBeInstanceOf(Logger)
-    expect(service.eventBus).toBeInstanceOf(EventBus)
-  })
-
-  it('should fallback to position matching when parameter names are minified', () => {
-    // Scenario: Code is minified, so parameter names don't match metadata
-    // Should fallback to position-based matching
+  it('should use position matching regardless of parameter names (minification-safe)', () => {
+    // Scenario: Code is minified, parameter names are mangled
+    // Position-based matching always uses index, ignoring parameter names
     interface IEventBus {
       publish(event: string): void
     }
@@ -857,7 +805,7 @@ describe('Autowire - Minification Support (Position-Based)', () => {
       .asInterface<MinifiedService>()
       .autoWire({
         positions: [
-          // Metadata from before minification (original parameter names)
+          // Position-based: matches on index only, parameter names are ignored
           { parameterName: 'eventBus', index: 0, typeName: 'IEventBus' },
           { parameterName: 'logger', index: 1, typeName: 'ILogger' }
         ]
@@ -866,8 +814,7 @@ describe('Autowire - Minification Support (Position-Based)', () => {
     const builtContainer = builder.build()
     const service = builtContainer.resolveInterface<MinifiedService>()
 
-    // Parameter names don't match, but positions do!
-    // Fallback to position-based matching works
+    // Position-based matching works regardless of parameter names
     expect(service.a).toBeInstanceOf(EventBus)
     expect(service.b).toBeInstanceOf(Logger)
   })

@@ -69,7 +69,7 @@ describe('AutoWire Performance Comparison', () => {
     expect(elapsed).toBeLessThan(100) // Should be very fast
   })
 
-  it('should benchmark positions with smart matching (O(n) find operations)', () => {
+  it('should benchmark positions with index Map (O(1) Map lookup)', () => {
     interface ILogger {
       log(msg: string): void
     }
@@ -122,7 +122,7 @@ describe('AutoWire Performance Comparison', () => {
     }
     const elapsed = performance.now() - start
 
-    console.log(`positions (smart match): ${iterations} resolutions in ${elapsed.toFixed(2)}ms (${(elapsed / iterations * 1000).toFixed(3)}μs per resolve)`)
+    console.log(`positions (Map lookup): ${iterations} resolutions in ${elapsed.toFixed(2)}ms (${(elapsed / iterations * 1000).toFixed(3)}μs per resolve)`)
 
     expect(elapsed).toBeLessThan(200)
   })

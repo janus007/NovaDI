@@ -1,0 +1,20 @@
+{
+  "name": "novadi-performance-test",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:unplugin": "rollup -c rollup.config.js",
+    "build:transformer": "rollup -c rollup-tspatch.config.js",
+    "test:unplugin": "node dist/bundle.js",
+    "test:transformer": "node dist/bundle-tspatch.js",
+    "compare": "node compare-performance.js"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^11.1.5",
+    "rollup": "^4.9.1",
+    "tslib": "^2.6.2",
+    "typescript": "^5.3.3",
+    "ttypescript": "^1.5.15"
+  }
+}
