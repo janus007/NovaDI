@@ -1,0 +1,114 @@
+/**
+ * UI Style Guide - Demo & Template Styles
+ * Styles specifically for demonstrating design system components
+ */
+
+/* ============================================
+   COLOR SWATCHES
+   ============================================ */
+.color-swatch {
+  height: 80px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.color-swatch.swatch-teal {
+  background: var(--accent-teal);
+}
+
+.color-swatch.swatch-blue {
+  background: var(--accent-blue);
+}
+
+.color-swatch.swatch-green {
+  background: var(--accent-green);
+}
+
+.color-swatch.swatch-orange {
+  background: var(--accent-orange);
+}
+
+/* ============================================
+   BACKGROUND SWATCHES
+   ============================================ */
+.bg-swatch {
+  height: 60px;
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.bg-swatch.swatch-primary {
+  background: var(--bg-primary);
+}
+
+.bg-swatch.swatch-secondary {
+  background: var(--bg-secondary);
+}
+
+.bg-swatch.swatch-surface {
+  background: var(--surface);
+}
+
+/* ============================================
+   TEXT DEMOS
+   ============================================ */
+.text-demo {
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+
+.text-demo.demo-primary {
+  color: var(--text-primary);
+}
+
+.text-demo.demo-secondary {
+  color: var(--text-secondary);
+}
+
+.text-demo.demo-muted {
+  color: var(--text-muted);
+}
+
+/* ============================================
+   SPACING DEMOS
+   ============================================ */
+.spacing-demo {
+  background: var(--accent-teal);
+  height: 20px;
+}
+
+.spacing-demo.w-4 {
+  width: 4px;
+}
+
+.spacing-demo.w-8 {
+  width: 8px;
+}
+
+.spacing-demo.w-16 {
+  width: 16px;
+}
+
+.spacing-demo.w-24 {
+  width: 24px;
+}
+
+.spacing-demo.w-32 {
+  width: 32px;
+}
+
+.spacing-demo.w-48 {
+  width: 48px;
+}
+
+.spacing-demo.w-64 {
+  width: 64px;
+}
+
+/* ============================================
+   TABLE HIGHLIGHTS
+   ============================================ */
+table tr.bg-success {
+  background: #D1FAE5;
+}
