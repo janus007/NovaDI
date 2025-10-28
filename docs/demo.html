@@ -1,22 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Performance Benchmarks - NovaDI</title>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Benchmarks - NovaDI</title>
 
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto+Slab:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Theme Init - Must load BEFORE CSS to prevent flash -->
+    <script>
+      (function() {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const savedTheme = localStorage.getItem('theme');
+        const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
 
-  <link rel="stylesheet" href="css/docs.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto+Slab:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=optional" rel="stylesheet">
 
-  <!-- Prism.js for syntax highlighting -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/docs.css">
+
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet">
   
-  <style>
+    <style>
     /* ============================================
        DEMO-SPECIFIC STYLES
        Global styles are loaded from docs.css
@@ -757,113 +767,124 @@
     .graph-note strong {
       color: var(--text-primary);
     }
-  </style>
-</head>
-<body>
+    </style>
+  </head>
+  <body>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-button" aria-label="Toggle navigation menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
 
-  <!-- Header -->
-  <header class="main-header">
-    <a href="index.html" class="header-logo">NovaDI</a>
-    <div class="header-links">
-      <a href="https://www.npmjs.com/package/@novadi/core" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z"></path></svg>
-        npm
-      </a>
-      <a href="https://github.com/janus007/NovaDI" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg>
-        GitHub
-      </a>
-      <button id="theme-toggle" aria-label="Toggle theme">
-        <span class="theme-icon">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z"></path></svg>
-        </span>
-      </button>
-    </div>
-  </header>
+    <!-- Mobile Menu Backdrop -->
+    <div class="mobile-menu-backdrop"></div>
 
-  <!-- Sidebar Navigation -->
-  <aside class="main-nav">
-    <div class="nav-container">
-      <ul class="nav-links">
-        <li class="nav-group">
-          <div class="nav-group-title">Documentation</div>
-          <a href="getting-started.html">Getting Started</a>
-          <a href="guide.html">Documentation</a>
-          <a href="why.html">Why is DI this important?</a>
-          <a href="design-philosophy.html">Design Philosophy</a>
-        </li>
-        <li class="nav-group">
-          <div class="nav-group-title">Resources</div>
-          <a href="roadmap.html">NovaDI Roadmap & Ideas</a>
-          <a href="demo.html" class="active">Performance Benchmarks</a>
-          <a href="examples.html">Examples</a>
-        </li>
-      </ul>
-    </div>
-  </aside>
+    <!-- Header -->
+    <header class="main-header">
+      <a href="index.html" class="header-logo">NovaDI</a>
+      <div class="header-links">
+        <a href="https://www.npmjs.com/package/@novadi/core" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z"></path></svg>
+          npm
+        </a>
+        <a href="https://github.com/janus007/NovaDI" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg>
+          GitHub
+        </a>
+        <button type="submit" id="theme-toggle" aria-label="Toggle theme">
+          <span class="theme-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z"></path></svg>
+          </span>
+        </button>
+      </div>
+    </header>
 
-  <!-- Main Content -->
-  <main class="main-content">
-    <!-- Hero Section -->
-    <div class="hero">
-      <div class="container">
-        <h1 class="hero-title">⚡ Performance Benchmarks</h1>
-        <p class="hero-subtitle">Head-to-head performance comparison with other DI frameworks</p>
-        <div>
-          <span class="tech-badge">Real-time Tests</span>
-          <span class="tech-badge">1000 Runs Each</span>
-          <span class="tech-badge">Multiple Metrics</span>
-          <span class="tech-badge">Interactive Charts</span>
+    <!-- Sidebar Navigation -->
+    <aside class="main-nav">
+      <div class="nav-container">
+        <ul class="nav-links">
+          <li class="nav-group">
+            <div class="nav-group-title">Documentation</div>
+            <a href="getting-started.html">Getting Started</a>
+            <a href="guide.html">Documentation</a>
+            <a href="why.html">Why is DI this important?</a>
+            <a href="design-philosophy.html">Design Philosophy</a>
+          </li>
+          <li class="nav-group">
+            <div class="nav-group-title">Resources</div>
+            <a href="roadmap.html">NovaDI Roadmap & Ideas</a>
+            <a href="demo.html" class="active">Performance Benchmarks</a>
+            <a href="examples.html">Examples</a>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Hero Section -->
+      <div class="hero">
+        <div class="container">
+          <h1 class="hero-title">⚡ Performance Benchmarks</h1>
+          <p class="hero-subtitle">Head-to-head performance comparison with other DI frameworks</p>
+          <div>
+            <span class="tech-badge">Real-time Tests</span>
+            <span class="tech-badge">1000 Runs Each</span>
+            <span class="tech-badge">Multiple Metrics</span>
+            <span class="tech-badge">Interactive Charts</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Content -->
-    <div class="container" style="padding: 40px 20px 80px;">
-      <div class="info-box">
-      <h3>📋 About These Benchmarks</h3>
-      <p>
-        These benchmarks compare <strong>NovaDI</strong> with other popular TypeScript DI frameworks
-        across multiple performance metrics. Each test runs <strong>1000 iterations</strong> to ensure
-        accurate results. <strong>Open your browser console</strong> (<kbd>F12</kbd>) to see detailed
-        execution logs and timing information.
-      </p>
+      <!-- Content -->
+      <div class="container py-section">
+        <div class="info-box">
+          <h3>📋 About These Benchmarks</h3>
+          <p>
+            These benchmarks compare <strong>NovaDI</strong> with other popular TypeScript DI frameworks
+            across multiple performance metrics. Each test runs <strong>1000 iterations</strong> to ensure
+            accurate results. <strong>Open your browser console</strong> (<kbd>F12</kbd>) to see detailed
+            execution logs and timing information.
+          </p>
 
-      <p style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-muted);">
-        <strong>📊 Test Metrics:</strong>
-      </p>
-      <ul style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
-        <li><strong>Singleton Resolution:</strong> Measure cached singleton lookup performance</li>
-        <li><strong>Transient Resolution:</strong> Test new instance creation on every resolve</li>
-        <li><strong>Build Time:</strong> Container setup time with 100 registrations</li>
-        <li><strong>Complex Graph:</strong> Realistic multi-layer dependency graph resolution</li>
-        <li><strong>Bundle Size:</strong> Minified + gzipped framework size</li>
-      </ul>
+          <p class="section-note">
+            <strong>📊 Test Metrics:</strong>
+          </p>
+          <ul class="feature-list">
+            <li><strong>Singleton Resolution:</strong> Measure cached singleton lookup performance</li>
+            <li><strong>Transient Resolution:</strong> Test new instance creation on every resolve</li>
+            <li><strong>Build Time:</strong> Container setup time with 100 registrations</li>
+            <li><strong>Complex Graph:</strong> Realistic multi-layer dependency graph resolution</li>
+            <li><strong>Bundle Size:</strong> Minified + gzipped framework size</li>
+          </ul>
 
-      <p style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-muted);">
-        <strong>🎯 Compared Frameworks:</strong> NovaDI, Brandi, InversifyJS, TSyringe, TypeDI
-      </p>
+          <p class="section-note">
+            <strong>🎯 Compared Frameworks:</strong> NovaDI, Brandi, InversifyJS, TSyringe, TypeDI
+          </p>
 
-      <p style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-muted);">
-        <strong>📚 Looking for usage examples?</strong> Check out the <a href="examples.html">Examples page</a>
-        for interactive demos of NovaDI features and patterns.
-      </p>
-    </div>
+          <p class="section-note">
+            <strong>📚 Looking for usage examples?</strong> Check out the <a href="examples.html">Examples page</a>
+            for interactive demos of NovaDI features and patterns.
+          </p>
+        </div>
 
-    <!-- Test Class Structures Section -->
-    <div class="info-box" style="margin-top: 24px; background: var(--info-box-bg, #F0F9FF); border-color: var(--info-box-border, #BAE6FD);">
-      <h3>🧪 Test Class Structures</h3>
-      <p>
-        Below are the class structures used in the performance benchmarks. Understanding what's being tested
-        helps interpret the results.
-      </p>
+        <!-- Test Class Structures Section -->
+        <div class="info-box info-box-info">
+          <h3>🧪 Test Class Structures</h3>
+          <p>
+            Below are the class structures used in the performance benchmarks. Understanding what's being tested
+            helps interpret the results.
+          </p>
 
-      <!-- Simple Tests (Singleton/Transient) -->
-      <div class="code-section" style="margin-top: 15px;">
-        <h4>📦 Simple Test Classes (Singleton & Transient Tests)</h4>
-        <p style="margin-bottom: 10px; font-size: 0.9em; color: var(--text-muted);">
-          These minimal classes are used to benchmark pure resolution speed without complexity.
-        </p>
+          <!-- Simple Tests (Singleton/Transient) -->
+          <div class="code-section">
+            <h4>📦 Simple Test Classes (Singleton & Transient Tests)</h4>
+            <p>
+              These minimal classes are used to benchmark pure resolution speed without complexity.
+            </p>
         <pre class="line-numbers"><code class="language-typescript">// Simple test interfaces
 interface ICache {
   get(key: string): any
@@ -893,15 +914,15 @@ for (let i = 0; i < 1000; i++) {
   app.resolveType&lt;ILogger&gt;()
   app.resolveType&lt;ICache&gt;()
 }</code></pre>
-      </div>
+          </div>
 
-      <!-- Complex Graph Test -->
-      <div class="code-section" style="margin-top: 20px;">
-        <h4>🤖 Complex Graph Test (Smart Home System)</h4>
-        <p style="margin-bottom: 10px; font-size: 0.9em; color: var(--text-muted);">
-          This test uses the full smart home system (Example 6) with multi-layer dependencies.
-          Same structure is used for No AutoWire variant.
-        </p>
+          <!-- Complex Graph Test -->
+          <div class="code-section">
+            <h4>🤖 Complex Graph Test (Smart Home System)</h4>
+            <p>
+              This test uses the full smart home system (Example 6) with multi-layer dependencies.
+              Same structure is used for No AutoWire variant.
+            </p>
         <pre class="line-numbers"><code class="language-typescript">// Multi-layer dependency graph:
 // AutomationService → Logger + EventBus → Logger
 // Devices (SmartThermostat, SmartLight) → Logger
@@ -938,14 +959,14 @@ builder.registerType(SmartThermostat).as&lt;IDevice&gt;().keyed('Thermostat')
 for (let i = 0; i < 1000; i++) {
   app.resolveType&lt;AutomationService&gt;()  // Resolves Logger + EventBus chain
 }</code></pre>
-      </div>
+          </div>
 
-      <!-- Demo 7 Variant -->
-      <div class="code-section" style="margin-top: 20px;">
-        <h4>⚡ Same Structure, No AutoWire</h4>
-        <p style="margin-bottom: 10px; font-size: 0.9em; color: var(--text-muted);">
-          Uses direct factory registration instead of .autoWire() to eliminate function call overhead.
-        </p>
+          <!-- Demo 7 Variant -->
+          <div class="code-section">
+            <h4>⚡ Same Structure, No AutoWire</h4>
+            <p>
+              Uses direct factory registration instead of .autoWire() to eliminate function call overhead.
+            </p>
         <pre class="line-numbers"><code class="language-typescript">// Instead of .autoWire({ map: { logger: (c) => c.resolveType&lt;ILogger&gt;() } })
 // Use direct factory:
 
@@ -962,359 +983,359 @@ builder.register((c) => {
 
 // Same test: 1000 resolutions of AutomationService
 // Expected result: Faster due to no autoWire map overhead</code></pre>
-      </div>
-    </div>
-
-    <!-- Technical Documentation Section -->
-    <div class="tech-docs-section">
-      <div class="tech-docs-header" onclick="toggleTechDocs()">
-        <h3>📚 Technical Reference - Smart Home Domain Classes</h3>
-        <span class="expand-icon" id="tech-docs-expand">▼</span>
-      </div>
-      <div class="tech-docs-content" id="tech-docs-content">
-
-        <!-- Interfaces -->
-        <div class="tech-section">
-          <h4>Interfaces</h4>
-          <div class="tech-grid">
-            <div class="tech-card">
-              <div class="tech-card-header">interface ILogger</div>
-              <div class="tech-card-body">
-                <div class="method">log(message: string, context?: string): void</div>
-                <div class="method">info(message: string, context?: string): void</div>
-                <div class="method">warn(message: string, context?: string): void</div>
-                <div class="method">error(message: string, error?: Error): void</div>
-              </div>
-            </div>
-
-            <div class="tech-card">
-              <div class="tech-card-header">interface IEventBus</div>
-              <div class="tech-card-body">
-                <div class="method">publish(event: string, data: any): void</div>
-                <div class="method">subscribe(event: string, handler: Function): void</div>
-              </div>
-            </div>
-
-            <div class="tech-card">
-              <div class="tech-card-header">interface ISensor</div>
-              <div class="tech-card-body">
-                <div class="property">id: string</div>
-                <div class="property">name: string</div>
-                <div class="property">roomId: string</div>
-                <div class="method">getValue(): number</div>
-                <div class="method">getUnit(): string</div>
-              </div>
-            </div>
-
-            <div class="tech-card">
-              <div class="tech-card-header">interface IDevice</div>
-              <div class="tech-card-body">
-                <div class="property">id: string</div>
-                <div class="property">name: string</div>
-                <div class="property">roomId: string</div>
-                <div class="property">isOn: boolean</div>
-                <div class="method">turnOn(): void</div>
-                <div class="method">turnOff(): void</div>
-                <div class="method">getStatus(): string</div>
-              </div>
-            </div>
           </div>
         </div>
 
-        <!-- Services -->
-        <div class="tech-section">
-          <h4>Service Classes</h4>
-          <div class="tech-grid">
-            <div class="tech-card">
-              <div class="tech-card-header">class ConsoleLogger</div>
-              <div class="tech-card-subtitle">implements ILogger</div>
-              <div class="tech-card-body">
-                <div class="constructor">constructor()</div>
-                <div class="dependency-note">No dependencies</div>
-              </div>
-            </div>
-
-            <div class="tech-card">
-              <div class="tech-card-header">class EventBus</div>
-              <div class="tech-card-subtitle">implements IEventBus</div>
-              <div class="tech-card-body">
-                <div class="constructor">constructor(logger: ILogger)</div>
-                <div class="dependency-arrow">→ ILogger</div>
-              </div>
-            </div>
-
-            <div class="tech-card">
-              <div class="tech-card-header">class AutomationService</div>
-              <div class="tech-card-body">
-                <div class="constructor">constructor(</div>
-                <div class="constructor-param">  logger: ILogger,</div>
-                <div class="constructor-param">  eventBus: IEventBus</div>
-                <div class="constructor">)</div>
-                <div class="dependency-arrow">→ ILogger</div>
-                <div class="dependency-arrow">→ IEventBus</div>
-              </div>
-            </div>
+        <!-- Technical Documentation Section -->
+        <div class="tech-docs-section">
+          <div class="tech-docs-header" onclick="toggleTechDocs()">
+            <h3>📚 Technical Reference - Smart Home Domain Classes</h3>
+            <span class="expand-icon" id="tech-docs-expand">▼</span>
           </div>
-        </div>
+          <div class="tech-docs-content" id="tech-docs-content">
 
-        <!-- Sensors -->
-        <div class="tech-section">
-          <h4>Sensor Classes</h4>
-          <div class="tech-grid">
-            <div class="tech-card">
-              <div class="tech-card-header">class TemperatureSensor</div>
-              <div class="tech-card-subtitle">implements ISensor</div>
-              <div class="tech-card-body">
-                <div class="constructor">constructor(</div>
-                <div class="constructor-param">  id: string,</div>
-                <div class="constructor-param">  name: string,</div>
-                <div class="constructor-param">  roomId: string,</div>
-                <div class="constructor-param">  currentTemp: number = 22</div>
-                <div class="constructor">)</div>
-                <div class="dependency-note">No injectable dependencies</div>
-              </div>
-            </div>
-
-            <div class="tech-card">
-              <div class="tech-card-header">class MotionSensor</div>
-              <div class="tech-card-subtitle">implements ISensor</div>
-              <div class="tech-card-body">
-                <div class="constructor">constructor(</div>
-                <div class="constructor-param">  id: string,</div>
-                <div class="constructor-param">  name: string,</div>
-                <div class="constructor-param">  roomId: string</div>
-                <div class="constructor">)</div>
-                <div class="dependency-note">No injectable dependencies</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Devices -->
-        <div class="tech-section">
-          <h4>Device Classes (Actuators)</h4>
-          <div class="tech-grid">
-            <div class="tech-card">
-              <div class="tech-card-header">class SmartThermostat</div>
-              <div class="tech-card-subtitle">implements IDevice</div>
-              <div class="tech-card-body">
-                <div class="constructor">constructor(</div>
-                <div class="constructor-param">  id: string,</div>
-                <div class="constructor-param">  name: string,</div>
-                <div class="constructor-param">  roomId: string,</div>
-                <div class="constructor-param">  logger: ILogger</div>
-                <div class="constructor">)</div>
-                <div class="dependency-arrow">→ ILogger</div>
-              </div>
-            </div>
-
-            <div class="tech-card">
-              <div class="tech-card-header">class SmartLight</div>
-              <div class="tech-card-subtitle">implements IDevice</div>
-              <div class="tech-card-body">
-                <div class="constructor">constructor(</div>
-                <div class="constructor-param">  id: string,</div>
-                <div class="constructor-param">  name: string,</div>
-                <div class="constructor-param">  roomId: string,</div>
-                <div class="constructor-param">  logger: ILogger</div>
-                <div class="constructor">)</div>
-                <div class="dependency-arrow">→ ILogger</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Dependency Graph -->
-        <div class="tech-section">
-          <h4>Dependency Graph (Demo 5 / Performance Tests)</h4>
-          <div class="dependency-graph">
-            <div class="graph-legend">
-              <span class="legend-item"><span class="legend-box singleton"></span> Singleton</span>
-              <span class="legend-item"><span class="legend-box instance"></span> Instance</span>
-              <span class="legend-item"><span class="legend-arrow">→</span> Depends on</span>
-            </div>
-            <div class="graph-container">
-              <div class="graph-level">
-                <div class="graph-node singleton highlight">
-                  <div class="node-name">AutomationService</div>
-                  <div class="node-type">AutomationService</div>
-                  <div class="node-deps">→ ILogger, IEventBus</div>
-                </div>
-              </div>
-              <div class="graph-level">
-                <div class="graph-row">
-                  <div class="graph-node singleton">
-                    <div class="node-name">ConsoleLogger</div>
-                    <div class="node-type">ILogger</div>
-                  </div>
-                  <div class="graph-node singleton">
-                    <div class="node-name">EventBus</div>
-                    <div class="node-type">IEventBus</div>
-                    <div class="node-deps">→ ILogger</div>
+            <!-- Interfaces -->
+            <div class="tech-section">
+              <h4>Interfaces</h4>
+              <div class="tech-grid">
+                <div class="tech-card">
+                  <div class="tech-card-header">interface ILogger</div>
+                  <div class="tech-card-body">
+                    <div class="method">log(message: string, context?: string): void</div>
+                    <div class="method">info(message: string, context?: string): void</div>
+                    <div class="method">warn(message: string, context?: string): void</div>
+                    <div class="method">error(message: string, error?: Error): void</div>
                   </div>
                 </div>
-              </div>
-              <div class="graph-divider">
-                <span>Additional registered services (not directly injected into AutomationService)</span>
-              </div>
-              <div class="graph-level">
-                <div class="graph-row">
-                  <div class="graph-node instance">
-                    <div class="node-name">TemperatureSensor</div>
-                    <div class="node-type">ISensor (keyed: 'TempSensor')</div>
-                  </div>
-                  <div class="graph-node instance">
-                    <div class="node-name">MotionSensor</div>
-                    <div class="node-type">ISensor (keyed: 'MotionSensor')</div>
+
+                <div class="tech-card">
+                  <div class="tech-card-header">interface IEventBus</div>
+                  <div class="tech-card-body">
+                    <div class="method">publish(event: string, data: any): void</div>
+                    <div class="method">subscribe(event: string, handler: Function): void</div>
                   </div>
                 </div>
-              </div>
-              <div class="graph-level">
-                <div class="graph-row">
-                  <div class="graph-node singleton">
-                    <div class="node-name">SmartThermostat</div>
-                    <div class="node-type">IDevice (keyed: 'Thermostat')</div>
-                    <div class="node-deps">→ ILogger</div>
+
+                <div class="tech-card">
+                  <div class="tech-card-header">interface ISensor</div>
+                  <div class="tech-card-body">
+                    <div class="property">id: string</div>
+                    <div class="property">name: string</div>
+                    <div class="property">roomId: string</div>
+                    <div class="method">getValue(): number</div>
+                    <div class="method">getUnit(): string</div>
                   </div>
-                  <div class="graph-node singleton">
-                    <div class="node-name">SmartLight</div>
-                    <div class="node-type">IDevice (keyed: 'Light')</div>
-                    <div class="node-deps">→ ILogger</div>
+                </div>
+
+                <div class="tech-card">
+                  <div class="tech-card-header">interface IDevice</div>
+                  <div class="tech-card-body">
+                    <div class="property">id: string</div>
+                    <div class="property">name: string</div>
+                    <div class="property">roomId: string</div>
+                    <div class="property">isOn: boolean</div>
+                    <div class="method">turnOn(): void</div>
+                    <div class="method">turnOff(): void</div>
+                    <div class="method">getStatus(): string</div>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="graph-note">
-              <strong>Resolution Order:</strong> When resolving AutomationService, the container first resolves ILogger (singleton, cached),
-              then EventBus (singleton, cached, uses cached ILogger), then AutomationService (singleton, uses cached ILogger and EventBus).
-              Devices and sensors are registered but not directly injected into AutomationService.
-            </div>
-          </div>
-        </div>
 
-      </div>
-    </div>
+            <!-- Services -->
+            <div class="tech-section">
+              <h4>Service Classes</h4>
+              <div class="tech-grid">
+                <div class="tech-card">
+                  <div class="tech-card-header">class ConsoleLogger</div>
+                  <div class="tech-card-subtitle">implements ILogger</div>
+                  <div class="tech-card-body">
+                    <div class="constructor">constructor()</div>
+                    <div class="dependency-note">No dependencies</div>
+                  </div>
+                </div>
 
-    <div class="demo-grid">
-      <div class="demo-card" id="demo6-card">
-        <div class="demo-card-header" onclick="toggleRegistry('demo6')">
-          <div>
-            <h3><span class="demo-icon">⚡</span> Performance Benchmarks</h3>
-          </div>
-          <span class="expand-icon" id="demo6-expand">▼</span>
-        </div>
-        <p>Head-to-head performance comparison with other popular DI frameworks</p>
-        <ul class="features-list">
-          <li><strong>NovaDI</strong> - Our decorator-free, browser-first framework</li>
-          <li><strong>Brandi</strong> - Decorator-free TypeScript DI</li>
-          <li><strong>InversifyJS</strong> - Popular decorator-based DI framework</li>
-          <li><strong>TSyringe</strong> - Microsoft's lightweight DI container</li>
-          <li><strong>TypeDI</strong> - TypeStack's decorator-based container</li>
-          <li>4 metrics: Resolution Speed, Build Time, Complex Graph, Bundle Size</li>
-        </ul>
-        <span id="demo6-status" class="status status-pending">pending</span>
-        <div class="demo-registry" id="demo6-registry">
-          <div id="benchmark-results" style="display: none;">
-            <h2 style="margin-bottom: 20px; color: var(--accent-blue);">📊 Performance Benchmark Results</h2>
+                <div class="tech-card">
+                  <div class="tech-card-header">class EventBus</div>
+                  <div class="tech-card-subtitle">implements IEventBus</div>
+                  <div class="tech-card-body">
+                    <div class="constructor">constructor(logger: ILogger)</div>
+                    <div class="dependency-arrow">→ ILogger</div>
+                  </div>
+                </div>
 
-            <!-- Table -->
-            <div id="benchmark-table"></div>
-
-            <!-- Bubble Chart - Performance Variance -->
-            <div class="chart-container" style="margin: 30px 0; max-width: 100%;">
-              <canvas id="bubble-chart"></canvas>
-            </div>
-
-            <!-- Charts -->
-            <div class="chart-grid">
-              <div class="chart-container">
-                <canvas id="resolution-chart"></canvas>
-              </div>
-              <div class="chart-container">
-                <canvas id="transient-chart"></canvas>
-              </div>
-              <div class="chart-container">
-                <canvas id="buildtime-chart"></canvas>
-              </div>
-              <div class="chart-container">
-                <canvas id="complexgraph-chart"></canvas>
-              </div>
-              <div class="chart-container">
-                <canvas id="bundlesize-chart"></canvas>
-              </div>
-              <div class="chart-container">
-                <canvas id="novadi-comparison-chart"></canvas>
+                <div class="tech-card">
+                  <div class="tech-card-header">class AutomationService</div>
+                  <div class="tech-card-body">
+                    <div class="constructor">constructor(</div>
+                    <div class="constructor-param">  logger: ILogger,</div>
+                    <div class="constructor-param">  eventBus: IEventBus</div>
+                    <div class="constructor">)</div>
+                    <div class="dependency-arrow">→ ILogger</div>
+                    <div class="dependency-arrow">→ IEventBus</div>
+                  </div>
+                </div>
               </div>
             </div>
+
+            <!-- Sensors -->
+            <div class="tech-section">
+              <h4>Sensor Classes</h4>
+              <div class="tech-grid">
+                <div class="tech-card">
+                  <div class="tech-card-header">class TemperatureSensor</div>
+                  <div class="tech-card-subtitle">implements ISensor</div>
+                  <div class="tech-card-body">
+                    <div class="constructor">constructor(</div>
+                    <div class="constructor-param">  id: string,</div>
+                    <div class="constructor-param">  name: string,</div>
+                    <div class="constructor-param">  roomId: string,</div>
+                    <div class="constructor-param">  currentTemp: number = 22</div>
+                    <div class="constructor">)</div>
+                    <div class="dependency-note">No injectable dependencies</div>
+                  </div>
+                </div>
+
+                <div class="tech-card">
+                  <div class="tech-card-header">class MotionSensor</div>
+                  <div class="tech-card-subtitle">implements ISensor</div>
+                  <div class="tech-card-body">
+                    <div class="constructor">constructor(</div>
+                    <div class="constructor-param">  id: string,</div>
+                    <div class="constructor-param">  name: string,</div>
+                    <div class="constructor-param">  roomId: string</div>
+                    <div class="constructor">)</div>
+                    <div class="dependency-note">No injectable dependencies</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Devices -->
+            <div class="tech-section">
+              <h4>Device Classes (Actuators)</h4>
+              <div class="tech-grid">
+                <div class="tech-card">
+                  <div class="tech-card-header">class SmartThermostat</div>
+                  <div class="tech-card-subtitle">implements IDevice</div>
+                  <div class="tech-card-body">
+                    <div class="constructor">constructor(</div>
+                    <div class="constructor-param">  id: string,</div>
+                    <div class="constructor-param">  name: string,</div>
+                    <div class="constructor-param">  roomId: string,</div>
+                    <div class="constructor-param">  logger: ILogger</div>
+                    <div class="constructor">)</div>
+                    <div class="dependency-arrow">→ ILogger</div>
+                  </div>
+                </div>
+
+                <div class="tech-card">
+                  <div class="tech-card-header">class SmartLight</div>
+                  <div class="tech-card-subtitle">implements IDevice</div>
+                  <div class="tech-card-body">
+                    <div class="constructor">constructor(</div>
+                    <div class="constructor-param">  id: string,</div>
+                    <div class="constructor-param">  name: string,</div>
+                    <div class="constructor-param">  roomId: string,</div>
+                    <div class="constructor-param">  logger: ILogger</div>
+                    <div class="constructor">)</div>
+                    <div class="dependency-arrow">→ ILogger</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dependency Graph -->
+            <div class="tech-section">
+              <h4>Dependency Graph (Demo 5 / Performance Tests)</h4>
+              <div class="dependency-graph">
+                <div class="graph-legend">
+                  <span class="legend-item"><span class="legend-box singleton"></span> Singleton</span>
+                  <span class="legend-item"><span class="legend-box instance"></span> Instance</span>
+                  <span class="legend-item"><span class="legend-arrow">→</span> Depends on</span>
+                </div>
+                <div class="graph-container">
+                  <div class="graph-level">
+                    <div class="graph-node singleton highlight">
+                      <div class="node-name">AutomationService</div>
+                      <div class="node-type">AutomationService</div>
+                      <div class="node-deps">→ ILogger, IEventBus</div>
+                    </div>
+                  </div>
+                  <div class="graph-level">
+                    <div class="graph-row">
+                      <div class="graph-node singleton">
+                        <div class="node-name">ConsoleLogger</div>
+                        <div class="node-type">ILogger</div>
+                      </div>
+                      <div class="graph-node singleton">
+                        <div class="node-name">EventBus</div>
+                        <div class="node-type">IEventBus</div>
+                        <div class="node-deps">→ ILogger</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="graph-divider">
+                    <span>Additional registered services (not directly injected into AutomationService)</span>
+                  </div>
+                  <div class="graph-level">
+                    <div class="graph-row">
+                      <div class="graph-node instance">
+                        <div class="node-name">TemperatureSensor</div>
+                        <div class="node-type">ISensor (keyed: 'TempSensor')</div>
+                      </div>
+                      <div class="graph-node instance">
+                        <div class="node-name">MotionSensor</div>
+                        <div class="node-type">ISensor (keyed: 'MotionSensor')</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="graph-level">
+                    <div class="graph-row">
+                      <div class="graph-node singleton">
+                        <div class="node-name">SmartThermostat</div>
+                        <div class="node-type">IDevice (keyed: 'Thermostat')</div>
+                        <div class="node-deps">→ ILogger</div>
+                      </div>
+                      <div class="graph-node singleton">
+                        <div class="node-name">SmartLight</div>
+                        <div class="node-type">IDevice (keyed: 'Light')</div>
+                        <div class="node-deps">→ ILogger</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="graph-note">
+                  <strong>Resolution Order:</strong> When resolving AutomationService, the container first resolves ILogger (singleton, cached),
+                  then EventBus (singleton, cached, uses cached ILogger), then AutomationService (singleton, uses cached ILogger and EventBus).
+                  Devices and sensors are registered but not directly injected into AutomationService.
+                </div>
+              </div>
+            </div>
+
           </div>
+        </div>
+
+        <div class="demo-grid">
+          <div class="demo-card" id="demo6-card">
+            <div class="demo-card-header" onclick="toggleRegistry('demo6')">
+              <div>
+                <h3><span class="demo-icon">⚡</span> Performance Benchmarks</h3>
+              </div>
+              <span class="expand-icon" id="demo6-expand">▼</span>
+            </div>
+            <p>Head-to-head performance comparison with other popular DI frameworks</p>
+            <ul class="features-list">
+              <li><strong>NovaDI</strong> - Our decorator-free, browser-first framework</li>
+              <li><strong>Brandi</strong> - Decorator-free TypeScript DI</li>
+              <li><strong>InversifyJS</strong> - Popular decorator-based DI framework</li>
+              <li><strong>TSyringe</strong> - Microsoft's lightweight DI container</li>
+              <li><strong>TypeDI</strong> - TypeStack's decorator-based container</li>
+              <li>4 metrics: Resolution Speed, Build Time, Complex Graph, Bundle Size</li>
+            </ul>
+            <span id="demo6-status" class="status status-pending">pending</span>
+            <div class="demo-registry" id="demo6-registry">
+              <div id="benchmark-results">
+                <h2>📊 Performance Benchmark Results</h2>
+
+                <!-- Table -->
+                <div id="benchmark-table"></div>
+
+                <!-- Bubble Chart - Performance Variance -->
+                <div class="chart-container fullwidth">
+                  <canvas id="bubble-chart"></canvas>
+                </div>
+
+                <!-- Charts -->
+                <div class="chart-grid">
+                  <div class="chart-container">
+                    <canvas id="resolution-chart"></canvas>
+                  </div>
+                  <div class="chart-container">
+                    <canvas id="transient-chart"></canvas>
+                  </div>
+                  <div class="chart-container">
+                    <canvas id="buildtime-chart"></canvas>
+                  </div>
+                  <div class="chart-container">
+                    <canvas id="complexgraph-chart"></canvas>
+                  </div>
+                  <div class="chart-container">
+                    <canvas id="bundlesize-chart"></canvas>
+                  </div>
+                  <div class="chart-container">
+                    <canvas id="novadi-comparison-chart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="demo-card" id="demo7-card">
+            <div class="demo-card-header" onclick="toggleRegistry('demo7')">
+              <div>
+                <h3><span class="demo-icon">🔬</span> NovaDI Complex Graph (No AutoWire)</h3>
+              </div>
+              <span class="expand-icon" id="demo7-expand">▼</span>
+            </div>
+            <p>Testing NovaDI Complex Graph performance without AutoWire overhead - direct factory registration</p>
+            <ul class="features-list">
+              <li><strong>Direct Factory Registration</strong> - No autowire map function overhead</li>
+              <li><strong>Fair Comparison</strong> - Same pattern as TypeDI implementation</li>
+              <li><strong>Expected Performance</strong> - Should match or beat TypeDI</li>
+              <li><strong>1000 Resolutions</strong> - Complex dependency graph test</li>
+            </ul>
+            <span id="demo7-status" class="status status-pending">pending</span>
+            <div class="demo-registry" id="demo7-registry">
+              <div class="empty-registry">Run demo to see performance results</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="controls">
+          <button type="submit" id="start-demo" class="btn-primary">
+            ⚡ Run Performance Benchmarks
+          </button>
+        </div>
+
+        <div class="console-notice">
+          <h4>⚠️ Console Output Required</h4>
+          <p>
+            Press <kbd>F12</kbd> or <kbd>Ctrl+Shift+I</kbd> (Windows/Linux) / <kbd>Cmd+Option+I</kbd> (Mac)
+            to open your browser's developer console. All demo execution details, dependency resolution
+            logs, and automation events are logged there with grouped output for easy navigation.
+          </p>
         </div>
       </div>
 
-      <div class="demo-card" id="demo7-card">
-        <div class="demo-card-header" onclick="toggleRegistry('demo7')">
-          <div>
-            <h3><span class="demo-icon">🔬</span> NovaDI Complex Graph (No AutoWire)</h3>
-          </div>
-          <span class="expand-icon" id="demo7-expand">▼</span>
-        </div>
-        <p>Testing NovaDI Complex Graph performance without AutoWire overhead - direct factory registration</p>
-        <ul class="features-list">
-          <li><strong>Direct Factory Registration</strong> - No autowire map function overhead</li>
-          <li><strong>Fair Comparison</strong> - Same pattern as TypeDI implementation</li>
-          <li><strong>Expected Performance</strong> - Should match or beat TypeDI</li>
-          <li><strong>1000 Resolutions</strong> - Complex dependency graph test</li>
-        </ul>
-        <span id="demo7-status" class="status status-pending">pending</span>
-        <div class="demo-registry" id="demo7-registry">
-          <div class="empty-registry">Run demo to see performance results</div>
-        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+      <div class="container">
+        <p>
+          <a href="https://github.com/janus007/NovaDI">View on GitHub</a> •
+          <a href="https://www.npmjs.com/package/@novadi/core">npm</a> •
+          <a href="https://github.com/janus007/NovaDI/issues">Report Issue</a>
+        </p>
+        <p class="text-secondary">Built with ❤️ for TypeScript developers</p>
       </div>
+    </footer>
 
-    </div>
-
-    <div class="controls">
-      <button id="start-demo" class="btn-primary">
-        ⚡ Run Performance Benchmarks
-      </button>
-    </div>
-
-    <div class="console-notice">
-      <h4>⚠️ Console Output Required</h4>
-      <p>
-        Press <kbd>F12</kbd> or <kbd>Ctrl+Shift+I</kbd> (Windows/Linux) / <kbd>Cmd+Option+I</kbd> (Mac)
-        to open your browser's developer console. All demo execution details, dependency resolution
-        logs, and automation events are logged there with grouped output for easy navigation.
-      </p>
-    </div>
-    </div>
-
-  </main>
-
-  <!-- Footer -->
-  <footer class="main-footer">
-    <div class="container">
-      <p>
-        <a href="https://github.com/janus007/NovaDI">View on GitHub</a> •
-        <a href="https://www.npmjs.com/package/@novadi/core">npm</a> •
-        <a href="https://github.com/janus007/NovaDI/issues">Report Issue</a>
-      </p>
-      <p class="text-secondary">Built with ❤️ for TypeScript developers</p>
-    </div>
-  </footer>
-
-  <!-- Polyfill for Node.js globals (needed by Brandi) -->
-  <script>
+    <!-- Polyfill for Node.js globals (needed by Brandi) -->
+    <script>
     window.process = window.process || { env: {} };
-  </script>
+    </script>
 
-  <!-- Prism.js for syntax highlighting -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    <!-- Prism.js for syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
 
-  <!-- Docs JavaScript (theme toggle, etc.) -->
-  <script src="js/docs.js"></script>
+    <!-- Docs JavaScript (theme toggle, etc.) -->
+    <script src="js/docs.js"></script>
 
-  <script type="module" src="js/main.js"></script>
-</body>
+    <script type="module" src="dist/main.js"></script>
+  </body>
 </html>

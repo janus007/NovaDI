@@ -1,22 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NovaDI Examples - Usage Patterns and Demos</title>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaDI Examples - Usage Patterns and Demos</title>
 
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto+Slab:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Theme Init - Must load BEFORE CSS to prevent flash -->
+    <script>
+      (function() {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const savedTheme = localStorage.getItem('theme');
+        const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
 
-  <link rel="stylesheet" href="css/docs.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto+Slab:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=optional" rel="stylesheet">
 
-  <!-- Prism.js for syntax highlighting -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/docs.css">
 
-  <style>
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet">
+
+    <style>
     /* ============================================
        DEMO-SPECIFIC STYLES
        Global styles are loaded from docs.css
@@ -385,116 +395,127 @@
       font-family: var(--font-mono) !important;
       font-size: 11px !important;
     }
-  </style>
-</head>
-<body>
+    </style>
+  </head>
+  <body>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-button" aria-label="Toggle navigation menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
 
-  <!-- Header -->
-  <header class="main-header">
-    <a href="index.html" class="header-logo">NovaDI</a>
-    <div class="header-links">
-      <a href="https://www.npmjs.com/package/@novadi/core" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-          <path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z"></path>
-        </svg>
-        npm
-      </a>
-      <a href="https://github.com/janus007/NovaDI" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path>
-        </svg>
-        GitHub
-      </a>
-      <button id="theme-toggle" aria-label="Toggle theme">
-        <span class="theme-icon">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z"></path></svg>
-        </span>
-      </button>
-    </div>
-  </header>
+    <!-- Mobile Menu Backdrop -->
+    <div class="mobile-menu-backdrop"></div>
 
-  <!-- Sidebar Navigation -->
-  <aside class="main-nav">
-    <div class="nav-container">
-      <ul class="nav-links">
-        <li class="nav-group">
-          <div class="nav-group-title">Documentation</div>
-          <a href="getting-started.html">Getting Started</a>
-          <a href="guide.html">Documentation</a>
-          <a href="why.html">Why is DI this important?</a>
-          <a href="design-philosophy.html">Design Philosophy</a>
-        </li>
-        <li class="nav-group">
-          <div class="nav-group-title">Resources</div>
-          <a href="roadmap.html">NovaDI Roadmap & Ideas</a>
-          <a href="demo.html">Performance Benchmarks</a>
-          <a href="examples.html" class="active">Examples</a>
-        </li>
-      </ul>
-    </div>
-  </aside>
+    <!-- Header -->
+    <header class="main-header">
+      <a href="index.html" class="header-logo">NovaDI</a>
+      <div class="header-links">
+        <a href="https://www.npmjs.com/package/@novadi/core" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z"></path>
+          </svg>
+          npm
+        </a>
+        <a href="https://github.com/janus007/NovaDI" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path>
+          </svg>
+          GitHub
+        </a>
+        <button type="submit" id="theme-toggle" aria-label="Toggle theme">
+          <span class="theme-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z"></path></svg>
+          </span>
+        </button>
+      </div>
+    </header>
 
-  <!-- Main Content -->
-  <main class="main-content">
-    <!-- Hero Section -->
-    <div class="hero">
-      <div class="container">
-        <h1 class="hero-title">NovaDI Examples</h1>
-        <p class="hero-subtitle">Interactive demonstrations of NovaDI patterns and usage</p>
-        <div>
-          <span class="tech-badge">TypeScript 5+</span>
-          <span class="tech-badge">Zero Decorators</span>
-          <span class="tech-badge">TS Transformer</span>
-          <span class="tech-badge">Browser-First</span>
-          <span class="tech-badge">Type-Safe</span>
+    <!-- Sidebar Navigation -->
+    <aside class="main-nav">
+      <div class="nav-container">
+        <ul class="nav-links">
+          <li class="nav-group">
+            <div class="nav-group-title">Documentation</div>
+            <a href="getting-started.html">Getting Started</a>
+            <a href="guide.html">Documentation</a>
+            <a href="why.html">Why is DI this important?</a>
+            <a href="design-philosophy.html">Design Philosophy</a>
+          </li>
+          <li class="nav-group">
+            <div class="nav-group-title">Resources</div>
+            <a href="roadmap.html">NovaDI Roadmap & Ideas</a>
+            <a href="demo.html">Performance Benchmarks</a>
+            <a href="examples.html" class="active">Examples</a>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Hero Section -->
+      <div class="hero">
+        <div class="container">
+          <h1 class="hero-title">NovaDI Examples</h1>
+          <p class="hero-subtitle">Interactive demonstrations of NovaDI patterns and usage</p>
+          <div>
+            <span class="tech-badge">TypeScript 5+</span>
+            <span class="tech-badge">Zero Decorators</span>
+            <span class="tech-badge">TS Transformer</span>
+            <span class="tech-badge">Browser-First</span>
+            <span class="tech-badge">Type-Safe</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Content -->
-    <div class="container" style="padding: 40px 20px 80px;">
-      <div class="info-box">
-      <h3>📋 About These Examples</h3>
-      <p>
-        This page showcases <strong>NovaDI</strong> usage patterns through interactive examples
-        that demonstrate different DI features and patterns. <strong>Open your browser console</strong> (<kbd>F12</kbd>)
-        to see detailed execution logs with grouped output showing how dependencies are resolved and services interact.
-      </p>
-      <p style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-muted);">
-        <strong>✨ TypeScript Transformer:</strong> NovaDI includes a compile-time transformer that automatically
-        injects type names into <code>.as&lt;T&gt;()</code> calls, eliminating the need for string literals
-        while maintaining full type safety. Write clean, intuitive code: <code>.as&lt;ILogger&gt;()</code>
-        instead of <code>.as&lt;ILogger&gt;("ILogger")</code>.
-      </p>
+      <!-- Content -->
+      <div class="container" class="py-section">
+        <div class="info-box">
+          <h3>📋 About These Examples</h3>
+          <p>
+            This page showcases <strong>NovaDI</strong> usage patterns through interactive examples
+            that demonstrate different DI features and patterns. <strong>Open your browser console</strong> (<kbd>F12</kbd>)
+            to see detailed execution logs with grouped output showing how dependencies are resolved and services interact.
+          </p>
+          <p class="section-note">
+            <strong>✨ TypeScript Transformer:</strong> NovaDI includes a compile-time transformer that automatically
+            injects type names into <code>.as&lt;T&gt;()</code> calls, eliminating the need for string literals
+            while maintaining full type safety. Write clean, intuitive code: <code>.as&lt;ILogger&gt;()</code>
+            instead of <code>.as&lt;ILogger&gt;("ILogger")</code>.
+          </p>
 
-      <p style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-muted);">
-        <strong>⚡ Performance:</strong> For performance benchmarks comparing NovaDI with other DI frameworks,
-        see the <a href="demo.html">Benchmarks page</a>.
-      </p>
+          <p class="section-note">
+            <strong>⚡ Performance:</strong> For performance benchmarks comparing NovaDI with other DI frameworks,
+            see the <a href="demo.html">Benchmarks page</a>.
+          </p>
 
-      <p style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-muted);">
-        <strong>📖 Static Examples:</strong> All examples below are shown with expanded code snippets.
-        Click the headers to collapse/expand sections.
-      </p>
-    </div>
-
-    <div class="demo-grid">
-      <div class="demo-card" id="demo0-card">
-        <div class="demo-card-header" onclick="toggleRegistry('demo0')">
-          <div>
-            <h3><span class="demo-icon">🌟</span> Example 1: Simplest Case</h3>
-          </div>
-          <span class="expand-icon expanded" id="demo0-expand">▼</span>
+          <p class="section-note">
+            <strong>📖 Static Examples:</strong> All examples below are shown with expanded code snippets.
+            Click the headers to collapse/expand sections.
+          </p>
         </div>
-        <p>The absolute simplest usage - just .as&lt;T&gt;() and .resolveType&lt;T&gt;()!</p>
-        <ul class="features-list">
-          <li>No Token&lt;T&gt;() needed - transformer injects type names</li>
-          <li>No .autoWire() configuration needed</li>
-          <li>Clean, intuitive API</li>
-        </ul>
-        <div class="demo-registry expanded" id="demo0-registry">
-          <div class="code-section">
-            <h4>💻 Code Example</h4>
+
+        <div class="demo-grid">
+          <div class="demo-card" id="demo0-card">
+            <div class="demo-card-header" onclick="toggleRegistry('demo0')">
+              <div>
+                <h3><span class="demo-icon">🌟</span> Example 1: Simplest Case</h3>
+              </div>
+              <span class="expand-icon expanded" id="demo0-expand">▼</span>
+            </div>
+            <p>The absolute simplest usage - just .as&lt;T&gt;() and .resolveType&lt;T&gt;()!</p>
+            <ul class="features-list">
+              <li>No Token&lt;T&gt;() needed - transformer injects type names</li>
+              <li>No .autoWire() configuration needed</li>
+              <li>Clean, intuitive API</li>
+            </ul>
+            <div class="demo-registry expanded" id="demo0-registry">
+              <div class="code-section">
+                <h4>💻 Code Example</h4>
             <pre class="line-numbers"><code class="language-typescript">// Create container
 const container = new Container()
 const builder = container.builder()
@@ -512,26 +533,26 @@ const eventBus = app.resolveType&lt;IEventBus&gt;()
 // Use them
 logger.info('Simple registration works!', 'Demo0')
 eventBus.publish('demo:started', { demo: 0 })</code></pre>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="demo-card" id="demo1-card">
-        <div class="demo-card-header" onclick="toggleRegistry('demo1')">
-          <div>
-            <h3><span class="demo-icon">📦</span> Example 2: Basic DI with Autowiring</h3>
-          </div>
-          <span class="expand-icon expanded" id="demo1-expand">▼</span>
-        </div>
-        <p>Dependency injection with autowiring - automatic dependency resolution.</p>
-        <ul class="features-list">
-          <li>Interface registration</li>
-          <li>Autowired dependencies</li>
-          <li>Singleton lifetime</li>
-        </ul>
-        <div class="demo-registry expanded" id="demo1-registry">
-          <div class="code-section">
-            <h4>💻 Code Example</h4>
+          <div class="demo-card" id="demo1-card">
+            <div class="demo-card-header" onclick="toggleRegistry('demo1')">
+              <div>
+                <h3><span class="demo-icon">📦</span> Example 2: Basic DI with Autowiring</h3>
+              </div>
+              <span class="expand-icon expanded" id="demo1-expand">▼</span>
+            </div>
+            <p>Dependency injection with autowiring - automatic dependency resolution.</p>
+            <ul class="features-list">
+              <li>Interface registration</li>
+              <li>Autowired dependencies</li>
+              <li>Singleton lifetime</li>
+            </ul>
+            <div class="demo-registry expanded" id="demo1-registry">
+              <div class="code-section">
+                <h4>💻 Code Example</h4>
             <pre class="line-numbers"><code class="language-typescript">const container = new Container()
 const builder = container.builder()
 
@@ -557,26 +578,26 @@ const eventBus = app.resolveType&lt;IEventBus&gt;()
 
 logger.info('Smart Home system initialized', 'Demo1')
 eventBus.publish('system:ready', { timestamp: Date.now() })</code></pre>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="demo-card" id="demo2-card">
-        <div class="demo-card-header" onclick="toggleRegistry('demo2')">
-          <div>
-            <h3><span class="demo-icon">🔀</span> Example 3: Multiple Implementations</h3>
-          </div>
-          <span class="expand-icon expanded" id="demo2-expand">▼</span>
-        </div>
-        <p>Register multiple implementations of the same interface using keyed services.</p>
-        <ul class="features-list">
-          <li>Keyed services</li>
-          <li>resolveInterfaceKeyed()</li>
-          <li>resolveInterfaceAll()</li>
-        </ul>
-        <div class="demo-registry expanded" id="demo2-registry">
-          <div class="code-section">
-            <h4>💻 Code Example</h4>
+          <div class="demo-card" id="demo2-card">
+            <div class="demo-card-header" onclick="toggleRegistry('demo2')">
+              <div>
+                <h3><span class="demo-icon">🔀</span> Example 3: Multiple Implementations</h3>
+              </div>
+              <span class="expand-icon expanded" id="demo2-expand">▼</span>
+            </div>
+            <p>Register multiple implementations of the same interface using keyed services.</p>
+            <ul class="features-list">
+              <li>Keyed services</li>
+              <li>resolveTypeKeyed()</li>
+              <li>resolveTypeAll()</li>
+            </ul>
+            <div class="demo-registry expanded" id="demo2-registry">
+              <div class="code-section">
+                <h4>💻 Code Example</h4>
             <pre class="line-numbers"><code class="language-typescript">const builder = new Container().builder()
 
 // Register multiple logger implementations
@@ -587,8 +608,8 @@ const app = builder.build()
 
 // Resolve default and keyed loggers
 const defaultLogger = app.resolveType&lt;ILogger&gt;()
-const fileLogger = app.resolveInterfaceKeyed&lt;ILogger&gt;('file')
-const allLoggers = app.resolveInterfaceAll&lt;ILogger&gt;()
+const fileLogger = app.resolveTypeKeyed&lt;ILogger&gt;('file')
+const allLoggers = app.resolveTypeAll&lt;ILogger&gt;()
 
 console.log('Default logger:', defaultLogger.constructor.name)
 console.log('File logger (keyed):', fileLogger.constructor.name)
@@ -596,26 +617,26 @@ console.log('All loggers:', allLoggers.map(l => l.constructor.name).join(', '))
 
 defaultLogger.log('Logging to console', 'Demo2')
 fileLogger.log('Logging to file', 'Demo2')</code></pre>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="demo-card" id="demo3-card">
-        <div class="demo-card-header" onclick="toggleRegistry('demo3')">
-          <div>
-            <h3><span class="demo-icon">🔧</span> Example 4: Autowired Dependencies</h3>
-          </div>
-          <span class="expand-icon expanded" id="demo3-expand">▼</span>
-        </div>
-        <p>Automatic dependency resolution through constructor injection.</p>
-        <ul class="features-list">
-          <li>Constructor injection</li>
-          <li>Dependency graphs</li>
-          <li>Type safety</li>
-        </ul>
-        <div class="demo-registry expanded" id="demo3-registry">
-          <div class="code-section">
-            <h4>💻 Code Example</h4>
+          <div class="demo-card" id="demo3-card">
+            <div class="demo-card-header" onclick="toggleRegistry('demo3')">
+              <div>
+                <h3><span class="demo-icon">🔧</span> Example 4: Autowired Dependencies</h3>
+              </div>
+              <span class="expand-icon expanded" id="demo3-expand">▼</span>
+            </div>
+            <p>Automatic dependency resolution through constructor injection.</p>
+            <ul class="features-list">
+              <li>Constructor injection</li>
+              <li>Dependency graphs</li>
+              <li>Type safety</li>
+            </ul>
+            <div class="demo-registry expanded" id="demo3-registry">
+              <div class="code-section">
+                <h4>💻 Code Example</h4>
             <pre class="line-numbers"><code class="language-typescript">const builder = new Container().builder()
 
 // Register with dependencies
@@ -644,26 +665,26 @@ const light = app.resolveType&lt;IDevice&gt;()
 
 console.log(`Temperature: ${sensor.getValue()}${sensor.getUnit()}`)
 light.turnOn()</code></pre>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="demo-card" id="demo4-card">
-        <div class="demo-card-header" onclick="toggleRegistry('demo4')">
-          <div>
-            <h3><span class="demo-icon">🏠</span> Example 5: Scoped Containers</h3>
-          </div>
-          <span class="expand-icon expanded" id="demo4-expand">▼</span>
-        </div>
-        <p>Isolated dependency scopes using child containers (per-room isolation).</p>
-        <ul class="features-list">
-          <li>Child containers</li>
-          <li>Scope isolation</li>
-          <li>Shared singletons</li>
-        </ul>
-        <div class="demo-registry expanded" id="demo4-registry">
-          <div class="code-section">
-            <h4>💻 Code Example</h4>
+          <div class="demo-card" id="demo4-card">
+            <div class="demo-card-header" onclick="toggleRegistry('demo4')">
+              <div>
+                <h3><span class="demo-icon">🏠</span> Example 5: Scoped Containers</h3>
+              </div>
+              <span class="expand-icon expanded" id="demo4-expand">▼</span>
+            </div>
+            <p>Isolated dependency scopes using child containers (per-room isolation).</p>
+            <ul class="features-list">
+              <li>Child containers</li>
+              <li>Scope isolation</li>
+              <li>Shared singletons</li>
+            </ul>
+            <div class="demo-registry expanded" id="demo4-registry">
+              <div class="code-section">
+                <h4>💻 Code Example</h4>
             <pre class="line-numbers"><code class="language-typescript">// Create parent container with shared services
 const parentBuilder = new Container().builder()
 parentBuilder.registerType(ConsoleLogger).as&lt;ILogger&gt;().singleInstance()
@@ -691,27 +712,27 @@ const brLogger = bedroomContainer.resolveType&lt;ILogger&gt;()
 console.log(`Living Room temp: ${lrSensor.getValue()}°C`)
 console.log(`Bedroom temp: ${brSensor.getValue()}°C`)
 console.log('Both rooms share the same logger:', lrLogger === brLogger)</code></pre>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="demo-card" id="demo5-card">
-        <div class="demo-card-header" onclick="toggleRegistry('demo5')">
-          <div>
-            <h3><span class="demo-icon">🤖</span> Example 6: Complex Automation System</h3>
-          </div>
-          <span class="expand-icon expanded" id="demo5-expand">▼</span>
-        </div>
-        <p>Complete real-world application with complex dependency graphs and automation rules.</p>
-        <ul class="features-list">
-          <li>Multi-layer architecture</li>
-          <li>Event-driven system</li>
-          <li>Multiple keyed services</li>
-          <li>Complex dependency graph</li>
-        </ul>
-        <div class="demo-registry expanded" id="demo5-registry">
-          <div class="code-section">
-            <h4>💻 Code Example</h4>
+          <div class="demo-card" id="demo5-card">
+            <div class="demo-card-header" onclick="toggleRegistry('demo5')">
+              <div>
+                <h3><span class="demo-icon">🤖</span> Example 6: Complex Automation System</h3>
+              </div>
+              <span class="expand-icon expanded" id="demo5-expand">▼</span>
+            </div>
+            <p>Complete real-world application with complex dependency graphs and automation rules.</p>
+            <ul class="features-list">
+              <li>Multi-layer architecture</li>
+              <li>Event-driven system</li>
+              <li>Multiple keyed services</li>
+              <li>Complex dependency graph</li>
+            </ul>
+            <div class="demo-registry expanded" id="demo5-registry">
+              <div class="code-section">
+                <h4>💻 Code Example</h4>
             <pre class="line-numbers"><code class="language-typescript">const builder = new Container().builder()
 
 // Core services
@@ -762,8 +783,8 @@ const app = builder.build()
 
 // Resolve all components
 const automationService = app.resolveType&lt;AutomationService&gt;()
-const tempSensor = app.resolveInterfaceKeyed&lt;ISensor&gt;('TempSensor')
-const thermostat = app.resolveInterfaceKeyed&lt;IDevice&gt;('Thermostat')
+const tempSensor = app.resolveTypeKeyed&lt;ISensor&gt;('TempSensor')
+const thermostat = app.resolveTypeKeyed&lt;IDevice&gt;('Thermostat')
 
 // Create and register automation rules
 const tempRule = new TemperatureAutomationRule(
@@ -777,36 +798,36 @@ const tempRule = new TemperatureAutomationRule(
 )
 automationService.addRule(tempRule)
 automationService.start()</code></pre>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    </div>
 
-  </main>
+    </main>
 
-  <!-- Footer -->
-  <footer class="main-footer">
-    <div class="container">
-      <p>
-        <a href="https://github.com/janus007/NovaDI">View on GitHub</a> •
-        <a href="https://www.npmjs.com/package/@novadi/core">npm</a> •
-        <a href="https://github.com/janus007/NovaDI/issues">Report Issue</a>
-      </p>
-      <p class="text-secondary">Built with ❤️ for TypeScript developers</p>
-    </div>
-  </footer>
+    <!-- Footer -->
+    <footer class="main-footer">
+      <div class="container">
+        <p>
+          <a href="https://github.com/janus007/NovaDI">View on GitHub</a> •
+          <a href="https://www.npmjs.com/package/@novadi/core">npm</a> •
+          <a href="https://github.com/janus007/NovaDI/issues">Report Issue</a>
+        </p>
+        <p class="text-secondary">Built with ❤️ for TypeScript developers</p>
+      </div>
+    </footer>
 
-  <!-- Prism.js for syntax highlighting -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    <!-- Prism.js for syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
 
-  <!-- Docs JavaScript (theme toggle, etc.) -->
-  <script src="js/docs.js"></script>
+    <!-- Docs JavaScript (theme toggle, etc.) -->
+    <script src="js/docs.js"></script>
 
-  <!-- Toggle functionality for expanding/collapsing examples -->
-  <script>
+    <!-- Toggle functionality for expanding/collapsing examples -->
+    <script>
     window.toggleRegistry = (demo) => {
       const registryEl = document.getElementById(`${demo}-registry`)
       const expandIcon = document.getElementById(`${demo}-expand`)
@@ -816,6 +837,6 @@ automationService.start()</code></pre>
         expandIcon.classList.toggle('expanded')
       }
     }
-  </script>
-</body>
+    </script>
+  </body>
 </html>

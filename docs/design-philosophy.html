@@ -1,159 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Design Philosophy - NovaDI</title>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design Philosophy - NovaDI</title>
 
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto+Slab:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Theme Init - Must load BEFORE CSS to prevent flash -->
+    <script>
+      (function() {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const savedTheme = localStorage.getItem('theme');
+        const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
 
-  <link rel="stylesheet" href="css/docs.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto+Slab:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=optional" rel="stylesheet">
 
-  <!-- Prism.js for syntax highlighting -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
-</head>
-<body class="has-toc">
+    <link rel="stylesheet" href="css/docs.css">
 
-  <!-- Header -->
-  <header class="main-header">
-    <a href="index.html" class="header-logo">NovaDI</a>
-    <div class="header-links">
-      <a href="https://www.npmjs.com/package/@novadi/core" target="_blank">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-          <path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z"></path>
-        </svg>
-        npm
-      </a>
-      <a href="https://github.com/janus007/NovaDI" target="_blank">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path>
-        </svg>
-        GitHub
-      </a>
-      <button id="theme-toggle" aria-label="Toggle theme">
-        <span class="theme-icon">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z"></path></svg>
-        </span>
-      </button>
-    </div>
-  </header>
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet">
+  </head>
+  <body class="has-toc">
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-button" aria-label="Toggle navigation menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
 
-  <!-- Sidebar Navigation -->
-  <aside class="main-nav">
-    <div class="nav-container">
-      <ul class="nav-links">
-        <li class="nav-group">
-          <div class="nav-group-title">Documentation</div>
-          <a href="getting-started.html">Getting Started</a>
-          <a href="guide.html">Documentation</a>
-          <a href="why.html">Why is DI this important?</a>
-          <a href="design-philosophy.html" class="active">Design Philosophy</a>
-        </li>
-        <li class="nav-group">
-          <div class="nav-group-title">Resources</div>
-          <a href="roadmap.html">NovaDI Roadmap & Ideas</a>
-          <a href="demo.html">Performance Benchmarks</a>
-          <a href="examples.html">Examples</a>
-        </li>
-      </ul>
-    </div>
-  </aside>
+    <!-- Mobile Menu Backdrop -->
+    <div class="mobile-menu-backdrop"></div>
 
-  <!-- Main Content -->
-  <main class="main-content">
-    <!-- Hero Section -->
-    <div class="hero">
-      <div class="container">
-        <h1 class="hero-title">Design Philosophy</h1>
-        <p class="hero-subtitle">Understanding the theory, decisions, and optimizations behind NovaDI</p>
-        <div style="margin-top: 24px;">
-          <span class="tech-badge">Decorator-Free</span>
-          <span class="tech-badge">TypeScript-First</span>
-          <span class="tech-badge">Browser-First</span>
-          <span class="tech-badge">Performance-Obsessed</span>
-        </div>
+    <!-- Header -->
+    <header class="main-header">
+      <a href="index.html" class="header-logo">NovaDI</a>
+      <div class="header-links">
+        <a href="https://www.npmjs.com/package/@novadi/core" target="_blank">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z"></path>
+          </svg>
+          npm
+        </a>
+        <a href="https://github.com/janus007/NovaDI" target="_blank">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path>
+          </svg>
+          GitHub
+        </a>
+        <button type="submit" id="theme-toggle" aria-label="Toggle theme">
+          <span class="theme-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z"></path></svg>
+          </span>
+        </button>
       </div>
-    </div>
+    </header>
 
-    <!-- Content -->
-    <div class="container" style="padding: 40px 20px 80px;">
+    <!-- Sidebar Navigation -->
+    <aside class="main-nav">
+      <div class="nav-container">
+        <ul class="nav-links">
+          <li class="nav-group">
+            <div class="nav-group-title">Documentation</div>
+            <a href="getting-started.html">Getting Started</a>
+            <a href="guide.html">Documentation</a>
+            <a href="why.html">Why is DI this important?</a>
+            <a href="design-philosophy.html" class="active">Design Philosophy</a>
+          </li>
+          <li class="nav-group">
+            <div class="nav-group-title">Resources</div>
+            <a href="roadmap.html">NovaDI Roadmap & Ideas</a>
+            <a href="demo.html">Performance Benchmarks</a>
+            <a href="examples.html">Examples</a>
+          </li>
+        </ul>
+      </div>
+    </aside>
 
-      <!-- Core Philosophy -->
-      <section id="core-philosophy">
-        <h2>Core Philosophy</h2>
-        <p class="lead">
-          NovaDI is built on a foundation of pragmatic design decisions aimed at delivering the best
-          developer experience and runtime performance for TypeScript applications.
-        </p>
-
-        <div class="info-box" style="margin-top: 20px;">
-          <h3>🎨 Design Principles</h3>
-          <div class="principle-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 16px;">
-            <div class="principle-card" style="background: var(--surface); padding: 16px; border-radius: 4px; border: 1px solid var(--border-default);">
-              <h4 style="margin-top: 0; color: var(--accent-blue);">🚫 Decorator-Free</h4>
-              <p>No decorators required. Work seamlessly with minification, tree-shaking, and any build tool.
-              Decorators add complexity, bundle size, and build-time dependencies.</p>
-            </div>
-            <div class="principle-card" style="background: var(--surface); padding: 16px; border-radius: 4px; border: 1px solid var(--border-default);">
-              <h4 style="margin-top: 0; color: var(--accent-teal);">📘 TypeScript-First</h4>
-              <p>Designed specifically for TypeScript, leveraging the type system for compile-time safety
-              and developer experience. Not a JavaScript library with TypeScript types bolted on.</p>
-            </div>
-            <div class="principle-card" style="background: var(--surface); padding: 16px; border-radius: 4px; border: 1px solid var(--border-default);">
-              <h4 style="margin-top: 0; color: var(--accent-purple);">🌐 Browser-First</h4>
-              <p>Optimized for browser environments with minimal bundle size (3.93KB minified+gzipped).
-              Server-side is supported, but the web is the priority.</p>
-            </div>
-            <div class="principle-card" style="background: var(--surface); padding: 16px; border-radius: 4px; border: 1px solid var(--border-default);">
-              <h4 style="margin-top: 0; color: var(--accent-green);">⚡ Performance-Obsessed</h4>
-              <p>Every optimization matters. Ultra-fast singleton cache, fast transient paths, and smart
-              context pooling deliver industry-leading performance.</p>
-            </div>
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Hero Section -->
+      <div class="hero">
+        <div class="container">
+          <h1 class="hero-title">Design Philosophy</h1>
+          <p class="hero-subtitle">Understanding the theory, decisions, and optimizations behind NovaDI</p>
+          <div>
+            <span class="tech-badge">Decorator-Free</span>
+            <span class="tech-badge">TypeScript-First</span>
+            <span class="tech-badge">Browser-First</span>
+            <span class="tech-badge">Performance-Obsessed</span>
           </div>
         </div>
-      </section>
+      </div>
 
-      <!-- TypeScript Transformer -->
-      <section id="transformer-decision" style="margin-top: 48px;">
-        <h2>The TypeScript Transformer Decision</h2>
-        <p class="lead">
-          The transformer is the most distinctive design choice in NovaDI. Here's why it exists and
-          what problems it solves.
-        </p>
+      <!-- Content -->
+      <div class="container" class="py-section">
 
-        <h3 style="margin-top: 32px;">The Problem: Type Information at Runtime</h3>
-        <p>
-          TypeScript's type system is erased at compile-time. When you write
-          <code>.as&lt;ILogger&gt;()</code>, the runtime code has no idea what "ILogger" is.
-          Traditional DI containers solve this in two ways:
-        </p>
+        <!-- Core Philosophy -->
+        <section id="core-philosophy">
+          <h2>The Core Idea</h2>
+          <p class="lead">
+            NovaDI is built on a foundation of pragmatic design decisions aimed at delivering the best
+            developer experience and runtime performance for TypeScript applications.
+          </p>
 
-        <div class="comparison-grid" style="display: grid; gap: 16px; margin: 20px 0;">
-          <div style="background: #FEF2F2; padding: 16px; border-radius: 4px; border: 1px solid #FCA5A5;">
-            <h4 style="margin-top: 0; color: #991B1B;">❌ String Literals (Manual)</h4>
+          <div class="info-box" class="mt-20">
+            <h3>🎨 Design Principles</h3>
+            <div class="principle-grid">
+              <div class="principle-card" class="comparison-box">
+                <h4 class="color-blue">🚫 Decorator-Free</h4>
+                <p>No decorators required. Work seamlessly with minification, tree-shaking, and any build tool.
+                  Decorators add complexity, bundle size, and build-time dependencies.</p>
+              </div>
+              <div class="principle-card" class="comparison-box">
+                <h4 class="color-teal">📘 TypeScript-First</h4>
+                <p>Designed specifically for TypeScript, leveraging the type system for compile-time safety
+                  and developer experience. Not a JavaScript library with TypeScript types bolted on.</p>
+              </div>
+              <div class="principle-card" class="comparison-box">
+                <h4 class="color-purple">🌐 Browser-First</h4>
+                <p>Optimized for browser environments with minimal bundle size (3.93KB minified+gzipped).
+                  Server-side is supported, but the web is the priority.</p>
+              </div>
+              <div class="principle-card" class="comparison-box">
+                <h4 class="color-green">⚡ Performance-Obsessed</h4>
+                <p>Every optimization matters. Ultra-fast singleton cache, fast transient paths, and smart
+                  context pooling deliver industry-leading performance.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TypeScript Transformer -->
+        <section id="transformer-decision" class="mt-48">
+          <h2>The TypeScript Transformer Decision</h2>
+          <p class="lead">
+            The transformer is the most distinctive design choice in NovaDI. Here's why it exists and
+            what problems it solves.
+          </p>
+
+          <h3 class="mt-32">The Problem: Type Information at Runtime</h3>
+          <p>
+            TypeScript's type system is erased at compile-time. When you write
+            <code>.as&lt;ILogger&gt;()</code>, the runtime code has no idea what "ILogger" is.
+            Traditional DI containers solve this in two ways:
+          </p>
+
+          <div class="comparison-grid" class="comparison-grid">
+            <div class="warning-box">
+              <h4 class="color-error">❌ String Literals (Manual)</h4>
             <pre class="line-numbers"><code class="language-typescript">// Verbose and error-prone
 container.register("ILogger", ConsoleLogger)
 container.resolve&lt;ILogger&gt;("ILogger")  // String must match exactly</code></pre>
-            <p><strong>Problems:</strong> Typos, refactoring nightmares, no IDE support, duplicated information.</p>
-          </div>
+              <p><strong>Problems:</strong> Typos, refactoring nightmares, no IDE support, duplicated information.</p>
+            </div>
 
-          <div style="background: #FEF2F2; padding: 16px; border-radius: 4px; border: 1px solid #FCA5A5;">
-            <h4 style="margin-top: 0; color: #991B1B;">❌ Decorators (Metadata)</h4>
+            <div class="warning-box">
+              <h4 class="color-error">❌ Decorators (Metadata)</h4>
             <pre class="line-numbers"><code class="language-typescript">// Requires decorators + reflect-metadata
 @injectable()
 class ConsoleLogger implements ILogger {
   constructor(@inject("ILogger") logger: ILogger) {}
 }</code></pre>
-            <p><strong>Problems:</strong> Larger bundle size, experimental features, complex build setup, minification issues.</p>
+              <p><strong>Problems:</strong> Larger bundle size, experimental features, complex build setup, minification issues.</p>
+            </div>
           </div>
-        </div>
 
-        <div style="background: #D1FAE5; padding: 16px; border-radius: 4px; border: 1px solid #6EE7B7; margin-top: 16px;">
-          <h4 style="margin-top: 0; color: #065F46;">✅ NovaDI Solution: Compile-Time Transformer</h4>
+          <div class="success-box">
+            <h4>✅ NovaDI Solution: Compile-Time Transformer</h4>
           <pre class="line-numbers"><code class="language-typescript">// Clean, intuitive API
 builder.registerType(ConsoleLogger).as&lt;ILogger&gt;()
 const logger = app.resolveType&lt;ILogger&gt;()
@@ -161,48 +182,48 @@ const logger = app.resolveType&lt;ILogger&gt;()
 // The transformer automatically converts to:
 builder.registerType(ConsoleLogger).as&lt;ILogger&gt;("ILogger")
 const logger = app.resolveType&lt;ILogger&gt;("ILogger")</code></pre>
-          <p><strong>Benefits:</strong> Clean code, type-safe, zero runtime overhead, works with minification, no decorators needed.</p>
-        </div>
+            <p><strong>Benefits:</strong> Clean code, type-safe, zero runtime overhead, works with minification, no decorators needed.</p>
+          </div>
 
-        <h3 style="margin-top: 32px;">How It Works</h3>
-        <p>
-          The transformer is a TypeScript AST (Abstract Syntax Tree) transformation plugin that runs during compilation.
-          It analyzes your code and injects type names as string arguments where needed:
-        </p>
-
-        <ol style="line-height: 1.8;">
-          <li><strong>Parse:</strong> The TypeScript compiler parses your code into an AST</li>
-          <li><strong>Transform:</strong> NovaDI transformer finds <code>as&lt;T&gt;()</code> calls</li>
-          <li><strong>Extract:</strong> Extracts the type argument "T" (e.g., "ILogger")</li>
-          <li><strong>Inject:</strong> Adds it as a string parameter: <code>as&lt;ILogger&gt;("ILogger")</code></li>
-          <li><strong>Emit:</strong> TypeScript outputs the transformed JavaScript</li>
-        </ol>
-
-        <p>
-          This happens entirely at build-time. The runtime code receives the type names without any decorators,
-          metadata, or reflection.
-        </p>
-
-        <div class="info-box" style="margin-top: 20px; background: #F0F9FF; border-color: #BAE6FD;">
-          <h4>💡 Key Insight</h4>
+          <h3 class="mt-32">How It Works</h3>
           <p>
-            The transformer bridges the gap between TypeScript's compile-time type system and runtime behavior,
-            giving you the best of both worlds: clean syntax AND type safety.
+            The transformer is a TypeScript AST (Abstract Syntax Tree) transformation plugin that runs during compilation.
+            It analyzes your code and injects type names as string arguments where needed:
           </p>
-        </div>
-      </section>
 
-      <!-- Performance Optimizations -->
-      <section id="performance" style="margin-top: 48px;">
-        <h2>Performance Optimizations</h2>
-        <p class="lead">
-          NovaDI includes several sophisticated optimizations that make it 10-45x faster than competitors.
-        </p>
+          <ol class="lh-relaxed">
+            <li><strong>Parse:</strong> The TypeScript compiler parses your code into an AST</li>
+            <li><strong>Transform:</strong> NovaDI transformer finds <code>as&lt;T&gt;()</code> calls</li>
+            <li><strong>Extract:</strong> Extracts the type argument "T" (e.g., "ILogger")</li>
+            <li><strong>Inject:</strong> Adds it as a string parameter: <code>as&lt;ILogger&gt;("ILogger")</code></li>
+            <li><strong>Emit:</strong> TypeScript outputs the transformed JavaScript</li>
+          </ol>
 
-        <h3 style="margin-top: 32px;">1. Ultra-Fast Singleton Cache</h3>
-        <p>
-          Three-tier caching system for singleton instances:
-        </p>
+          <p>
+            This happens entirely at build-time. The runtime code receives the type names without any decorators,
+            metadata, or reflection.
+          </p>
+
+          <div class="info-box" class="mt-20 info-box-info">
+            <h4>💡 Key Insight</h4>
+            <p>
+              The transformer bridges the gap between TypeScript's compile-time type system and runtime behavior,
+              giving you the best of both worlds: clean syntax AND type safety.
+            </p>
+          </div>
+        </section>
+
+        <!-- Performance Optimizations -->
+        <section id="performance" class="mt-48">
+          <h2>Performance Optimizations</h2>
+          <p class="lead">
+            NovaDI includes several sophisticated optimizations that make it 10-45x faster than competitors.
+          </p>
+
+          <h3 class="mt-32">1. Ultra-Fast Singleton Cache</h3>
+          <p>
+            Three-tier caching system for singleton instances:
+          </p>
         <pre class="line-numbers"><code class="language-typescript">// Tier 1: Ultra-fast direct lookup (zero overhead)
 ultraFastSingletonCache.get(token)  // ~0.001ms
 
@@ -212,15 +233,15 @@ singletonCache.get(token)  // ~0.002ms
 // Tier 3: Full resolution with circular detection
 resolveInternal(token, context)  // ~0.01ms</code></pre>
 
-        <p>
-          Once a singleton is resolved once, subsequent resolutions use the ultra-fast cache,
-          reducing resolution time by 90%+.
-        </p>
+          <p>
+            Once a singleton is resolved once, subsequent resolutions use the ultra-fast cache,
+            reducing resolution time by 90%+.
+          </p>
 
-        <h3 style="margin-top: 32px;">2. Fast Transient Path</h3>
-        <p>
-          For transient services with NO dependencies, NovaDI uses a specialized fast path:
-        </p>
+          <h3 class="mt-32">2. Fast Transient Path</h3>
+          <p>
+            For transient services with NO dependencies, NovaDI uses a specialized fast path:
+          </p>
         <pre class="line-numbers"><code class="language-typescript">// Zero-dependency class detection at registration time
 if (binding.lifetime === 'transient' && dependencies.length === 0) {
   // Register in fast cache with pre-compiled factory
@@ -231,15 +252,15 @@ if (binding.lifetime === 'transient' && dependencies.length === 0) {
 const factory = fastTransientCache.get(token)
 if (factory) return factory()  // Direct instantiation</code></pre>
 
-        <p>
-          This optimization makes simple transient resolutions <strong>4.3x faster</strong> by avoiding
-          unnecessary context allocation and circular dependency checks.
-        </p>
+          <p>
+            This optimization makes simple transient resolutions <strong>4.3x faster</strong> by avoiding
+            unnecessary context allocation and circular dependency checks.
+          </p>
 
-        <h3 style="margin-top: 32px;">3. Smart Context Pooling</h3>
-        <p>
-          ResolutionContext objects are pooled and reused to reduce garbage collection pressure:
-        </p>
+          <h3 class="mt-32">3. Smart Context Pooling</h3>
+          <p>
+            ResolutionContext objects are pooled and reused to reduce garbage collection pressure:
+          </p>
         <pre class="line-numbers"><code class="language-typescript">// Instead of creating new context every time:
 const context = new ResolutionContext()  // ❌ Allocates memory
 
@@ -248,14 +269,14 @@ const context = contextPool.acquire()    // ✅ Reuse existing
 // ... use context ...
 contextPool.release(context)             // ✅ Return to pool</code></pre>
 
-        <p>
-          This reduces memory allocations by ~80% during heavy resolution workloads.
-        </p>
+          <p>
+            This reduces memory allocations by ~80% during heavy resolution workloads.
+          </p>
 
-        <h3 style="margin-top: 32px;">4. Nested Resolution Optimization</h3>
-        <p>
-          Multi-level dependency graphs benefit from aggressive caching:
-        </p>
+          <h3 class="mt-32">4. Nested Resolution Optimization</h3>
+          <p>
+            Multi-level dependency graphs benefit from aggressive caching:
+          </p>
         <pre class="line-numbers"><code class="language-typescript">// Example: AutomationService → EventBus → Logger
 // Without optimization: 3 full resolutions
 // With optimization: 1 full resolution + 2 cache hits
@@ -268,56 +289,56 @@ app.resolveType&lt;AutomationService&gt;()
 // Second resolution: all cache hits
 app.resolveType&lt;AutomationService&gt;()  // ~0.002ms (14x faster!)</code></pre>
 
-        <h3 style="margin-top: 32px;">Performance Results</h3>
-        <div class="benchmark-results" style="background: var(--surface); padding: 16px; border-radius: 4px; border: 1px solid var(--border-default); margin-top: 16px;">
-          <table style="width: 100%; border-collapse: collapse;">
-            <thead>
-              <tr style="border-bottom: 2px solid var(--border-default);">
-                <th style="text-align: left; padding: 8px;">Test</th>
-                <th style="text-align: right; padding: 8px;">NovaDI</th>
-                <th style="text-align: right; padding: 8px;">Best Competitor</th>
-                <th style="text-align: right; padding: 8px;">Speedup</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style="border-bottom: 1px solid var(--border-muted);">
-                <td style="padding: 8px;">Singleton (1000 resolutions)</td>
-                <td style="text-align: right; padding: 8px;"><strong>0.05ms</strong></td>
-                <td style="text-align: right; padding: 8px;">2.23ms</td>
-                <td style="text-align: right; padding: 8px; color: var(--accent-green);"><strong>45x faster</strong></td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--border-muted);">
-                <td style="padding: 8px;">Transient (1000 resolutions)</td>
-                <td style="text-align: right; padding: 8px;"><strong>0.11ms</strong></td>
-                <td style="text-align: right; padding: 8px;">1.09ms</td>
-                <td style="text-align: right; padding: 8px; color: var(--accent-green);"><strong>10x faster</strong></td>
-              </tr>
-              <tr>
-                <td style="padding: 8px;">Complex Graph (1000 resolutions)</td>
-                <td style="text-align: right; padding: 8px;"><strong>0.52ms</strong></td>
-                <td style="text-align: right; padding: 8px;">7.34ms</td>
-                <td style="text-align: right; padding: 8px; color: var(--accent-green);"><strong>14x faster</strong></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+          <h3 class="mt-32">Performance Results</h3>
+          <div class="benchmark-results" class="benchmark-results">
+            <table class="full-width">
+              <thead>
+                <tr>
+                  <th class="text-left">Test</th>
+                  <th class="text-right">NovaDI</th>
+                  <th class="text-right">Best Competitor</th>
+                  <th class="text-right">Speedup</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Singleton (1000 resolutions)</td>
+                  <td class="text-right"><strong>0.05ms</strong></td>
+                  <td class="text-right">2.23ms</td>
+                  <td class="text-right success-cell"><strong>45x faster</strong></td>
+                </tr>
+                <tr>
+                  <td>Transient (1000 resolutions)</td>
+                  <td class="text-right"><strong>0.11ms</strong></td>
+                  <td class="text-right">1.09ms</td>
+                  <td class="text-right success-cell"><strong>10x faster</strong></td>
+                </tr>
+                <tr>
+                  <td>Complex Graph (1000 resolutions)</td>
+                  <td class="text-right"><strong>0.52ms</strong></td>
+                  <td class="text-right">7.34ms</td>
+                  <td class="text-right success-cell"><strong>14x faster</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-        <p style="margin-top: 16px;">
-          See the <a href="demo.html">Benchmarks page</a> for live performance comparison with other frameworks.
-        </p>
-      </section>
+          <p class="mt-16">
+            See the <a href="demo.html">Benchmarks page</a> for live performance comparison with other frameworks.
+          </p>
+        </section>
 
-      <!-- API Design -->
-      <section id="api-design" style="margin-top: 48px;">
-        <h2>API Design Decisions</h2>
-        <p class="lead">
-          NovaDI's API is designed to be intuitive, discoverable, and type-safe.
-        </p>
+        <!-- API Design -->
+        <section id="api-design" class="mt-48">
+          <h2>API Design Decisions</h2>
+          <p class="lead">
+            NovaDI's API is designed to be intuitive, discoverable, and type-safe.
+          </p>
 
-        <h3 style="margin-top: 32px;">Fluent Builder Pattern</h3>
-        <p>
-          Method chaining provides a natural, readable flow:
-        </p>
+          <h3 class="mt-32">Fluent Builder Pattern</h3>
+          <p>
+            Method chaining provides a natural, readable flow:
+          </p>
         <pre class="line-numbers"><code class="language-typescript">builder
   .registerType(ConsoleLogger)     // What to register
   .as&lt;ILogger&gt;()          // How to expose it
@@ -325,44 +346,44 @@ app.resolveType&lt;AutomationService&gt;()  // ~0.002ms (14x faster!)</code></pr
   .singleInstance()                // Lifetime management
   .keyed('console')                // Optional: keyed access</code></pre>
 
-        <p>
-          Each method returns the builder, allowing you to chain configuration in a logical order.
-          IDE autocomplete guides you through the options.
-        </p>
+          <p>
+            Each method returns the builder, allowing you to chain configuration in a logical order.
+            IDE autocomplete guides you through the options.
+          </p>
 
-        <h3 style="margin-top: 32px;">Interface-Based Resolution</h3>
-        <p>
-          NovaDI encourages programming to interfaces, not implementations:
-        </p>
+          <h3 class="mt-32">Interface-Based Resolution</h3>
+          <p>
+            NovaDI encourages programming to interfaces, not implementations:
+          </p>
         <pre class="line-numbers"><code class="language-typescript">// ✅ Good: Depend on interface
 const logger = app.resolveType&lt;ILogger&gt;()
 
 // ❌ Discouraged: Depend on concrete class
 const logger = app.resolve(ConsoleLogger)</code></pre>
 
-        <p>
-          This promotes loose coupling and makes it easy to swap implementations for testing or feature flags.
-        </p>
+          <p>
+            This promotes loose coupling and makes it easy to swap implementations for testing or feature flags.
+          </p>
 
-        <h3 style="margin-top: 32px;">AutoWire Strategies</h3>
-        <p>
-          Three different strategies for dependency resolution, each with different trade-offs:
-        </p>
+          <h3 class="mt-32">AutoWire Strategies</h3>
+          <p>
+            Three different strategies for dependency resolution, each with different trade-offs:
+          </p>
 
-        <div style="display: grid; gap: 16px; margin: 20px 0;">
-          <div style="background: var(--surface); padding: 16px; border-radius: 4px; border: 1px solid var(--border-default);">
-            <h4 style="margin-top: 0;">1. ParamName (Default)</h4>
+          <div class="comparison-grid">
+            <div class="comparison-box">
+              <h4 class="mt-0">1. ParamName (Default)</h4>
             <pre class="line-numbers"><code class="language-typescript">// Automatic: matches parameter names to interface names
 class EventBus {
   constructor(logger: ILogger) {}  // "logger" → "ILogger"
 }
 
 builder.registerType(EventBus).as&lt;IEventBus&gt;()  // No autowire needed!</code></pre>
-            <p><strong>Best for:</strong> Rapid development, conventions-based teams</p>
-          </div>
+              <p><strong>Best for:</strong> Rapid development, conventions-based teams</p>
+            </div>
 
-          <div style="background: var(--surface); padding: 16px; border-radius: 4px; border: 1px solid var(--border-default);">
-            <h4 style="margin-top: 0;">2. Map (Explicit)</h4>
+            <div class="comparison-box">
+              <h4 class="mt-0">2. Map (Explicit)</h4>
             <pre class="line-numbers"><code class="language-typescript">// Explicit mapping: full control, minification-safe
 builder
   .registerType(EventBus)
@@ -372,39 +393,39 @@ builder
       logger: (c) => c.resolveType&lt;ILogger&gt;()
     }
   })</code></pre>
-            <p><strong>Best for:</strong> Production builds, primitive parameters, complex resolution logic</p>
-          </div>
+              <p><strong>Best for:</strong> Production builds, primitive parameters, complex resolution logic</p>
+            </div>
 
-          <div style="background: var(--surface); padding: 16px; border-radius: 4px; border: 1px solid var(--border-default);">
-            <h4 style="margin-top: 0;">3. Class (Future)</h4>
+            <div class="comparison-box">
+              <h4 class="mt-0">3. Class (Future)</h4>
             <pre class="line-numbers"><code class="language-typescript">// Build-time AST analysis generates autowire map automatically
 builder.registerType(EventBus).as&lt;IEventBus&gt;()  // Everything automatic!</code></pre>
-            <p><strong>Best for:</strong> Zero-configuration, maximum type safety (coming soon)</p>
+              <p><strong>Best for:</strong> Zero-configuration, maximum type safety (coming soon)</p>
+            </div>
           </div>
-        </div>
 
-        <h3 style="margin-top: 32px;">Lifetime Management</h3>
-        <p>
-          Clear, explicit lifetime semantics:
-        </p>
-        <ul style="line-height: 1.8;">
-          <li><code>.singleInstance()</code> - One instance per container (shared)</li>
-          <li><code>.instancePerDependency()</code> - New instance every time (transient)</li>
-          <li><code>.instancePerRequest()</code> - One instance per resolution graph (scoped)</li>
-        </ul>
-      </section>
+          <h3 class="mt-32">Lifetime Management</h3>
+          <p>
+            Clear, explicit lifetime semantics:
+          </p>
+          <ul class="lh-relaxed">
+            <li><code>.singleInstance()</code> - One instance per container (shared)</li>
+            <li><code>.instancePerDependency()</code> - New instance every time (transient)</li>
+            <li><code>.instancePerRequest()</code> - One instance per resolution graph (scoped)</li>
+          </ul>
+        </section>
 
-      <!-- Architecture -->
-      <section id="architecture" style="margin-top: 48px;">
-        <h2>Architecture Decisions</h2>
-        <p class="lead">
-          How NovaDI is structured internally to support all these features.
-        </p>
+        <!-- Architecture -->
+        <section id="architecture" class="mt-48">
+          <h2>Architecture Decisions</h2>
+          <p class="lead">
+            How NovaDI is structured internally to support all these features.
+          </p>
 
-        <h3 style="margin-top: 32px;">Builder Pattern Separation</h3>
-        <p>
-          Registration and resolution are intentionally separated:
-        </p>
+          <h3 class="mt-32">Builder Pattern Separation</h3>
+          <p>
+            Registration and resolution are intentionally separated:
+          </p>
         <pre class="line-numbers"><code class="language-typescript">// 1. Build phase: Register services (mutable)
 const builder = container.builder()
 builder.registerType(Logger).as&lt;ILogger&gt;()
@@ -416,15 +437,15 @@ const app = builder.build()
 // 3. Runtime: Resolve services (immutable, fast)
 const logger = app.resolveType&lt;ILogger&gt;()  // Cannot add new registrations</code></pre>
 
-        <p>
-          This separation allows NovaDI to optimize the container structure after all registrations are known,
-          and prevents runtime registration bugs.
-        </p>
+          <p>
+            This separation allows NovaDI to optimize the container structure after all registrations are known,
+            and prevents runtime registration bugs.
+          </p>
 
-        <h3 style="margin-top: 32px;">Binding System</h3>
-        <p>
-          Each registration creates a Binding that encapsulates all configuration:
-        </p>
+          <h3 class="mt-32">Binding System</h3>
+          <p>
+            Each registration creates a Binding that encapsulates all configuration:
+          </p>
         <pre class="line-numbers"><code class="language-typescript">interface Binding {
   token: Token&lt;T&gt;           // What identifies this service
   factory: Factory          // How to create instances
@@ -433,10 +454,10 @@ const logger = app.resolveType&lt;ILogger&gt;()  // Cannot add new registrations
   key?: string             // Optional: keyed access
 }</code></pre>
 
-        <h3 style="margin-top: 32px;">Parent-Child Containers</h3>
-        <p>
-          Hierarchical containers support scoped services:
-        </p>
+          <h3 class="mt-32">Parent-Child Containers</h3>
+          <p>
+            Hierarchical containers support scoped services:
+          </p>
         <pre class="line-numbers"><code class="language-typescript">// Parent: Shared services
 const parent = new Container().builder()
 parent.registerType(Logger).as&lt;ILogger&gt;().singleInstance()
@@ -450,101 +471,101 @@ const childApp = child.build()
 // Child can resolve from parent
 childApp.resolveType&lt;ILogger&gt;()          // ✅ From parent
 childApp.resolveType&lt;IRequestContext&gt;()  // ✅ From child</code></pre>
-      </section>
+        </section>
 
-      <!-- Trade-offs -->
-      <section id="tradeoffs" style="margin-top: 48px;">
-        <h2>Design Trade-offs</h2>
-        <p class="lead">
-          Every design decision involves trade-offs. Here's what we chose and why.
+        <!-- Trade-offs -->
+        <section id="tradeoffs" class="mt-48">
+          <h2>Design Trade-offs</h2>
+          <p class="lead">
+            Every design decision involves trade-offs. Here's what we chose and why.
+          </p>
+
+          <div class="tradeoff-grid">
+            <div class="comparison-box">
+              <h4 class="color-blue">Transformer Required</h4>
+              <p><strong>Trade-off:</strong> Requires build-time setup (ttypescript or ts-patch)</p>
+              <p><strong>Why worth it:</strong> Eliminates decorators, provides clean API, zero runtime overhead</p>
+              <p><strong>Alternative considered:</strong> String literals everywhere (rejected: poor DX)</p>
+            </div>
+
+            <div class="comparison-box">
+              <h4 class="color-teal">TypeScript-Only</h4>
+              <p><strong>Trade-off:</strong> Cannot be used from plain JavaScript</p>
+              <p><strong>Why worth it:</strong> Leverages TypeScript's type system for safety and DX</p>
+              <p><strong>Alternative considered:</strong> JavaScript-first design (rejected: compromises type safety)</p>
+            </div>
+
+            <div class="comparison-box">
+              <h4 class="color-purple">Build-then-Resolve</h4>
+              <p><strong>Trade-off:</strong> Cannot add registrations after build()</p>
+              <p><strong>Why worth it:</strong> Allows optimization, prevents runtime registration bugs</p>
+              <p><strong>Alternative considered:</strong> Dynamic registration (rejected: hurts performance)</p>
+            </div>
+
+            <div class="comparison-box">
+              <h4 class="color-green">Interface-Based API</h4>
+              <p><strong>Trade-off:</strong> Requires defining interfaces (more boilerplate)</p>
+              <p><strong>Why worth it:</strong> Promotes loose coupling, better testability, clearer architecture</p>
+              <p><strong>Alternative considered:</strong> Class-based only (rejected: tight coupling)</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Future -->
+        <section id="future" class="mt-48 mb-40">
+          <h2>Future Directions</h2>
+          <p class="lead">
+            Where NovaDI is headed next.
+          </p>
+
+          <ul class="lh-relaxed">
+            <li><strong>Class AutoWire Strategy:</strong> Full build-time AST analysis for zero-config autowiring</li>
+            <li><strong>Dependency Graph Visualization:</strong> Generate visual graphs of your service dependencies</li>
+            <li><strong>Advanced Lifetimes:</strong> Per-request scoping for server-side scenarios</li>
+            <li><strong>Performance Profiler:</strong> Built-in tools to analyze resolution performance</li>
+            <li><strong>Module System:</strong> Better organization for large applications</li>
+          </ul>
+
+          <p class="mt-20">
+            See the <a href="roadmap.html">NovaDI Roadmap & Ideas</a> for detailed feature planning and timelines.
+          </p>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- TOC -->
+    <aside class="main-toc">
+      <h3 class="toc-title">On This Page</h3>
+      <ul class="toc-links">
+        <li><a href="#core-philosophy" class="toc-section-title">Core Philosophy</a></li>
+        <li><a href="#transformer-decision" class="toc-section-title">TypeScript Transformer</a></li>
+        <li><a href="#performance" class="toc-section-title">Performance Optimizations</a></li>
+        <li><a href="#api-design" class="toc-section-title">API Design</a></li>
+        <li><a href="#architecture" class="toc-section-title">Architecture</a></li>
+        <li><a href="#tradeoffs" class="toc-section-title">Trade-offs</a></li>
+        <li><a href="#future" class="toc-section-title">Future Directions</a></li>
+      </ul>
+    </aside>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+      <div class="container">
+        <p>
+          <a href="https://github.com/janus007/NovaDI">View on GitHub</a> •
+          <a href="https://www.npmjs.com/package/@novadi/core">npm</a> •
+          <a href="https://github.com/janus007/NovaDI/issues">Report Issue</a>
         </p>
+        <p class="text-secondary">Built with ❤️ for TypeScript developers</p>
+      </div>
+    </footer>
 
-        <div class="tradeoff-grid" style="display: grid; gap: 16px; margin-top: 20px;">
-          <div style="background: var(--surface); padding: 16px; border-radius: 4px; border: 1px solid var(--border-default);">
-            <h4 style="margin-top: 0; color: var(--accent-blue);">Transformer Required</h4>
-            <p><strong>Trade-off:</strong> Requires build-time setup (ttypescript or ts-patch)</p>
-            <p><strong>Why worth it:</strong> Eliminates decorators, provides clean API, zero runtime overhead</p>
-            <p><strong>Alternative considered:</strong> String literals everywhere (rejected: poor DX)</p>
-          </div>
+    <!-- Prism.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
 
-          <div style="background: var(--surface); padding: 16px; border-radius: 4px; border: 1px solid var(--border-default);">
-            <h4 style="margin-top: 0; color: var(--accent-teal);">TypeScript-Only</h4>
-            <p><strong>Trade-off:</strong> Cannot be used from plain JavaScript</p>
-            <p><strong>Why worth it:</strong> Leverages TypeScript's type system for safety and DX</p>
-            <p><strong>Alternative considered:</strong> JavaScript-first design (rejected: compromises type safety)</p>
-          </div>
-
-          <div style="background: var(--surface); padding: 16px; border-radius: 4px; border: 1px solid var(--border-default);">
-            <h4 style="margin-top: 0; color: var(--accent-purple);">Build-then-Resolve</h4>
-            <p><strong>Trade-off:</strong> Cannot add registrations after build()</p>
-            <p><strong>Why worth it:</strong> Allows optimization, prevents runtime registration bugs</p>
-            <p><strong>Alternative considered:</strong> Dynamic registration (rejected: hurts performance)</p>
-          </div>
-
-          <div style="background: var(--surface); padding: 16px; border-radius: 4px; border: 1px solid var(--border-default);">
-            <h4 style="margin-top: 0; color: var(--accent-green);">Interface-Based API</h4>
-            <p><strong>Trade-off:</strong> Requires defining interfaces (more boilerplate)</p>
-            <p><strong>Why worth it:</strong> Promotes loose coupling, better testability, clearer architecture</p>
-            <p><strong>Alternative considered:</strong> Class-based only (rejected: tight coupling)</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Future -->
-      <section id="future" style="margin-top: 48px; margin-bottom: 40px;">
-        <h2>Future Directions</h2>
-        <p class="lead">
-          Where NovaDI is headed next.
-        </p>
-
-        <ul style="line-height: 1.8;">
-          <li><strong>Class AutoWire Strategy:</strong> Full build-time AST analysis for zero-config autowiring</li>
-          <li><strong>Dependency Graph Visualization:</strong> Generate visual graphs of your service dependencies</li>
-          <li><strong>Advanced Lifetimes:</strong> Per-request scoping for server-side scenarios</li>
-          <li><strong>Performance Profiler:</strong> Built-in tools to analyze resolution performance</li>
-          <li><strong>Module System:</strong> Better organization for large applications</li>
-        </ul>
-
-        <p style="margin-top: 20px;">
-          See the <a href="roadmap.html">NovaDI Roadmap & Ideas</a> for detailed feature planning and timelines.
-        </p>
-      </section>
-
-    </div>
-  </main>
-
-  <!-- TOC -->
-  <aside class="main-toc">
-    <h3 class="toc-title">On This Page</h3>
-    <ul class="toc-links">
-      <li><a href="#core-philosophy" class="toc-section-title">Core Philosophy</a></li>
-      <li><a href="#transformer-decision" class="toc-section-title">TypeScript Transformer</a></li>
-      <li><a href="#performance" class="toc-section-title">Performance Optimizations</a></li>
-      <li><a href="#api-design" class="toc-section-title">API Design</a></li>
-      <li><a href="#architecture" class="toc-section-title">Architecture</a></li>
-      <li><a href="#tradeoffs" class="toc-section-title">Trade-offs</a></li>
-      <li><a href="#future" class="toc-section-title">Future Directions</a></li>
-    </ul>
-  </aside>
-
-  <!-- Footer -->
-  <footer class="main-footer">
-    <div class="container">
-      <p>
-        <a href="https://github.com/janus007/NovaDI">View on GitHub</a> •
-        <a href="https://www.npmjs.com/package/@novadi/core">npm</a> •
-        <a href="https://github.com/janus007/NovaDI/issues">Report Issue</a>
-      </p>
-      <p class="text-secondary">Built with ❤️ for TypeScript developers</p>
-    </div>
-  </footer>
-
-  <!-- Prism.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
-
-  <!-- Docs.js -->
-  <script src="js/docs.js"></script>
-</body>
+    <!-- Docs.js -->
+    <script src="js/docs.js"></script>
+  </body>
 </html>
