@@ -44,6 +44,7 @@ export const NovadiUnplugin = createUnplugin<NovadiPluginOptions | undefined>((o
   let programCreateTime = 0
   let totalTransformTime = 0
   let filesTransformed = 0
+  let totalFilesInProgram = 0
 
   /**
    * Find tsconfig.json starting from current directory
@@ -97,6 +98,35 @@ export const NovadiUnplugin = createUnplugin<NovadiPluginOptions | undefined>((o
         ts.sys,
         path.dirname(tsconfigPath)
       )
+
+      // Store total files for comparison later
+      totalFilesInProgram = parsedConfig.fileNames.length
+
+      // Debug: Show what TypeScript found
+      if (resolvedOptions.debug || resolvedOptions.performanceLogging) {
+        console.log(`\n[NovaDI Debug] TypeScript found ${totalFilesInProgram} files total`)
+
+        // Breakdown by file type
+        const breakdown = {
+          src: parsedConfig.fileNames.filter(f => f.includes('/src/') || f.includes('\\src\\')).length,
+          nodeModules: parsedConfig.fileNames.filter(f => f.includes('node_modules')).length,
+          dts: parsedConfig.fileNames.filter(f => f.endsWith('.d.ts')).length,
+          test: parsedConfig.fileNames.filter(f => f.includes('.test.') || f.includes('.spec.')).length
+        }
+
+        console.log(`[NovaDI Debug] File breakdown:`)
+        console.log(`  - src/ files: ${breakdown.src}`)
+        console.log(`  - node_modules: ${breakdown.nodeModules}`)
+        console.log(`  - .d.ts files: ${breakdown.dts}`)
+        console.log(`  - test files: ${breakdown.test}`)
+
+        // Show sample files
+        console.log(`[NovaDI Debug] Sample files (first 10):`)
+        parsedConfig.fileNames.slice(0, 10).forEach((f, i) => {
+          console.log(`  ${i + 1}. ${f}`)
+        })
+        console.log('')
+      }
 
       // Create TypeScript Program
       cachedProgram = ts.createProgram({
@@ -185,12 +215,27 @@ export const NovadiUnplugin = createUnplugin<NovadiPluginOptions | undefined>((o
     // Build end hook - cleanup and log stats
     buildEnd() {
       if (resolvedOptions.performanceLogging && filesTransformed > 0) {
-        console.log(`[NovaDI] Performance Summary:`)
+        console.log(`\n[NovaDI] Performance Summary:`)
         console.log(`  - Program creation: ${programCreateTime.toFixed(2)}ms`)
-        console.log(`  - Files transformed: ${filesTransformed}`)
+        console.log(`  - Files in TypeScript Program: ${totalFilesInProgram}`)
+        console.log(`  - Files actually transformed: ${filesTransformed}`)
         console.log(`  - Total transform time: ${totalTransformTime.toFixed(2)}ms`)
         console.log(`  - Average per file: ${(totalTransformTime / filesTransformed).toFixed(2)}ms`)
         console.log(`  - Total: ${(programCreateTime + totalTransformTime).toFixed(2)}ms`)
+
+        // Show waste ratio
+        if (totalFilesInProgram > 0) {
+          const wasteRatio = (totalFilesInProgram / filesTransformed).toFixed(1)
+          const wastedFiles = totalFilesInProgram - filesTransformed
+          console.log(`\n[NovaDI] ⚠️  Efficiency Analysis:`)
+          console.log(`  - Waste ratio: ${wasteRatio}x (parsing ${wasteRatio}x more files than needed)`)
+          console.log(`  - Wasted parsing: ${wastedFiles} files (${((wastedFiles / totalFilesInProgram) * 100).toFixed(1)}%)`)
+
+          if (parseFloat(wasteRatio) > 10) {
+            console.log(`  - 💡 Consider optimizing tsconfig to only include source files`)
+          }
+        }
+        console.log('')
       }
 
       // Cleanup
@@ -198,6 +243,7 @@ export const NovadiUnplugin = createUnplugin<NovadiPluginOptions | undefined>((o
       programCreateTime = 0
       totalTransformTime = 0
       filesTransformed = 0
+      totalFilesInProgram = 0
     },
 
     // Vite-specific hooks

@@ -296,6 +296,50 @@
             </ul>
           </div>
 
+          <div class="card" id="incremental-program">
+            <h3>Incremental TypeScript Program Compilation</h3>
+            <p>Replace <code>ts.createProgram()</code> with <code>ts.createIncrementalProgram()</code> to cache compilation results between builds. This dramatically reduces rebuild times by reusing type information from previous compilations.</p>
+
+            <div class="feature-metrics">
+              <div class="feature-metrics-grid">
+                <span><strong>Priority:</strong> <span class="badge badge-teal">High</span></span>
+                <span><strong>Complexity:</strong> <span class="badge badge-yellow">Medium</span></span>
+                <span><strong>Value:</strong> <span class="badge badge-teal">Very High</span></span>
+              </div>
+            </div>
+
+            <h4>Current Performance (41 files):</h4>
+            <ul>
+              <li><strong>First build</strong>: 604ms program creation</li>
+              <li><strong>Rebuilds</strong>: 604ms every time (no caching)</li>
+              <li><strong>Per-file cost</strong>: ~15ms per file</li>
+            </ul>
+
+            <h4>Expected Performance with Incremental:</h4>
+            <ul>
+              <li><strong>First build</strong>: ~300-400ms (with optimized tsconfig)</li>
+              <li><strong>Rebuilds</strong>: ~50-100ms (cached type information)</li>
+              <li><strong>Combined optimization</strong>: ~30-50ms for subsequent builds</li>
+            </ul>
+
+            <h4>Implementation:</h4>
+            <ul>
+              <li>Use <code>ts.createIncrementalProgram()</code> instead of <code>ts.createProgram()</code></li>
+              <li>Store <code>oldProgram</code> reference between builds</li>
+              <li>Add <code>.tsbuildinfo</code> to <code>.gitignore</code></li>
+              <li>Configure incremental compilation in <code>tsconfig.json</code></li>
+            </ul>
+
+            <h4>Benefits:</h4>
+            <ul>
+              <li>10-12x faster rebuilds (604ms → 50-100ms)</li>
+              <li>Better developer experience during development</li>
+              <li>Reuses type checker across builds</li>
+              <li>Particularly impactful for watch mode and HMR</li>
+              <li>Minimal code changes required</li>
+            </ul>
+          </div>
+
           <div class="card" id="lazy-init">
             <h3>Lazy Initialization</h3>
             <p>Defer singleton creation until first resolution instead of during container build. Especially useful for heavy services.</p>
@@ -914,6 +958,7 @@
 
         <li><a href="#performance-optimization" class="toc-section-title">Performance Optimization</a></li>
         <li><a href="#caching">Advanced Caching Strategies</a></li>
+        <li><a href="#incremental-program">Incremental Program Compilation</a></li>
         <li><a href="#lazy-init">Lazy Initialization</a></li>
         <li><a href="#memory-pool">Memory Pooling Enhancements</a></li>
         <li><a href="#benchmarks">Benchmark Suite Development</a></li>
