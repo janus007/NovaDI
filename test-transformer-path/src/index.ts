@@ -14,7 +14,7 @@ class ConsoleLogger implements ILogger {
 const container = new Container()
 const builder = container.builder()
 
-builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
+builder.registerType(ConsoleLogger).as<ILogger>().singleInstance()
 
 const app = builder.build()
 const logger = app.resolveType<ILogger>()

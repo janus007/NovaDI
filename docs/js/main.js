@@ -134,7 +134,7 @@
                     `No interface registration found. Tried: ${namesToTry.join(', ')}. ` +
                     `Suggestions:\n` +
                     `  - Use .autoWire({ map: { ${paramName}: (c) => c.resolveType<I${capitalize(paramName)}>() } })\n` +
-                    `  - Register the interface with .asInterface<I${capitalize(paramName)}>()\n` +
+                    `  - Register the interface with .as<I${capitalize(paramName)}>()\n` +
                     `  - Mark a default implementation with .asDefaultInterface<I${capitalize(paramName)}>()`);
             }
             else {
@@ -268,7 +268,7 @@
          * Register as an interface type (Autofac-style)
          * Uses interface registry for token management
          */
-        asInterface(typeName) {
+        as(typeName) {
             // Defer token creation to build time when container is available
             const config = {
                 token: null, // Will be set during build()
@@ -285,18 +285,18 @@
         }
         /**
          * Register as default implementation for an interface
-         * Combines asInterface() + asDefault()
+         * Combines as() + asDefault()
          */
         asDefaultInterface(typeName) {
-            this.asInterface("TInterface", typeName);
+            this.as("TInterface", typeName);
             return this.asDefault();
         }
         /**
          * Register as a keyed interface implementation
-         * Combines asInterface() + keyed()
+         * Combines as() + keyed()
          */
         asKeyedInterface(key, typeName) {
-            this.asInterface("TInterface", typeName);
+            this.as("TInterface", typeName);
             return this.keyed(key);
         }
         /**
@@ -416,17 +416,17 @@
          * @example
          * ```ts
          * // Strategy 1: paramName (default, requires non-minified code in dev)
-         * builder.registerType(EventBus).asInterface<IEventBus>().autoWire()
+         * builder.registerType(EventBus).as<IEventBus>().autoWire()
          *
          * // Strategy 2: map (minify-safe, explicit)
-         * builder.registerType(EventBus).asInterface<IEventBus>().autoWire({
+         * builder.registerType(EventBus).as<IEventBus>().autoWire({
          *   map: {
          *     logger: (c) => c.resolveType<ILogger>()
          *   }
          * })
          *
          * // Strategy 3: class (requires build-time codegen)
-         * builder.registerType(EventBus).asInterface<IEventBus>().autoWire({ by: 'class' })
+         * builder.registerType(EventBus).as<IEventBus>().autoWire({ by: 'class' })
          * ```
          */
         autoWire(options) {
@@ -1514,8 +1514,8 @@
             // Build container with singleton services
             const container = new Container$2();
             const builder = container.builder();
-            builder.registerType(Logger$4).asInterface("ILogger").singleInstance();
-            builder.registerType(Cache$4).asInterface("ICache").singleInstance();
+            builder.registerType(Logger$4).as("ILogger").singleInstance();
+            builder.registerType(Cache$4).as("ICache").singleInstance();
             const app = builder.build();
             // Measure 1000 cached singleton resolutions
             const start = performance.now();
@@ -1532,8 +1532,8 @@
             // Build container with transient services
             const container = new Container$2();
             const builder = container.builder();
-            builder.registerType(Logger$4).asInterface("ILogger").instancePerDependency();
-            builder.registerType(Cache$4).asInterface("ICache").instancePerDependency();
+            builder.registerType(Logger$4).as("ILogger").instancePerDependency();
+            builder.registerType(Cache$4).as("ICache").instancePerDependency();
             const app = builder.build();
             // Measure 1000 transient resolutions (new instance each time)
             const start = performance.now();
@@ -1566,10 +1566,10 @@
             const container = new Container$2();
             const builder = container.builder();
             // Core services (same as Demo 5)
-            builder.registerType(ConsoleLogger).asInterface("ILogger").singleInstance();
+            builder.registerType(ConsoleLogger).as("ILogger").singleInstance();
             builder
                 .registerType(EventBus)
-                .asInterface("IEventBus").autoWire({
+                .as("IEventBus").autoWire({
                 map: {
                     logger: c => c.resolveType("ILogger")
                 }
@@ -1577,7 +1577,7 @@
                 .singleInstance();
             builder
                 .registerType(AutomationService)
-                .asInterface("AutomationService").autoWire({
+                .as("AutomationService").autoWire({
                 map: {
                     logger: c => c.resolveType("ILogger"),
                     eventBus: c => c.resolveType("IEventBus")
@@ -1592,16 +1592,16 @@
             // Sensors (using keyed registration for multiple sensors of same interface)
             builder
                 .registerInstance(new TemperatureSensor('auto-temp', 'Auto Temp', 'office', 22))
-                .asInterface("ISensor")
+                .as("ISensor")
                 .keyed('TempSensor');
             builder
                 .registerInstance(new MotionSensor('auto-motion', 'Auto Motion', 'office'))
-                .asInterface("ISensor")
+                .as("ISensor")
                 .keyed('MotionSensor');
             // Devices (using keyed registration for multiple devices)
             builder
                 .registerType(SmartThermostat)
-                .asInterface("IDevice")
+                .as("IDevice")
                 .keyed('Thermostat').autoWire({
                 map: {
                     logger: c => c.resolveType("ILogger")
@@ -1620,7 +1620,7 @@
             });
             builder
                 .registerType(SmartLight)
-                .asInterface("IDevice")
+                .as("IDevice")
                 .keyed('Light').autoWire({
                 map: {
                     logger: c => c.resolveType("ILogger")
@@ -1657,34 +1657,34 @@
             const container = new Container$2();
             const builder = container.builder();
             // Core services with manual factory registration (no autowire)
-            builder.registerType(ConsoleLogger).asInterface("ILogger").singleInstance();
+            builder.registerType(ConsoleLogger).as("ILogger").singleInstance();
             builder.register((c) => {
                 const logger = c.resolveType("ILogger");
                 return new EventBus(logger);
-            }).asInterface("IEventBus").singleInstance();
+            }).as("IEventBus").singleInstance();
             builder.register((c) => {
                 const logger = c.resolveType("ILogger");
                 const eventBus = c.resolveType("IEventBus");
                 return new AutomationService(logger, eventBus);
-            }).asInterface("AutomationService").singleInstance();
+            }).as("AutomationService").singleInstance();
             // Sensors (instances)
             builder
                 .registerInstance(new TemperatureSensor('auto-temp', 'Auto Temp', 'office', 22))
-                .asInterface("ISensor")
+                .as("ISensor")
                 .keyed('TempSensor');
             builder
                 .registerInstance(new MotionSensor('auto-motion', 'Auto Motion', 'office'))
-                .asInterface("ISensor")
+                .as("ISensor")
                 .keyed('MotionSensor');
             // Devices with manual factory registration (no autowire)
             builder.register((c) => {
                 const logger = c.resolveType("ILogger");
                 return new SmartThermostat('auto-thermo', 'Auto Thermostat', 'office', logger);
-            }).asInterface("IDevice").keyed('Thermostat');
+            }).as("IDevice").keyed('Thermostat');
             builder.register((c) => {
                 const logger = c.resolveType("ILogger");
                 return new SmartLight('auto-light', 'Auto Light', 'office', logger);
-            }).asInterface("IDevice").keyed('Light');
+            }).as("IDevice").keyed('Light');
             const app = builder.build();
             // Measure 1000 complex resolutions
             const start = performance.now();
@@ -20903,13 +20903,13 @@
         // DEMO 0: Simplest Case - Just Registration and Resolution
         async demo0_SimplestCase() {
             console.group('%c🌟 DEMO 0: Simplest Case', 'font-weight: bold; color: #9C27B0');
-            console.log('Features: Basic .asInterface<T>() and .resolveType<T>() - no autowiring!');
+            console.log('Features: Basic .as<T>() and .resolveType<T>() - no autowiring!');
             // Create container
             this.container = new Container$2();
             const builder = this.container.builder();
             // Register services without any dependencies
-            builder.registerType(ConsoleLogger).asInterface("ILogger").singleInstance();
-            builder.registerType(EventBus).asInterface("IEventBus").singleInstance().autoWire({
+            builder.registerType(ConsoleLogger).as("ILogger").singleInstance();
+            builder.registerType(EventBus).as("IEventBus").singleInstance().autoWire({
                 map: {
                     logger: c => c.resolveType("ILogger")
                 }
@@ -20922,8 +20922,8 @@
             // Display registry
             const code0 = `const builder = container.builder()
 
-builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
-builder.registerType(EventBus).asInterface<IEventBus>().singleInstance()
+builder.registerType(ConsoleLogger).as<ILogger>().singleInstance()
+builder.registerType(EventBus).as<IEventBus>().singleInstance()
 
 const app = builder.build()
 
@@ -20950,10 +20950,10 @@ const eventBus = app.resolveType<IEventBus>()`;
             // Create container and register dependencies
             this.container = new Container$2();
             const builder = this.container.builder();
-            builder.registerType(ConsoleLogger).asInterface("ILogger").singleInstance();
+            builder.registerType(ConsoleLogger).as("ILogger").singleInstance();
             builder
                 .registerType(EventBus)
-                .asInterface("IEventBus").autoWire({
+                .as("IEventBus").autoWire({
                 map: {
                     logger: c => c.resolveType("ILogger")
                 }
@@ -20967,10 +20967,10 @@ const eventBus = app.resolveType<IEventBus>()`;
             // Display registry
             const code1 = `const builder = container.builder()
 
-builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
+builder.registerType(ConsoleLogger).as<ILogger>().singleInstance()
 builder
   .registerType(EventBus)
-  .asInterface<IEventBus>()
+  .as<IEventBus>()
   .autoWire({ map: { logger: (c) => c.resolveType<ILogger>() } })
   .singleInstance()
 
@@ -20995,15 +20995,15 @@ const app = builder.build()`;
             console.log('Features: Keyed services, resolveInterfaceKeyed<T>(), resolveInterfaceAll<T>()');
             const builder = new Container$2().builder();
             // Register multiple logger implementations
-            builder.registerType(ConsoleLogger).asInterface("ILogger"); // Default
-            builder.registerType(FileLogger).asInterface("ILogger").keyed('file');
+            builder.registerType(ConsoleLogger).as("ILogger"); // Default
+            builder.registerType(FileLogger).as("ILogger").keyed('file');
             const app = builder.build();
             // Display registry
             const code2 = `const builder = new Container().builder()
 
 // Register multiple logger implementations
-builder.registerType(ConsoleLogger).asInterface<ILogger>() // Default
-builder.registerType(FileLogger).asInterface<ILogger>().keyed('file')
+builder.registerType(ConsoleLogger).as<ILogger>() // Default
+builder.registerType(FileLogger).as<ILogger>().keyed('file')
 
 const app = builder.build()`;
             displayRegistry('demo2', app, 'Multiple Logger Implementations', code2);
@@ -21027,13 +21027,13 @@ const app = builder.build()`;
             console.log('Features: autoWire(), constructor injection, dependency graphs');
             const builder = new Container$2().builder();
             // Register with dependencies
-            builder.registerType(ConsoleLogger).asInterface("ILogger").singleInstance();
+            builder.registerType(ConsoleLogger).as("ILogger").singleInstance();
             builder
                 .registerInstance(new TemperatureSensor('temp-1', 'Bedroom Temp', 'bedroom', 21))
-                .asInterface("ISensor");
+                .as("ISensor");
             builder
                 .registerType(SmartLight)
-                .asInterface("IDevice").autoWire({
+                .as("IDevice").autoWire({
                 map: {
                     logger: c => c.resolveType("ILogger")
                 }
@@ -21050,15 +21050,15 @@ const app = builder.build()`;
             const code3 = `const builder = new Container().builder()
 
 // Register with dependencies
-builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
+builder.registerType(ConsoleLogger).as<ILogger>().singleInstance()
 
 builder
   .registerInstance(new TemperatureSensor('temp-1', 'Bedroom Temp', 'bedroom', 21))
-  .asInterface<ISensor>()
+  .as<ISensor>()
 
 builder
   .registerType(SmartLight)
-  .asInterface<IDevice>()
+  .as<IDevice>()
   .autoWire({
     map: {
       id: () => 'light-1',
@@ -21088,16 +21088,16 @@ const app = builder.build()`;
             console.log('Features: Child containers, scope isolation, shared singletons');
             // Create parent container with shared services
             const parentBuilder = new Container$2().builder();
-            parentBuilder.registerType(ConsoleLogger).asInterface("ILogger").singleInstance();
+            parentBuilder.registerType(ConsoleLogger).as("ILogger").singleInstance();
             const parentContainer = parentBuilder.build();
             // Create room-specific child containers
             console.log('\n📍 Creating Living Room scope:');
             const livingRoomBuilder = parentContainer.createChild().builder();
-            livingRoomBuilder.registerInstance(new TemperatureSensor('lr-temp', 'Living Room Temp', 'living-room', 23)).asInterface("ISensor");
+            livingRoomBuilder.registerInstance(new TemperatureSensor('lr-temp', 'Living Room Temp', 'living-room', 23)).as("ISensor");
             const livingRoomContainer = livingRoomBuilder.build();
             console.log('📍 Creating Bedroom scope:');
             const bedroomBuilder = parentContainer.createChild().builder();
-            bedroomBuilder.registerInstance(new TemperatureSensor('br-temp', 'Bedroom Temp', 'bedroom', 19)).asInterface("ISensor");
+            bedroomBuilder.registerInstance(new TemperatureSensor('br-temp', 'Bedroom Temp', 'bedroom', 19)).as("ISensor");
             const bedroomContainer = bedroomBuilder.build();
             // Resolve from each scope
             const lrSensor = livingRoomContainer.resolveType("ISensor");
@@ -21111,20 +21111,20 @@ const app = builder.build()`;
             // Display registries
             const code4 = `// Create parent container with shared services
 const parentBuilder = new Container().builder()
-parentBuilder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
+parentBuilder.registerType(ConsoleLogger).as<ILogger>().singleInstance()
 const parentContainer = parentBuilder.build()
 
 // Create room-specific child containers
 const livingRoomBuilder = parentContainer.createChild().builder()
 livingRoomBuilder.registerInstance(
   new TemperatureSensor('lr-temp', 'Living Room Temp', 'living-room', 23)
-).asInterface<ISensor>()
+).as<ISensor>()
 const livingRoomContainer = livingRoomBuilder.build()
 
 const bedroomBuilder = parentContainer.createChild().builder()
 bedroomBuilder.registerInstance(
   new TemperatureSensor('br-temp', 'Bedroom Temp', 'bedroom', 19)
-).asInterface<ISensor>()
+).as<ISensor>()
 const bedroomContainer = bedroomBuilder.build()`;
             displayRegistry('demo4', parentContainer, 'Parent Container (Shared Services)', code4);
             this.updateUI('demo4', 'completed');
@@ -21137,10 +21137,10 @@ const bedroomContainer = bedroomBuilder.build()`;
             console.log('Features: Complex dependency graphs, real-world application');
             const builder = new Container$2().builder();
             // Core services
-            builder.registerType(ConsoleLogger).asInterface("ILogger").singleInstance();
+            builder.registerType(ConsoleLogger).as("ILogger").singleInstance();
             builder
                 .registerType(EventBus)
-                .asInterface("IEventBus").autoWire({
+                .as("IEventBus").autoWire({
                 map: {
                     logger: c => c.resolveType("ILogger")
                 }
@@ -21148,7 +21148,7 @@ const bedroomContainer = bedroomBuilder.build()`;
                 .singleInstance();
             builder
                 .registerType(AutomationService)
-                .asInterface("AutomationService").autoWire({
+                .as("AutomationService").autoWire({
                 map: {
                     logger: c => c.resolveType("ILogger"),
                     eventBus: c => c.resolveType("IEventBus")
@@ -21163,16 +21163,16 @@ const bedroomContainer = bedroomBuilder.build()`;
             // Sensors (using keyed registration for multiple sensors of same interface)
             builder
                 .registerInstance(new TemperatureSensor('auto-temp', 'Auto Temp', 'office', 22))
-                .asInterface("ISensor")
+                .as("ISensor")
                 .keyed('TempSensor');
             builder
                 .registerInstance(new MotionSensor('auto-motion', 'Auto Motion', 'office'))
-                .asInterface("ISensor")
+                .as("ISensor")
                 .keyed('MotionSensor');
             // Devices (using keyed registration for multiple devices)
             builder
                 .registerType(SmartThermostat)
-                .asInterface("IDevice")
+                .as("IDevice")
                 .keyed('Thermostat').autoWire({
                 map: {
                     logger: c => c.resolveType("ILogger")
@@ -21191,7 +21191,7 @@ const bedroomContainer = bedroomBuilder.build()`;
             });
             builder
                 .registerType(SmartLight)
-                .asInterface("IDevice")
+                .as("IDevice")
                 .keyed('Light').autoWire({
                 map: {
                     logger: c => c.resolveType("ILogger")
@@ -21211,16 +21211,16 @@ const bedroomContainer = bedroomBuilder.build()`;
             const app = builder.build();
             // Display registry
             const code5 = `// Core services
-builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
+builder.registerType(ConsoleLogger).as<ILogger>().singleInstance()
 builder
   .registerType(EventBus)
-  .asInterface<IEventBus>()
+  .as<IEventBus>()
   .autoWire({ map: { logger: (c) => c.resolveType<ILogger>() } })
   .singleInstance()
 
 builder
   .registerType(AutomationService)
-  .asInterface<AutomationService>()
+  .as<AutomationService>()
   .autoWire({
     map: {
       logger: (c) => c.resolveType<ILogger>(),
@@ -21232,18 +21232,18 @@ builder
 // Sensors (using keyed registration for multiple sensors)
 builder
   .registerInstance(new TemperatureSensor('auto-temp', 'Auto Temp', 'office', 22))
-  .asInterface<ISensor>()
+  .as<ISensor>()
   .keyed('TempSensor')
 
 builder
   .registerInstance(new MotionSensor('auto-motion', 'Auto Motion', 'office'))
-  .asInterface<ISensor>()
+  .as<ISensor>()
   .keyed('MotionSensor')
 
 // Devices (using keyed registration for multiple devices)
 builder
   .registerType(SmartThermostat)
-  .asInterface<IDevice>()
+  .as<IDevice>()
   .keyed('Thermostat')
   .autoWire({
     map: {
@@ -21256,7 +21256,7 @@ builder
 
 builder
   .registerType(SmartLight)
-  .asInterface<IDevice>()
+  .as<IDevice>()
   .keyed('Light')
   .autoWire({
     map: {

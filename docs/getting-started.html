@@ -121,7 +121,7 @@ Key Principles:
 - Package: @novadi/core
 - NO decorators/annotations in business code
 - Convention over configuration
-- Uses .asInterface&lt;T&gt;() and .resolveType&lt;T&gt;()
+- Uses .as&lt;T&gt;() and .resolveType&lt;T&gt;()
 - TypeScript transformer handles type names automatically
 
 Core API:
@@ -132,10 +132,10 @@ Core API:
    const builder = container.builder()
 
 3. Register services:
-   builder.registerType(ConsoleLogger).asInterface&lt;ILogger&gt;().singleInstance()
+   builder.registerType(ConsoleLogger).as&lt;ILogger&gt;().singleInstance()
 
 4. Autowire dependencies BY CONVENTION (recommended):
-   builder.registerType(UserService).asInterface&lt;UserService&gt;().autoWire()
+   builder.registerType(UserService).as&lt;UserService&gt;().autoWire()
    // Parameters automatically match registered interfaces by naming convention
 
 5. Build and resolve:
@@ -189,8 +189,8 @@ class Application {
 const container = new Container()
 const builder = container.builder()
 
-builder.registerType(ConsoleGreeter).asInterface&lt;IGreeter&gt;().singleInstance()
-builder.registerType(Application).asInterface&lt;Application&gt;().autoWire() // Convention!
+builder.registerType(ConsoleGreeter).as&lt;IGreeter&gt;().singleInstance()
+builder.registerType(Application).as&lt;Application&gt;().autoWire() // Convention!
 
 const app = builder.build()
 const application = app.resolveType&lt;Application&gt;()
@@ -232,8 +232,8 @@ class UserService {
 }
 
 // Composition Root (AI can help set this up)
-builder.registerType(UserRepository).asInterface<IUserRepository>().singleInstance()
-builder.registerType(UserService).asInterface<UserService>().autoWire() // ✨ Convention!</code></pre>
+builder.registerType(UserRepository).as<IUserRepository>().singleInstance()
+builder.registerType(UserService).as<UserService>().autoWire() // ✨ Convention!</code></pre>
 
       <div class="callout callout-info" style="margin: 32px 0;">
         <strong>🤖 Pro Tip:</strong> When you need to add new services, just ask your AI:
@@ -353,10 +353,10 @@ const container = new Container()
 const builder = container.builder()
 
 // Register implementations
-builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
+builder.registerType(ConsoleLogger).as<ILogger>().singleInstance()
 
 // AutoWire does ALL the wiring by convention!
-builder.registerType(UserService).asInterface<UserService>().autoWire()
+builder.registerType(UserService).as<UserService>().autoWire()
 
 const app = builder.build()
 

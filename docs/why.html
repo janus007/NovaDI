@@ -205,12 +205,12 @@ const apiConfig = {
 }
 
 // Register services
-builder.registerInstance(apiConfig).asInterface<HttpConfig>()
+builder.registerInstance(apiConfig).as<HttpConfig>()
 
-builder.registerType(FetchHttpClient).asInterface<IHttpClient>().autoWire().singleInstance()
+builder.registerType(FetchHttpClient).as<IHttpClient>().autoWire().singleInstance()
 
 builder.registerType(EmailService)
-  .asInterface<IEmailService>()
+  .as<IEmailService>()
   .autoWire({
     map: { //this is just an example of explicit mapping, you would probably do it the same way as apiConfig
       smtp: () => emailConfig.smtp,
@@ -221,9 +221,9 @@ builder.registerType(EmailService)
   })
   .singleInstance()
 
-builder.registerType(UserApi).asInterface<IUserApi>().autoWire().singleInstance()
-builder.registerType(UserRepository).asInterface<IUserRepository>().autoWire()
-builder.registerType(UserService).asInterface<IUserService>().autoWire()
+builder.registerType(UserApi).as<IUserApi>().autoWire().singleInstance()
+builder.registerType(UserRepository).as<IUserRepository>().autoWire()
+builder.registerType(UserService).as<IUserService>().autoWire()
 
 export const app = builder.build()
 
@@ -318,13 +318,13 @@ class OrderService {
 }
 
 // Configuration - conventions handle the wiring
-builder.registerType(UserRepository).asInterface<IUserRepository>()
-builder.registerType(EmailService).asInterface<IEmailService>()
-builder.registerType(ConsoleLogger).asInterface<ILogger>()
-builder.registerType(UserService).asInterface<IUserService>().autoWire()
-builder.registerType(OrderRepository).asInterface<IOrderRepository>()
-builder.registerType(PaymentService).asInterface<IPaymentService>()
-builder.registerType(OrderService).asInterface<IOrderService>().autoWire()
+builder.registerType(UserRepository).as<IUserRepository>()
+builder.registerType(EmailService).as<IEmailService>()
+builder.registerType(ConsoleLogger).as<ILogger>()
+builder.registerType(UserService).as<IUserService>().autoWire()
+builder.registerType(OrderRepository).as<IOrderRepository>()
+builder.registerType(PaymentService).as<IPaymentService>()
+builder.registerType(OrderService).as<IOrderService>().autoWire()
 
 // Parameters automatically match registered interfaces by name!
 // userRepo → IUserRepository, emailService → IEmailService, etc.</code></pre>
@@ -538,43 +538,43 @@ const emailConfig = {
 const cacheMaxSize = 1000
 
 // Register infrastructure (singletons - created once)
-builder.registerInstance(httpConfig).asInterface<HttpConfig>()
-builder.registerInstance(emailConfig).asInterface<EmailConfig>()
+builder.registerInstance(httpConfig).as<HttpConfig>()
+builder.registerInstance(emailConfig).as<EmailConfig>()
 builder.registerInstance(cacheMaxSize).as('maxSize')
 
 builder.registerType(ConsoleLogger)
-  .asInterface<ILogger>()
+  .as<ILogger>()
   .singleInstance()
 
 builder.registerType(FetchHttpClient)
-  .asInterface<IHttpClient>()
+  .as<IHttpClient>()
   .autoWire()  // ✨ Automatically wires: config, logger
   .singleInstance()
 
 builder.registerType(MemoryCache)
-  .asInterface<ICache>()
+  .as<ICache>()
   .autoWire()  // ✨ Automatically wires: maxSize, httpClient, logger
   .singleInstance()
 
 builder.registerType(EmailService)
-  .asInterface<IEmailService>()
+  .as<IEmailService>()
   .autoWire()  // ✨ Automatically wires: config, logger
   .singleInstance()
 
 // Register API layer
 builder.registerType(UserApi)
-  .asInterface<IUserApi>()
+  .as<IUserApi>()
   .autoWire()  // ✨ Automatically wires: httpClient, logger
   .singleInstance()
 
 // Register domain services
 builder.registerType(UserRepository)
-  .asInterface<IUserRepository>()
+  .as<IUserRepository>()
   .autoWire()  // ✨ Automatically wires: userApi, cache, logger
   .instancePerRequest()
 
 builder.registerType(UserService)
-  .asInterface<IUserService>()
+  .as<IUserService>()
   .autoWire()  // ✨ Automatically wires: userRepo, emailService, logger
   .instancePerRequest()
 

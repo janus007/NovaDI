@@ -2,7 +2,7 @@
  * NovaDI TypeScript Transformer
  *
  * Automatically injects type names into:
- * - .asInterface<T>() → .asInterface<T>("TypeName")
+ * - .as<T>() → .as<T>("TypeName")
  * - .resolveType<T>() → .resolveType<T>("TypeName")
  * - .bindInterface<T>(value) → .bindInterface<T>(value, "TypeName")
  * - .registerType(X) → .registerType(X).autoWire({ map: {...} }) (default autowiring)

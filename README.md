@@ -4,7 +4,7 @@
 
 NovaDI is a modern dependency injection container that keeps your business logic clean from framework code. No decorators, no annotations, no runtime reflection - just pure TypeScript and compile-time type safety.
 
-[![Version](https://img.shields.io/badge/version-0.2.2-blue.svg)](https://github.com/janus007/NovaDI)
+[![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)](https://github.com/janus007/NovaDI)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-blue.svg)](https://www.typescriptlang.org/)
 [![Bundle Size](https://img.shields.io/badge/bundle-59KB-success.svg)](dist/)
@@ -41,9 +41,9 @@ class UserService {
 const container = new Container()
 const builder = container.builder()
 
-builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
-builder.registerType(PostgresDatabase).asInterface<IDatabase>().singleInstance()
-builder.registerType(UserService).asInterface<UserService>()
+builder.registerType(ConsoleLogger).as<ILogger>().singleInstance()
+builder.registerType(PostgresDatabase).as<IDatabase>().singleInstance()
+builder.registerType(UserService).as<UserService>()
 
 const app = builder.build()
 const userService = app.resolveType<UserService>()
@@ -150,58 +150,12 @@ Add to `tsconfig.json`:
 }
 ```
 
-#### Option 3: Manual Type Names (⚠️ Not Recommended)
+**That's it!** The transformer handles everything automatically:
+- `.as<ILogger>()` → transformer injects `"ILogger"`
+- `.as<UserService>()` → transformer injects `"UserService"`
+- `.autoWire()` → transformer generates `mapResolvers` array
 
-> **⚠️ WARNING: This approach is considered bad practice and should be avoided.**
->
-> Using manual type name literals:
-> - ❌ Introduces potential for typos and errors
-> - ❌ Creates maintenance burden (refactoring becomes error-prone)
-> - ❌ Loses all transformer benefits (validation, graphs, analysis)
-> - ❌ No compile-time safety for type names
-> - ❌ Verbose and repetitive code
->
-> **Only use this if you absolutely cannot use a transformer** (e.g., runtime-only environments like `tsx` or `ts-node` where there's no build step).
-
-If you must use manual type names:
-
-```typescript
-// ⚠️ NOT RECOMMENDED - Manual type name literals
-builder.registerType(ConsoleLogger).asInterface<ILogger>("ILogger")
-const logger = app.resolveType<ILogger>("ILogger")
-
-builder
-  .registerType(UserService)
-  .asInterface<UserService>("UserService")
-  .autoWire({
-    map: {
-      logger: (c) => c.resolveType<ILogger>("ILogger")
-    }
-  })
-```
-
-**Why the transformer is superior:**
-```typescript
-// ✅ With transformer - type names auto-injected
-.asInterface<ILogger>()           // Becomes: .asInterface<ILogger>("ILogger")
-.resolveType<ILogger>()      // Becomes: .resolveType<ILogger>("ILogger")
-
-// Plus you get:
-// ✅ Compile-time validation of all dependencies
-// ✅ Dependency graph generation
-// ✅ Circular dependency detection before runtime
-// ✅ Missing registration warnings
-// ✅ IDE integration for inline errors
-// ✅ Zero typo risk
-// ✅ Refactoring safety
-```
-
-**Future transformer capabilities** (see [roadmap](../../docs/roadmap.md)):
-- Generate visual dependency graphs
-- Detect unused registrations
-- Validate entire container at compile-time
-- Export dependency information for documentation
-- Integration with development tools
+No manual type names needed!
 
 ### Basic Usage - It Just Works!
 
@@ -232,10 +186,10 @@ const container = new Container()
 const builder = container.builder()
 
 // Register implementations
-builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
+builder.registerType(ConsoleLogger).as<ILogger>().singleInstance()
 
 // Transformer automatically wires ALL dependencies!
-builder.registerType(UserService).asInterface<UserService>()
+builder.registerType(UserService).as<UserService>()
 
 const app = builder.build()
 
@@ -246,91 +200,78 @@ userService.createUser('Alice') // [LOG] Creating user: Alice
 
 **That's it!** No manual configuration. No mapping. The transformer does it all automatically.
 
-The `logger` parameter automatically resolves to `ILogger` via the transformer-generated `mapResolvers`. The transformer analyzes your TypeScript types at compile-time and generates the wiring automatically - zero runtime overhead, minification-safe, and refactoring-friendly.
+The `logger` parameter automatically resolves to the registered `ILogger` interface by naming convention. This is THE way to use NovaDI.
 
 ---
 
-## AutoWire - Transformer-Powered Dependency Injection
+## AutoWire - Convention Over Configuration
 
-**The transformer analyzes your TypeScript types at compile-time and automatically generates dependency wiring.** Zero runtime overhead, minification-safe, refactoring-friendly.
+**Autowiring by convention** is THE way you wire dependencies. No manual configuration, no boilerplate - it just works.
 
-### With Transformer (Recommended ⭐)
-
-The transformer sees your constructor parameter **TYPES** and generates `mapResolvers` automatically:
+### The Standard Way - Type Injection by Convention
 
 ```typescript
-// You write clean code:
 class UserService {
   constructor(
-    private logger: ILogger,      // Transformer analyzes TYPE: ILogger
-    private database: IDatabase   // Transformer analyzes TYPE: IDatabase
+    private logger: ILogger,      // Automatically resolves ILogger by convention
+    private database: IDatabase   // Automatically resolves IDatabase by convention
   ) {}
 }
 
-// Simple registration - transformer does the rest!
-builder.registerType(UserService).asInterface<UserService>()
+// This is all you need - transformer does the rest!
+builder.registerType(UserService).as<UserService>()
+```
 
-// At compile-time, transformer automatically generates:
-builder.registerType(UserService).asInterface<UserService>().autoWire({
-  mapResolvers: [
-    (c) => c.resolveType<ILogger>(),    // Index 0: ILogger
-    (c) => c.resolveType<IDatabase>()   // Index 1: IDatabase
-  ]
+**How it works:**
+- Transformer analyzes constructor parameter **TYPES** at compile-time
+- Generates `mapResolvers` array automatically
+- Injects `.autoWire({ mapResolvers: [...] })` into the call
+- **Zero runtime overhead - all type info captured at build time!**
+
+**This is how you should wire ALL your services.** Transformer-powered autowiring - always.
+
+### Explicit Mapping (For Primitives & Config)
+
+**Why you need explicit mapping:** Transformeren kan kun autowire **typed dependencies** (interfaces/classes). For primitives, strings, og configuration values skal du bruge explicit mapping.
+
+**Common use case - API Client:**
+
+```typescript
+interface IHttpClient {
+  get<T>(endpoint: string): Promise<T>
+  post<T>(endpoint: string, data: any): Promise<T>
+}
+
+class ApiClient implements IHttpClient {
+  constructor(
+    private baseUrl: string,      // ⚠️ Primitive - transformer can't autowire this
+    private apiKey: string,        // ⚠️ Primitive - transformer can't autowire this
+    private logger: ILogger        // ✅ Typed dependency - transformer handles this
+  ) {}
+
+  async get<T>(endpoint: string): Promise<T> {
+    this.logger.log(`GET ${this.baseUrl}${endpoint}`)
+    // HTTP logic...
+  }
+}
+
+// Explicit mapping for primitives + transformer for typed dependencies
+builder.registerType(ApiClient).as<IHttpClient>().autoWire({
+  map: {
+    baseUrl: () => import.meta.env.VITE_API_BASE_URL,  // Environment variable
+    apiKey: () => import.meta.env.VITE_API_KEY,        // Secret from env
+    logger: (c) => c.resolveType<ILogger>()            // Typed dependency
+  }
 })
 ```
 
-**Why This Approach is Superior:**
-- ✅ **Minification-safe** - Uses array index position, not parameter names
-- ✅ **Zero runtime overhead** - All type info captured at compile-time
-- ✅ **Refactoring-friendly** - Rename parameters freely, types are what matter
-- ✅ **Type-safe** - TypeScript compiler validates all dependencies
-- ✅ **O(1) performance** - Array index lookup is blazing fast
+**Benefits:**
+- ✅ Environment variables injected cleanly
+- ✅ Configuration centralized in composition root
+- ✅ Easy to swap between dev/staging/prod configs
+- ✅ No hardcoded values in business logic
 
-**This is THE way to use NovaDI.** Always use the transformer.
-
-### Without Transformer (Manual Wiring)
-
-If you cannot use the transformer (e.g., runtime-only environments), use explicit `map`:
-
-```typescript
-// Manual wiring with parameter names
-builder
-  .registerType(UserService)
-  .asInterface<UserService>()
-  .autoWire({
-    map: {
-      logger: (c) => c.resolveType<ILogger>(),
-      database: (c) => c.resolveType<IDatabase>()
-    }
-  })
-```
-
-**Limitations without transformer:**
-- ❌ **Not minification-safe** - Relies on parameter names being preserved
-- ❌ **More verbose** - Must manually list every dependency
-- ❌ **Manual maintenance** - Refactoring requires updating map
-
-### Explicit Mapping (Special Cases)
-
-Use explicit mapping for primitives, configuration values, or custom logic:
-
-```typescript
-builder
-  .registerType(SmartLight)
-  .asInterface<IDevice>()
-  .autoWire({
-    map: {
-      id: () => 'light-123',              // Primitive value
-      name: () => 'Living Room Light',    // String value
-      logger: (c) => c.resolveType<ILogger>()  // Service dependency
-    }
-  })
-```
-
-**Use explicit mapping when:**
-- Injecting primitives, strings, or configuration values
-- You need custom resolution logic
-- Working without transformer (not recommended for production)
+**For regular service dependencies (no primitives), just register the type - transformer handles everything!**
 
 ---
 
@@ -340,14 +281,14 @@ builder
 
 ### Singleton - One instance for the container lifetime
 ```typescript
-builder.registerType(Database).asInterface<IDatabase>().singleInstance()
+builder.registerType(Database).as<IDatabase>().singleInstance()
 ```
 
 Use for: Loggers, database connections, configuration, caches
 
 ### Transient - New instance every resolution (DEFAULT)
 ```typescript
-builder.registerType(RequestHandler).asInterface<IRequestHandler>()
+builder.registerType(RequestHandler).as<IRequestHandler>()
 // No .singleInstance() = transient by default
 ```
 
@@ -355,7 +296,7 @@ Use for: Request handlers, commands, stateful operations
 
 ### Per-Request - One instance per resolution tree
 ```typescript
-builder.registerType(UnitOfWork).asInterface<IUnitOfWork>().instancePerRequest()
+builder.registerType(UnitOfWork).as<IUnitOfWork>().instancePerRequest()
 ```
 
 Use for: Database transactions, request-scoped state
@@ -408,9 +349,9 @@ class UserService {
 const container = new Container()
 const builder = container.builder()
 
-builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
-builder.registerType(PostgresDatabase).asInterface<IDatabase>().singleInstance()
-builder.registerType(UserService).asInterface<UserService>()
+builder.registerType(ConsoleLogger).as<ILogger>().singleInstance()
+builder.registerType(PostgresDatabase).as<IDatabase>().singleInstance()
+builder.registerType(UserService).as<UserService>()
 
 const app = builder.build()
 
@@ -479,7 +420,7 @@ const container = new Container()
 const builder = container.builder()
 
 // Transformer-powered autowiring - analyzes constructor types at compile-time
-builder.registerType(OrderService).asInterface<OrderService>()
+builder.registerType(OrderService).as<OrderService>()
 ```
 
 **Benefits:**
@@ -550,17 +491,17 @@ const container = new Container()
 const builder = container.builder()
 
 // Infrastructure layer - singletons
-builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
-builder.registerType(PostgresDatabase).asInterface<IDatabase>().singleInstance()
-builder.registerType(StripePayment).asInterface<IPaymentGateway>().singleInstance()
-builder.registerType(SendGridEmail).asInterface<IEmailService>().singleInstance()
+builder.registerType(ConsoleLogger).as<ILogger>().singleInstance()
+builder.registerType(PostgresDatabase).as<IDatabase>().singleInstance()
+builder.registerType(StripePayment).as<IPaymentGateway>().singleInstance()
+builder.registerType(SendGridEmail).as<IEmailService>().singleInstance()
 
 // Service layer - autowired by transformer
-builder.registerType(OrderService).asInterface<OrderService>()
-builder.registerType(UserService).asInterface<UserService>()
+builder.registerType(OrderService).as<OrderService>()
+builder.registerType(UserService).as<UserService>()
 
 // Application layer
-builder.registerType(Application).asInterface<Application>()
+builder.registerType(Application).as<Application>()
 
 const app = builder.build()
 
@@ -625,8 +566,8 @@ export class OrderService {
 // main.ts (Composition Root)
 const container = new Container()
 const builder = container.builder()
-builder.registerType(UserService).asInterface<UserService>()
-builder.registerType(OrderService).asInterface<OrderService>()
+builder.registerType(UserService).as<UserService>()
+builder.registerType(OrderService).as<OrderService>()
 const app = builder.build()
 
 // Business code knows nothing about DI!
@@ -647,7 +588,7 @@ builder
     const logger = c.resolveType<ILogger>()
     return new ComplexService(config, logger, new Date())
   })
-  .asInterface<IComplexService>()
+  .as<IComplexService>()
   .singleInstance()
 ```
 
@@ -655,7 +596,7 @@ builder
 
 ```typescript
 const config = { apiKey: 'secret', timeout: 5000 }
-builder.registerInstance(config).asInterface<IConfig>()
+builder.registerInstance(config).as<IConfig>()
 ```
 
 ### Scoped Containers
@@ -675,12 +616,22 @@ const handler = req.container.resolveType<IRequestHandler>()
 ### Keyed Services
 
 ```typescript
-// Register multiple implementations
-builder.registerType(RedisCache).asInterface<ICache>().keyed('redis')
-builder.registerType(MemoryCache).asInterface<ICache>().keyed('memory')
+// Register multiple implementations of same interface
+interface IStorageProvider {
+  get(key: string): any
+  set(key: string, value: any): void
+}
 
-// Resolve specific implementation
-const redisCache = app.resolveKeyed<ICache>('redis')
+class LocalStorageProvider implements IStorageProvider { /* ... */ }
+class SessionStorageProvider implements IStorageProvider { /* ... */ }
+
+// Register with keys
+builder.registerType(LocalStorageProvider).as<IStorageProvider>().keyed('local')
+builder.registerType(SessionStorageProvider).as<IStorageProvider>().keyed('session')
+
+// Resolve specific implementation by key
+const localStorage = app.resolveKeyed<IStorageProvider>('local')
+const sessionStorage = app.resolveKeyed<IStorageProvider>('session')
 ```
 
 ---
@@ -858,7 +809,7 @@ Key Principles:
 - Package: @novadi/core
 - NO decorators/annotations in business code
 - Convention over configuration
-- Uses .asInterface<T>() and .resolveType<T>()
+- Uses .as<T>() and .resolveType<T>()
 - TypeScript transformer handles type names automatically
 
 Core API:
@@ -869,10 +820,10 @@ Core API:
    const builder = container.builder()
 
 3. Register services:
-   builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
+   builder.registerType(ConsoleLogger).as<ILogger>().singleInstance()
 
 4. Register services with dependencies:
-   builder.registerType(UserService).asInterface<UserService>()
+   builder.registerType(UserService).as<UserService>()
    // Transformer analyzes constructor types and auto-generates .autoWire() with mapResolvers array
 
 5. Build and resolve:
@@ -886,10 +837,8 @@ Lifetimes:
 
 AutoWire (Transformer-Powered):
 - Transformer automatically injects .autoWire() with mapResolvers from constructor types
-- Just register the type: builder.registerType(UserService).asInterface<UserService>()
-- Manual wiring (if no transformer): .autoWire({ map: { logger: (c) => c.resolveType<ILogger>() } })
-- Always use transformer for production - minification-safe and O(1) performance
-- Use explicit map only for primitives/config values or when transformer unavailable
+- Just register the type: builder.registerType(UserService).as<UserService>()
+- Use explicit map only for primitives/config values (transformer doesn't handle primitives)
 
 Transformer Setup (tsconfig.json):
 {
@@ -928,8 +877,8 @@ class Application {
 const container = new Container()
 const builder = container.builder()
 
-builder.registerType(ConsoleGreeter).asInterface<IGreeter>().singleInstance()
-builder.registerType(Application).asInterface<Application>() // Transformer auto-wires dependencies!
+builder.registerType(ConsoleGreeter).as<IGreeter>().singleInstance()
+builder.registerType(Application).as<Application>().autoWire() // Convention!
 
 const app = builder.build()
 const application = app.resolveType<Application>()

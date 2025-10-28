@@ -41,12 +41,12 @@ describe('AutoWire Performance Comparison', () => {
     }
 
     const builder = container.builder()
-    builder.registerType(Logger).asInterface<ILogger>('ILogger')
-    builder.registerType(Database).asInterface<IDatabase>('IDatabase')
-    builder.registerType(Cache).asInterface<ICache>('ICache')
+    builder.registerType(Logger).as<ILogger>('ILogger')
+    builder.registerType(Database).as<IDatabase>('IDatabase')
+    builder.registerType(Cache).as<ICache>('ICache')
     builder
       .registerType(Service)
-      .asInterface<Service>('Service')
+      .as<Service>('Service')
       .autoWire({
         mapResolvers: [
           (c) => c.resolveType<ILogger>('ILogger'),
@@ -99,12 +99,12 @@ describe('AutoWire Performance Comparison', () => {
     }
 
     const builder = container.builder()
-    builder.registerType(Logger).asInterface<ILogger>('ILogger')
-    builder.registerType(Database).asInterface<IDatabase>('IDatabase')
-    builder.registerType(Cache).asInterface<ICache>('ICache')
+    builder.registerType(Logger).as<ILogger>('ILogger')
+    builder.registerType(Database).as<IDatabase>('IDatabase')
+    builder.registerType(Cache).as<ICache>('ICache')
     builder
       .registerType(Service)
-      .asInterface<Service>('Service')
+      .as<Service>('Service')
       .autoWire({
         map: {
           logger: (c) => c.resolveType<ILogger>('ILogger'),
@@ -145,7 +145,7 @@ describe('AutoWire Performance Comparison', () => {
     // Register all services
     const builder = container.builder()
     for (let i = 0; i < 10; i++) {
-      builder.registerType(classes[i]).asInterface<any>(`IService${i}`)
+      builder.registerType(classes[i]).as<any>(`IService${i}`)
     }
 
     // Service with 10 dependencies - test mapResolvers
@@ -171,7 +171,7 @@ describe('AutoWire Performance Comparison', () => {
 
     builder
       .registerType(LargeService)
-      .asInterface<LargeService>('LargeService')
+      .as<LargeService>('LargeService')
       .autoWire({ mapResolvers })
 
     const builtContainer = builder.build()

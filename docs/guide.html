@@ -165,7 +165,7 @@ const container = new Container()
 const builder = container.builder()
 
 // Step 2: Register services
-builder.registerType(MyService).asInterface<IMyService>().singleInstance()
+builder.registerType(MyService).as<IMyService>().singleInstance()
 
 // Step 3: Build and resolve
 const app = builder.build()
@@ -181,18 +181,18 @@ const service = app.resolveType<IMyService>()</code></pre>
         <p>Register services with a fluent API:</p>
 
         <pre class="line-numbers"><code class="language-typescript">// Register implementation to interface
-builder.registerType(ConsoleLogger).asInterface<ILogger>()
+builder.registerType(ConsoleLogger).as<ILogger>()
 
 // Register with lifetime
-builder.registerType(Database).asInterface<IDatabase>().singleInstance()
+builder.registerType(Database).as<IDatabase>().singleInstance()
 
 // Register with autowiring
-builder.registerType(UserService).asInterface<UserService>().autoWire()
+builder.registerType(UserService).as<UserService>().autoWire()
 
 // Chain everything together
 builder
   .registerType(PostgresDB)
-  .asInterface<IDatabase>()
+  .as<IDatabase>()
   .singleInstance()
   .autoWire()</code></pre>
       </section>
@@ -216,7 +216,7 @@ builder
 }
 
 // This is all you need - autowiring by convention!
-builder.registerType(UserService).asInterface<UserService>().autoWire()</code></pre>
+builder.registerType(UserService).as<UserService>().autoWire()</code></pre>
 
         <p><strong>How it works:</strong></p>
         <ul style="margin-left: 24px; line-height: 1.8;">
@@ -236,7 +236,7 @@ builder.registerType(UserService).asInterface<UserService>().autoWire()</code></
 
         <pre class="line-numbers"><code class="language-typescript">builder
   .registerType(SmartLight)
-  .asInterface<IDevice>()
+  .as<IDevice>()
   .autoWire({
     map: {
       id: () => 'light-123',              // Primitive value injection
@@ -269,7 +269,7 @@ builder.registerType(UserService).asInterface<UserService>().autoWire()</code></
 
         <h3>Singleton - One Instance Forever</h3>
         <pre
-          class="line-numbers"><code class="language-typescript">builder.registerType(Database).asInterface<IDatabase>().singleInstance()</code></pre>
+          class="line-numbers"><code class="language-typescript">builder.registerType(Database).as<IDatabase>().singleInstance()</code></pre>
         <p><strong>Use for:</strong> Loggers, database connections, configuration, caches, stateless services</p>
         <ul style="margin-left: 24px; line-height: 1.8;">
           <li>✅ One instance created on first resolution</li>
@@ -279,7 +279,7 @@ builder.registerType(UserService).asInterface<UserService>().autoWire()</code></
         </ul>
 
         <h3>Transient - New Instance Every Time (DEFAULT)</h3>
-        <pre class="line-numbers"><code class="language-typescript">builder.registerType(RequestHandler).asInterface<IRequestHandler>()
+        <pre class="line-numbers"><code class="language-typescript">builder.registerType(RequestHandler).as<IRequestHandler>()
 // No .singleInstance() = transient by default</code></pre>
         <p><strong>Use for:</strong> Request handlers, commands, stateful operations, short-lived services</p>
         <ul style="margin-left: 24px; line-height: 1.8;">
@@ -290,7 +290,7 @@ builder.registerType(UserService).asInterface<UserService>().autoWire()</code></
 
         <h3>Per-Request - One Instance Per Resolution Tree</h3>
         <pre
-          class="line-numbers"><code class="language-typescript">builder.registerType(UnitOfWork).asInterface<IUnitOfWork>().instancePerRequest()</code></pre>
+          class="line-numbers"><code class="language-typescript">builder.registerType(UnitOfWork).as<IUnitOfWork>().instancePerRequest()</code></pre>
         <p><strong>Use for:</strong> Database transactions, request-scoped state, HTTP request context</p>
         <ul style="margin-left: 24px; line-height: 1.8;">
           <li>✅ One instance per resolution tree</li>
@@ -389,12 +389,12 @@ const container = new Container()
 const builder = container.builder()
 
 // Infrastructure (singletons - shared across app)
-builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
-builder.registerType(PostgresDatabase).asInterface<IDatabase>().singleInstance().autoWire()
-builder.registerType(EmailService).asInterface<IEmailService>().singleInstance().autoWire()
+builder.registerType(ConsoleLogger).as<ILogger>().singleInstance()
+builder.registerType(PostgresDatabase).as<IDatabase>().singleInstance().autoWire()
+builder.registerType(EmailService).as<IEmailService>().singleInstance().autoWire()
 
 // Application services (transient by default)
-builder.registerType(UserService).asInterface<UserService>().autoWire()
+builder.registerType(UserService).as<UserService>().autoWire()
 
 const app = builder.build()
 
@@ -424,11 +424,11 @@ await userService.createUser('alice@example.com', 'Alice')</code></pre>
 
         <h3>What the Transformer Does</h3>
         <pre class="line-numbers"><code class="language-typescript">// You write:
-builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
+builder.registerType(ConsoleLogger).as<ILogger>().singleInstance()
 const logger = app.resolveType<ILogger>()
 
 // Transformer generates:
-builder.registerType(ConsoleLogger).asInterface<ILogger>("ILogger").singleInstance()
+builder.registerType(ConsoleLogger).as<ILogger>("ILogger").singleInstance()
 const logger = app.resolveType<ILogger>("ILogger")</code></pre>
 
         <div class="callout callout-success" style="margin: 24px 0;">
@@ -543,10 +543,10 @@ describe('UserService', () => {
     const builder = container.builder()
 
     // Register with test implementations
-    builder.registerType(InMemoryDatabase).asInterface<IDatabase>().singleInstance()
-    builder.registerType(MockEmailService).asInterface<IEmailService>().singleInstance()
-    builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
-    builder.registerType(UserService).asInterface<UserService>().autoWire()
+    builder.registerType(InMemoryDatabase).as<IDatabase>().singleInstance()
+    builder.registerType(MockEmailService).as<IEmailService>().singleInstance()
+    builder.registerType(ConsoleLogger).as<ILogger>().singleInstance()
+    builder.registerType(UserService).as<UserService>().autoWire()
 
     const app = builder.build()
 
@@ -581,12 +581,12 @@ class MyService {
         <h3>Module Pattern</h3>
         <pre class="line-numbers"><code class="language-typescript">// Define reusable modules
 const databaseModule = (builder: Builder) => {
-  builder.registerType(PostgresDB).asInterface<IDatabase>().singleInstance()
-  builder.registerType(RedisCache).asInterface<ICache>().singleInstance()
+  builder.registerType(PostgresDB).as<IDatabase>().singleInstance()
+  builder.registerType(RedisCache).as<ICache>().singleInstance()
 }
 
 const emailModule = (builder: Builder) => {
-  builder.registerType(SendGridService).asInterface<IEmailService>().singleInstance()
+  builder.registerType(SendGridService).as<IEmailService>().singleInstance()
 }
 
 // Apply modules
@@ -596,9 +596,9 @@ emailModule(builder)</code></pre>
         <h3>Conditional Registration</h3>
         <pre class="line-numbers"><code class="language-typescript">// Different implementations based on environment
 if (process.env.NODE_ENV === 'production') {
-  builder.registerType(ProductionLogger).asInterface<ILogger>().singleInstance()
+  builder.registerType(ProductionLogger).as<ILogger>().singleInstance()
 } else {
-  builder.registerType(DevLogger).asInterface<ILogger>().singleInstance()
+  builder.registerType(DevLogger).as<ILogger>().singleInstance()
 }</code></pre>
       </section>
 
@@ -613,7 +613,7 @@ if (process.env.NODE_ENV === 'production') {
         <div class="callout callout-warning" style="margin: 24px 0;">
           <strong>❌ Error: "No binding found for interface XYZ"</strong><br>
           <strong>Cause:</strong> You're trying to resolve an interface that wasn't registered.<br>
-          <strong>Fix:</strong> Make sure you called <code>.registerType(...).asInterface<XYZ>()</code> before building.
+          <strong>Fix:</strong> Make sure you called <code>.registerType(...).as<XYZ>()</code> before building.
         </div>
 
         <div class="callout callout-warning" style="margin: 24px 0;">

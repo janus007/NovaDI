@@ -885,8 +885,8 @@ class Cache implements ICache {
 }
 
 // Benchmark code
-builder.registerType(Logger).asInterface&lt;ILogger&gt;().singleInstance()
-builder.registerType(Cache).asInterface&lt;ICache&gt;().singleInstance()
+builder.registerType(Logger).as&lt;ILogger&gt;().singleInstance()
+builder.registerType(Cache).as&lt;ICache&gt;().singleInstance()
 
 // Measure 1000 cached singleton resolutions
 for (let i = 0; i < 1000; i++) {
@@ -908,16 +908,16 @@ for (let i = 0; i < 1000; i++) {
 // Sensors (TemperatureSensor, MotionSensor) - no dependencies
 
 // Core services
-builder.registerType(ConsoleLogger).asInterface&lt;ILogger&gt;().singleInstance()
+builder.registerType(ConsoleLogger).as&lt;ILogger&gt;().singleInstance()
 builder
   .registerType(EventBus)
-  .asInterface&lt;IEventBus&gt;()
+  .as&lt;IEventBus&gt;()
   .autoWire({ map: { logger: (c) => c.resolveType&lt;ILogger&gt;() } })
   .singleInstance()
 
 builder
   .registerType(AutomationService)
-  .asInterface&lt;AutomationService&gt;()
+  .as&lt;AutomationService&gt;()
   .autoWire({
     map: {
       logger: (c) => c.resolveType&lt;ILogger&gt;(),
@@ -927,11 +927,11 @@ builder
   .singleInstance()
 
 // Sensors (instances)
-builder.registerInstance(new TemperatureSensor(...)).asInterface&lt;ISensor&gt;().keyed('TempSensor')
-builder.registerInstance(new MotionSensor(...)).asInterface&lt;ISensor&gt;().keyed('MotionSensor')
+builder.registerInstance(new TemperatureSensor(...)).as&lt;ISensor&gt;().keyed('TempSensor')
+builder.registerInstance(new MotionSensor(...)).as&lt;ISensor&gt;().keyed('MotionSensor')
 
 // Devices (with autowired logger dependency)
-builder.registerType(SmartThermostat).asInterface&lt;IDevice&gt;().keyed('Thermostat')
+builder.registerType(SmartThermostat).as&lt;IDevice&gt;().keyed('Thermostat')
   .autoWire({ map: { logger: (c) => c.resolveType&lt;ILogger&gt;(), ... } })
 
 // Measure 1000 complex resolutions
@@ -952,13 +952,13 @@ for (let i = 0; i < 1000; i++) {
 builder.register((c) => {
   const logger = c.resolveType&lt;ILogger&gt;()
   return new EventBus(logger)
-}).asInterface&lt;IEventBus&gt;().singleInstance()
+}).as&lt;IEventBus&gt;().singleInstance()
 
 builder.register((c) => {
   const logger = c.resolveType&lt;ILogger&gt;()
   const eventBus = c.resolveType&lt;IEventBus&gt;()
   return new AutomationService(logger, eventBus)
-}).asInterface&lt;AutomationService&gt;().singleInstance()
+}).as&lt;AutomationService&gt;().singleInstance()
 
 // Same test: 1000 resolutions of AutomationService
 // Expected result: Faster due to no autoWire map overhead</code></pre>

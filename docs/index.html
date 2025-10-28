@@ -130,7 +130,7 @@
 const container = new Container()
   .builder()
   .registerType(ConsoleLogger)
-    .asInterface&lt;ILogger&gt;()
+    .as&lt;ILogger&gt;()
     .singleInstance()
   .build()
 
@@ -179,8 +179,8 @@ class UserService {
 // DI config in ONE place (composition root)
 const container = new Container()
   .builder()
-  .registerType(Logger).asInterface&lt;ILogger&gt;()
-  .registerType(Database).asInterface&lt;IDatabase&gt;()
+  .registerType(Logger).as&lt;ILogger&gt;()
+  .registerType(Database).as&lt;IDatabase&gt;()
   .registerType(UserService).autoWire()
   .build()</code></pre>
           <ul style="margin-top: 16px; color: var(--text-secondary); font-size: 14px;">
@@ -413,16 +413,16 @@ const container = new Container()
 
   // Register infrastructure services
   .registerType(ConsoleLogger)
-    .asInterface&lt;ILogger&gt;()
+    .as&lt;ILogger&gt;()
     .singleInstance()
 
   .registerType(PostgresDatabase)
-    .asInterface&lt;IDatabase&gt;()
+    .as&lt;IDatabase&gt;()
     .singleInstance()
 
   // Register domain services with autowiring
   .registerType(UserService)
-    .asInterface&lt;IUserService&gt;()
+    .as&lt;IUserService&gt;()
     .autoWire({
       map: {
         logger: (c) => c.resolveType&lt;ILogger&gt;(),

@@ -394,7 +394,7 @@ class ConsoleLogger implements ILogger {
 const container = new Container()
   .builder()
   .registerType(ConsoleLogger)
-    .asInterface&lt;ILogger&gt;()
+    .as&lt;ILogger&gt;()
     .singleInstance()
   .build()
 

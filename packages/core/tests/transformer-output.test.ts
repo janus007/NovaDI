@@ -13,7 +13,7 @@ describe('Transformer - MapResolvers AutoWire Generation', () => {
 
   it('should automatically generate mapResolvers for registerType without explicit autoWire', () => {
     // This test verifies that the transformer adds .autoWire({ mapResolvers: [...] })
-    // automatically when it sees .registerType(X).asInterface<Y>()
+    // automatically when it sees .registerType(X).as<Y>()
 
     interface ILogger {
       log(msg: string): void
@@ -45,9 +45,9 @@ describe('Transformer - MapResolvers AutoWire Generation', () => {
     // Register types - NO explicit .autoWire() call
     // Transformer should automatically inject mapResolvers
     const builder = container.builder()
-    builder.registerType(Logger).asInterface<ILogger>('ILogger')
-    builder.registerType(Database).asInterface<IDatabase>('IDatabase')
-    builder.registerType(UserService).asInterface<UserService>('UserService')
+    builder.registerType(Logger).as<ILogger>('ILogger')
+    builder.registerType(Database).as<IDatabase>('IDatabase')
+    builder.registerType(UserService).as<UserService>('UserService')
 
     const builtContainer = builder.build()
     const service = builtContainer.resolveType<UserService>('UserService')
@@ -89,9 +89,9 @@ describe('Transformer - MapResolvers AutoWire Generation', () => {
     }
 
     const builder = container.builder()
-    builder.registerType(Config).asInterface<IConfig>('IConfig')
-    builder.registerType(Logger).asInterface<ILogger>('ILogger') // Has dependency on IConfig
-    builder.registerType(Service).asInterface<Service>('Service') // Has dependencies on both
+    builder.registerType(Config).as<IConfig>('IConfig')
+    builder.registerType(Logger).as<ILogger>('ILogger') // Has dependency on IConfig
+    builder.registerType(Service).as<Service>('Service') // Has dependencies on both
 
     const builtContainer = builder.build()
     const service = builtContainer.resolveType<Service>('Service')

@@ -48,14 +48,14 @@ class Application {
 const container = new Container()
 const builder = container.builder()
 
-// Register with .asInterface<T>() - NO manual type names!
-// Transformer should convert to .asInterface<T>("TypeName")
-builder.registerType(ConsoleLogger).asInterface<ILogger>().singleInstance()
-builder.registerType(ConsoleGreeter).asInterface<IGreeter>().singleInstance()
+// Register with .as<T>() - NO manual type names!
+// Transformer should convert to .as<T>("TypeName")
+builder.registerType(ConsoleLogger).as<ILogger>().singleInstance()
+builder.registerType(ConsoleGreeter).as<IGreeter>().singleInstance()
 
 builder
   .registerType(Application)
-  .asInterface<Application>()
+  .as<Application>()
   .autoWire({
     map: {
       greeter: (c) => c.resolveType<IGreeter>(),

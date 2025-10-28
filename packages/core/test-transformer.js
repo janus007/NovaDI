@@ -9,5 +9,5 @@ class EventBus {
 }
 const container = new Container();
 const builder = container.builder();
-builder.registerType(Logger).asInterface("ILogger");
-builder.registerType(EventBus).asInterface("EventBus");
+builder.registerType(Logger).as("ILogger");
+builder.registerType(EventBus).as("EventBus");

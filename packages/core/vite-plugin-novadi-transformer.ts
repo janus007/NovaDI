@@ -67,7 +67,7 @@ export function novadiTransformerPlugin(): Plugin {
       }
 
       try {
-        // Create a source file to check if there are any asInterface/resolveInterface calls
+        // Create a source file to check if there are any as/resolveInterface calls
         const sourceFile = ts.createSourceFile(
           id,
           code,
@@ -80,7 +80,7 @@ export function novadiTransformerPlugin(): Plugin {
           if (
             ts.isCallExpression(node) &&
             ts.isPropertyAccessExpression(node.expression) &&
-            (node.expression.name.text === 'asInterface' ||
+            (node.expression.name.text === 'as' ||
               node.expression.name.text === 'resolveInterface' ||
               node.expression.name.text === 'resolveInterfaceKeyed' ||
               node.expression.name.text === 'resolveInterfaceAll' ||

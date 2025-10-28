@@ -2,7 +2,7 @@
  * NovaDI TypeScript Transformer
  *
  * Automatically injects type names into:
- * - .asInterface<T>() → .asInterface<T>("TypeName")
+ * - .as<T>() → .as<T>("TypeName")
  * - .resolveType<T>() → .resolveType<T>("TypeName")
  * - .bindInterface<T>(value) → .bindInterface<T>(value, "TypeName")
  * - .registerType(X) → .registerType(X).autoWire({ mapResolvers: [...] }) (default autowiring)
@@ -39,7 +39,7 @@ export default function novadiTransformer(program) {
     return (context) => {
         return (sourceFile) => {
             const visitor = (node) => {
-                // Transform .asInterface<T>(), .resolveType<T>(), and .bindInterface<T>() calls
+                // Transform .as<T>(), .resolveType<T>(), and .bindInterface<T>() calls
                 if (ts.isCallExpression(node)) {
                     // IMPORTANT: Transform default autowiring FIRST (before type name injection)
                     // This allows transformDefaultAutowiring to see the original type arguments
@@ -69,15 +69,15 @@ export default function novadiTransformer(program) {
     };
 }
 /**
- * Transform .asInterface<T>() to .asInterface<T>("TypeName")
+ * Transform .as<T>() to .as<T>("TypeName")
  */
 function transformAsInterface(node, context) {
-    // Check if this is a .asInterface() call
+    // Check if this is a .as() call
     if (!ts.isPropertyAccessExpression(node.expression)) {
         return node;
     }
     const propAccess = node.expression;
-    if (propAccess.name.text !== 'asInterface') {
+    if (propAccess.name.text !== 'as') {
         return node;
     }
     // Check if it has type arguments and no string argument yet
@@ -199,19 +199,19 @@ function getQualifiedName(node) {
 }
 /**
  * Transform default autowiring:
- * .registerType(X).asInterface<Y>() → .registerType(X).asInterface<Y>().autoWire({ mapResolvers: [...] })
+ * .registerType(X).as<Y>() → .registerType(X).as<Y>().autoWire({ mapResolvers: [...] })
  *
  * Generates array of resolvers in parameter position order for optimal O(1) performance.
  * Minification-safe and refactoring-friendly.
  */
 function transformDefaultAutowiring(node, context, checker) {
-    // Only transform if this is an .asInterface() or .asDefaultInterface() call
+    // Only transform if this is an .as() or .asDefaultInterface() call
     // (the end of a registration chain)
     if (!ts.isPropertyAccessExpression(node.expression)) {
         return node;
     }
     const methodName = node.expression.name.text;
-    if (methodName !== 'asInterface' && methodName !== 'asDefaultInterface') {
+    if (methodName !== 'as' && methodName !== 'asDefaultInterface') {
         return node; // Not the end of a registration chain
     }
     // Check if this is a method chain that includes .registerType()
@@ -315,7 +315,7 @@ function transformDefaultAutowiring(node, context, checker) {
     return insertAutoWireIntoChain(node, autoWireCall, context);
 }
 /**
- * Get all method calls in a chain (e.g., builder.registerType(X).asInterface<Y>().singleInstance())
+ * Get all method calls in a chain (e.g., builder.registerType(X).as<Y>().singleInstance())
  */
 function getMethodChain(node) {
     const chain = [];
@@ -463,12 +463,12 @@ function createAutoWireMapResolversCall(entries, context) {
     'autoWire'), undefined, [configObject]);
 }
 /**
- * Insert .autoWire() call into method chain after .asInterface()
+ * Insert .autoWire() call into method chain after .as()
  */
 function insertAutoWireIntoChain(originalNode, autoWireCall, context) {
     const factory = context.factory;
     // IMPORTANT: We need to transform the originalNode first to ensure
-    // all .asInterface<T>() calls have their type names injected
+    // all .as<T>() calls have their type names injected
     const transformedOriginal = ensureTypeNamesInjected(originalNode, context);
     // Update the autoWire call to have the correct expression
     // Instead of _placeholder_, use the transformed original node
@@ -476,7 +476,7 @@ function insertAutoWireIntoChain(originalNode, autoWireCall, context) {
     return updatedAutoWire;
 }
 /**
- * Recursively transform a node to ensure all .asInterface<T>() calls
+ * Recursively transform a node to ensure all .as<T>() calls
  * have their type names injected as string arguments
  */
 function ensureTypeNamesInjected(node, context) {
@@ -490,9 +490,9 @@ function ensureTypeNamesInjected(node, context) {
             transformedExpression = context.factory.updatePropertyAccessExpression(propAccess, innerTransformed, propAccess.name);
         }
     }
-    // Now check if THIS node is an .asInterface() call that needs transformation
+    // Now check if THIS node is an .as() call that needs transformation
     if (ts.isPropertyAccessExpression(node.expression) &&
-        node.expression.name.text === 'asInterface' &&
+        node.expression.name.text === 'as' &&
         node.typeArguments &&
         node.typeArguments.length > 0 &&
         !(node.arguments.length > 0 && ts.isStringLiteral(node.arguments[0]))) {

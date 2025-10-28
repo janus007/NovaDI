@@ -38,11 +38,11 @@ describe('Autowire - Map Strategy', () => {
 
     // Act
     const builder = container.builder()
-    builder.registerType(Logger).asInterface<ILogger>('ILogger').singleInstance()
-    builder.registerType(Database).asInterface<IDatabase>('IDatabase').singleInstance()
+    builder.registerType(Logger).as<ILogger>('ILogger').singleInstance()
+    builder.registerType(Database).as<IDatabase>('IDatabase').singleInstance()
     builder
       .registerType(UserService)
-      .asInterface<UserService>('UserService')
+      .as<UserService>('UserService')
       .autoWire({
         map: {
           logger: (c) => c.resolveType<ILogger>('ILogger'),
@@ -77,10 +77,10 @@ describe('Autowire - Map Strategy', () => {
 
     // Act
     const builder = container.builder()
-    builder.registerType(Logger).asInterface<ILogger>('ILogger')
+    builder.registerType(Logger).as<ILogger>('ILogger')
     builder
       .registerType(UserService)
-      .asInterface<UserService>('UserService')
+      .as<UserService>('UserService')
       .autoWire({
         map: {
           logger: (c) => c.resolveType<ILogger>('ILogger')
@@ -117,10 +117,10 @@ describe('Autowire - Map Strategy', () => {
 
     // Act
     const builder = container.builder()
-    builder.registerType(Database).asInterface<Database>('Database').singleInstance()
+    builder.registerType(Database).as<Database>('Database').singleInstance()
     builder
       .registerType(Logger)
-      .asInterface<Logger>('Logger')
+      .as<Logger>('Logger')
       .autoWire({
         map: {
           db: (c) => c.resolveType<Database>('Database')
@@ -129,7 +129,7 @@ describe('Autowire - Map Strategy', () => {
       .singleInstance()
     builder
       .registerType(UserService)
-      .asInterface<UserService>('UserService')
+      .as<UserService>('UserService')
       .autoWire({
         map: {
           logger: (c) => c.resolveType<Logger>('Logger'),
@@ -168,7 +168,7 @@ describe('Autowire - Parameter Overrides', () => {
     const builder = container.builder()
     builder
       .registerType(ConfigService)
-      .asInterface<ConfigService>('ConfigService')
+      .as<ConfigService>('ConfigService')
       .withParameters({
         apiKey: 'test-api-key',
         timeout: 5000
@@ -202,10 +202,10 @@ describe('Autowire - Parameter Overrides', () => {
 
     // Act
     const builder = container.builder()
-    builder.registerType(Logger).asInterface<ILogger>('ILogger')
+    builder.registerType(Logger).as<ILogger>('ILogger')
     builder
       .registerType(ApiService)
-      .asInterface<ApiService>('ApiService')
+      .as<ApiService>('ApiService')
       .autoWire({
         map: {
           logger: (c) => c.resolveType<ILogger>('ILogger'),
@@ -238,10 +238,10 @@ describe('Autowire - Parameter Overrides', () => {
 
     // Act
     const builder = container.builder()
-    builder.registerType(Logger).asInterface<Logger>('Logger')
+    builder.registerType(Logger).as<Logger>('Logger')
     builder
       .registerType(ApiService)
-      .asInterface<ApiService>('ApiService')
+      .as<ApiService>('ApiService')
       .autoWire({
         map: {
           logger: (c) => c.resolveType<Logger>('Logger'),
@@ -281,13 +281,13 @@ describe('Autowire - Factory Autowiring', () => {
 
     // Act
     const builder = container.builder()
-    builder.registerType(Logger).asInterface<ILogger>("ILogger")
+    builder.registerType(Logger).as<ILogger>("ILogger")
     builder
       .register<UserService>((c) => {
         const logger = c.resolveType<ILogger>("ILogger")
         return new UserService(logger)
       })
-      .asInterface<UserService>("UserService")
+      .as<UserService>("UserService")
 
     const builtContainer = builder.build()
     const service = builtContainer.resolveType<UserService>("UserService")
@@ -309,7 +309,7 @@ describe('Autowire - Factory Autowiring', () => {
 
     // Act
     const builder = container.builder()
-    builder.registerType(Database).asInterface<Database>("Database").singleInstance()
+    builder.registerType(Database).as<Database>("Database").singleInstance()
 
     // Using factory for custom instantiation
     builder
@@ -317,7 +317,7 @@ describe('Autowire - Factory Autowiring', () => {
         const db = c.resolveType<Database>("Database")
         return new Logger(db)
       })
-      .asInterface<Logger>("Logger")
+      .as<Logger>("Logger")
 
     const builtContainer = builder.build()
     const logger = builtContainer.resolveType<Logger>("Logger")
@@ -348,7 +348,7 @@ describe('Autowire - Error Handling', () => {
     // Note: Logger is NOT registered
     builder
       .registerType(UserService)
-      .asInterface<UserService>('UserService')
+      .as<UserService>('UserService')
       .autoWire({
         map: {
           logger: (c) => c.resolveType<Logger>('Logger')
@@ -378,10 +378,10 @@ describe('Autowire - Error Handling', () => {
 
     // Act
     const builder = container.builder()
-    builder.registerInstance({ log: () => {} }).asInterface<ILogger>('ILogger')
+    builder.registerInstance({ log: () => {} }).as<ILogger>('ILogger')
     builder
       .registerType(UserService)
-      .asInterface<UserService>('UserService')
+      .as<UserService>('UserService')
       .autoWire({
         map: {
           logger: (c) => c.resolveType<ILogger>('ILogger')
@@ -412,10 +412,10 @@ describe('Autowire - Error Handling', () => {
 
     // Act
     const builder = container.builder()
-    builder.registerInstance({ log: () => {} }).asInterface<ILogger>('ILogger')
+    builder.registerInstance({ log: () => {} }).as<ILogger>('ILogger')
     builder
       .registerType(UserService)
-      .asInterface<UserService>('UserService')
+      .as<UserService>('UserService')
       .autoWire({
         map: {
           logger: (c) => c.resolveType<ILogger>('ILogger')

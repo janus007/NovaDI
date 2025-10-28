@@ -41,9 +41,9 @@ class UserService {
 const container = new Container()
 const builder = container.builder()
 
-builder.registerType(Logger).asInterface<ILogger>()
-builder.registerType(Database).asInterface<IDatabase>()
-builder.registerType(UserService).asInterface<UserService>()  // Should auto-generate .autoWire()
+builder.registerType(Logger).as<ILogger>()
+builder.registerType(Database).as<IDatabase>()
+builder.registerType(UserService).as<UserService>()  // Should auto-generate .autoWire()
 
 const builtContainer = builder.build()
 const service = builtContainer.resolveType<UserService>()

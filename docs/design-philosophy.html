@@ -128,7 +128,7 @@
         <h3 style="margin-top: 32px;">The Problem: Type Information at Runtime</h3>
         <p>
           TypeScript's type system is erased at compile-time. When you write
-          <code>.asInterface&lt;ILogger&gt;()</code>, the runtime code has no idea what "ILogger" is.
+          <code>.as&lt;ILogger&gt;()</code>, the runtime code has no idea what "ILogger" is.
           Traditional DI containers solve this in two ways:
         </p>
 
@@ -155,11 +155,11 @@ class ConsoleLogger implements ILogger {
         <div style="background: #D1FAE5; padding: 16px; border-radius: 4px; border: 1px solid #6EE7B7; margin-top: 16px;">
           <h4 style="margin-top: 0; color: #065F46;">✅ NovaDI Solution: Compile-Time Transformer</h4>
           <pre class="line-numbers"><code class="language-typescript">// Clean, intuitive API
-builder.registerType(ConsoleLogger).asInterface&lt;ILogger&gt;()
+builder.registerType(ConsoleLogger).as&lt;ILogger&gt;()
 const logger = app.resolveType&lt;ILogger&gt;()
 
 // The transformer automatically converts to:
-builder.registerType(ConsoleLogger).asInterface&lt;ILogger&gt;("ILogger")
+builder.registerType(ConsoleLogger).as&lt;ILogger&gt;("ILogger")
 const logger = app.resolveType&lt;ILogger&gt;("ILogger")</code></pre>
           <p><strong>Benefits:</strong> Clean code, type-safe, zero runtime overhead, works with minification, no decorators needed.</p>
         </div>
@@ -172,9 +172,9 @@ const logger = app.resolveType&lt;ILogger&gt;("ILogger")</code></pre>
 
         <ol style="line-height: 1.8;">
           <li><strong>Parse:</strong> The TypeScript compiler parses your code into an AST</li>
-          <li><strong>Transform:</strong> NovaDI transformer finds <code>asInterface&lt;T&gt;()</code> calls</li>
+          <li><strong>Transform:</strong> NovaDI transformer finds <code>as&lt;T&gt;()</code> calls</li>
           <li><strong>Extract:</strong> Extracts the type argument "T" (e.g., "ILogger")</li>
-          <li><strong>Inject:</strong> Adds it as a string parameter: <code>asInterface&lt;ILogger&gt;("ILogger")</code></li>
+          <li><strong>Inject:</strong> Adds it as a string parameter: <code>as&lt;ILogger&gt;("ILogger")</code></li>
           <li><strong>Emit:</strong> TypeScript outputs the transformed JavaScript</li>
         </ol>
 
@@ -320,7 +320,7 @@ app.resolveType&lt;AutomationService&gt;()  // ~0.002ms (14x faster!)</code></pr
         </p>
         <pre class="line-numbers"><code class="language-typescript">builder
   .registerType(ConsoleLogger)     // What to register
-  .asInterface&lt;ILogger&gt;()          // How to expose it
+  .as&lt;ILogger&gt;()          // How to expose it
   .autoWire({ map: {...} })        // How to resolve dependencies
   .singleInstance()                // Lifetime management
   .keyed('console')                // Optional: keyed access</code></pre>
@@ -357,7 +357,7 @@ class EventBus {
   constructor(logger: ILogger) {}  // "logger" → "ILogger"
 }
 
-builder.registerType(EventBus).asInterface&lt;IEventBus&gt;()  // No autowire needed!</code></pre>
+builder.registerType(EventBus).as&lt;IEventBus&gt;()  // No autowire needed!</code></pre>
             <p><strong>Best for:</strong> Rapid development, conventions-based teams</p>
           </div>
 
@@ -366,7 +366,7 @@ builder.registerType(EventBus).asInterface&lt;IEventBus&gt;()  // No autowire ne
             <pre class="line-numbers"><code class="language-typescript">// Explicit mapping: full control, minification-safe
 builder
   .registerType(EventBus)
-  .asInterface&lt;IEventBus&gt;()
+  .as&lt;IEventBus&gt;()
   .autoWire({
     map: {
       logger: (c) => c.resolveType&lt;ILogger&gt;()
@@ -378,7 +378,7 @@ builder
           <div style="background: var(--surface); padding: 16px; border-radius: 4px; border: 1px solid var(--border-default);">
             <h4 style="margin-top: 0;">3. Class (Future)</h4>
             <pre class="line-numbers"><code class="language-typescript">// Build-time AST analysis generates autowire map automatically
-builder.registerType(EventBus).asInterface&lt;IEventBus&gt;()  // Everything automatic!</code></pre>
+builder.registerType(EventBus).as&lt;IEventBus&gt;()  // Everything automatic!</code></pre>
             <p><strong>Best for:</strong> Zero-configuration, maximum type safety (coming soon)</p>
           </div>
         </div>
@@ -407,8 +407,8 @@ builder.registerType(EventBus).asInterface&lt;IEventBus&gt;()  // Everything aut
         </p>
         <pre class="line-numbers"><code class="language-typescript">// 1. Build phase: Register services (mutable)
 const builder = container.builder()
-builder.registerType(Logger).asInterface&lt;ILogger&gt;()
-builder.registerType(EventBus).asInterface&lt;IEventBus&gt;()
+builder.registerType(Logger).as&lt;ILogger&gt;()
+builder.registerType(EventBus).as&lt;IEventBus&gt;()
 
 // 2. Build: Create immutable container
 const app = builder.build()
@@ -439,12 +439,12 @@ const logger = app.resolveType&lt;ILogger&gt;()  // Cannot add new registrations
         </p>
         <pre class="line-numbers"><code class="language-typescript">// Parent: Shared services
 const parent = new Container().builder()
-parent.registerType(Logger).asInterface&lt;ILogger&gt;().singleInstance()
+parent.registerType(Logger).as&lt;ILogger&gt;().singleInstance()
 const parentApp = parent.build()
 
 // Child: Request-specific services
 const child = parentApp.createChild().builder()
-child.registerType(RequestContext).asInterface&lt;IRequestContext&gt;()
+child.registerType(RequestContext).as&lt;IRequestContext&gt;()
 const childApp = child.build()
 
 // Child can resolve from parent

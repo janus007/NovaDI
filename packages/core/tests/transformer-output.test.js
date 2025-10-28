@@ -10,7 +10,7 @@ describe('Transformer - MapResolvers AutoWire Generation', () => {
     });
     it('should automatically generate mapResolvers for registerType without explicit autoWire', () => {
         // This test verifies that the transformer adds .autoWire({ mapResolvers: [...] })
-        // automatically when it sees .registerType(X).asInterface<Y>()
+        // automatically when it sees .registerType(X).as<Y>()
         class Logger {
             log(msg) {
                 console.log(msg);
@@ -29,9 +29,9 @@ describe('Transformer - MapResolvers AutoWire Generation', () => {
         }
         // Register types - Transformer automatically injects mapResolvers
         const builder = container.builder();
-        builder.registerType(Logger).asInterface("ILogger");
-        builder.registerType(Database).asInterface("IDatabase");
-        builder.registerType(UserService).asInterface("UserService").autoWire({
+        builder.registerType(Logger).as("ILogger");
+        builder.registerType(Database).as("IDatabase");
+        builder.registerType(UserService).as("UserService").autoWire({
             mapResolvers: [
                 (c) => c.resolveType("ILogger"),
                 (c) => c.resolveType("IDatabase")
@@ -66,13 +66,13 @@ describe('Transformer - MapResolvers AutoWire Generation', () => {
             }
         }
         const builder = container.builder();
-        builder.registerType(Config).asInterface("IConfig");
-        builder.registerType(Logger).asInterface("ILogger").autoWire({
+        builder.registerType(Config).as("IConfig");
+        builder.registerType(Logger).as("ILogger").autoWire({
             mapResolvers: [
                 (c) => c.resolveType("IConfig")
             ]
         }); // Has dependency on IConfig
-        builder.registerType(Service).asInterface("Service").autoWire({
+        builder.registerType(Service).as("Service").autoWire({
             mapResolvers: [
                 (c) => c.resolveType("ILogger"),
                 (c) => c.resolveType("IConfig")
