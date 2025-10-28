@@ -5,7 +5,21 @@
  * - .asInterface<T>() → .asInterface<T>("TypeName")
  * - .resolveInterface<T>() → .resolveInterface<T>("TypeName")
  * - .bindInterface<T>(value) → .bindInterface<T>(value, "TypeName")
- * - .registerType(X) → .registerType(X).autoWire({ map: {...} }) (default autowiring)
+ * - .registerType(X) → .registerType(X).autoWire({ mapResolvers: [...] }) (default autowiring)
+ *
+ * Array-based autowiring (minification-safe, O(1) performance):
+ * The transformer generates a resolver array in parameter position order:
+ * Example: constructor(eventBus: IEventBus, apiKey: string, logger: ILogger)
+ * Transforms to: .autoWire({ mapResolvers: [
+ *   (c) => c.resolveInterface("IEventBus"),  // Position 0
+ *   undefined,                                // Position 1 (primitive)
+ *   (c) => c.resolveInterface("ILogger")      // Position 2
+ * ]})
+ *
+ * Benefits:
+ * - Minification-safe: Array position is immutable
+ * - Refactoring-friendly: Transformer regenerates on recompile
+ * - Optimal performance: O(1) array access per parameter
  *
  * Usage in tsconfig.json:
  * {
@@ -27,6 +41,14 @@ export default function novadiTransformer(program) {
             const visitor = (node) => {
                 // Transform .asInterface<T>(), .resolveInterface<T>(), and .bindInterface<T>() calls
                 if (ts.isCallExpression(node)) {
+                    // IMPORTANT: Transform default autowiring FIRST (before type name injection)
+                    // This allows transformDefaultAutowiring to see the original type arguments
+                    if (checker) {
+                        const transformedAutowire = transformDefaultAutowiring(node, context, checker);
+                        if (transformedAutowire !== node) {
+                            return transformedAutowire;
+                        }
+                    }
                     const transformed = transformAsInterface(node, context);
                     if (transformed !== node) {
                         return transformed;
@@ -38,13 +60,6 @@ export default function novadiTransformer(program) {
                     const transformedBind = transformBindInterface(node, context);
                     if (transformedBind !== node) {
                         return transformedBind;
-                    }
-                    // NEW: Transform default autowiring (only if checker is available)
-                    if (checker) {
-                        const transformedAutowire = transformDefaultAutowiring(node, context, checker);
-                        if (transformedAutowire !== node) {
-                            return transformedAutowire;
-                        }
                     }
                 }
                 return ts.visitEachChild(node, visitor, context);
@@ -184,12 +199,22 @@ function getQualifiedName(node) {
 }
 /**
  * Transform default autowiring:
- * .registerType(X).asInterface<Y>() → .registerType(X).asInterface<Y>().autoWire({ map: {...} })
+ * .registerType(X).asInterface<Y>() → .registerType(X).asInterface<Y>().autoWire({ mapResolvers: [...] })
  *
- * This makes paramName autowiring minification-safe by converting to explicit map strategy.
+ * Generates array of resolvers in parameter position order for optimal O(1) performance.
+ * Minification-safe and refactoring-friendly.
  */
 function transformDefaultAutowiring(node, context, checker) {
-    // Check if this is a method chain ending with .asInterface() or similar
+    // Only transform if this is an .asInterface() or .asDefaultInterface() call
+    // (the end of a registration chain)
+    if (!ts.isPropertyAccessExpression(node.expression)) {
+        return node;
+    }
+    const methodName = node.expression.name.text;
+    if (methodName !== 'asInterface' && methodName !== 'asDefaultInterface') {
+        return node; // Not the end of a registration chain
+    }
+    // Check if this is a method chain that includes .registerType()
     const chain = getMethodChain(node);
     // Find .registerType() call in the chain
     const registerTypeIndex = chain.findIndex(call => ts.isPropertyAccessExpression(call.expression) &&
@@ -197,40 +222,95 @@ function transformDefaultAutowiring(node, context, checker) {
     if (registerTypeIndex === -1) {
         return node; // Not a registerType chain
     }
-    // Check if already has .autoWire() in chain
-    const hasAutoWire = chain.some(call => ts.isPropertyAccessExpression(call.expression) &&
+    // Check if already has .autoWire() with mapResolvers in chain
+    // We skip ONLY if user has explicitly defined mapResolvers
+    // Empty .autoWire() or .autoWire({}) should get default autowiring
+    const existingAutoWireCall = chain.find(call => ts.isPropertyAccessExpression(call.expression) &&
         call.expression.name.text === 'autoWire');
-    if (hasAutoWire) {
-        return node; // Already has explicit autowiring
+    if (existingAutoWireCall && existingAutoWireCall.arguments.length > 0) {
+        const arg = existingAutoWireCall.arguments[0];
+        if (ts.isObjectLiteralExpression(arg)) {
+            // Check if mapResolvers property exists in config
+            const hasMapResolvers = arg.properties.some(prop => ts.isPropertyAssignment(prop) &&
+                ts.isIdentifier(prop.name) &&
+                prop.name.text === 'mapResolvers');
+            if (hasMapResolvers) {
+                return node; // Already has explicit mapResolvers, don't override
+            }
+        }
     }
+    // Continue with default autowiring for:
+    // - No .autoWire() call
+    // - .autoWire() with no arguments
+    // - .autoWire({}) or .autoWire({ other: config }) without mapResolvers
     // Get the constructor from .registerType(Constructor) call
     const registerTypeCall = chain[registerTypeIndex];
     if (registerTypeCall.arguments.length === 0) {
         return node; // No constructor argument
     }
     const constructorArg = registerTypeCall.arguments[0];
-    // Get constructor type from type checker
+    // Get constructor type from type checker (Tier 1: TypeChecker - fast and best type info)
     const constructorType = checker.getTypeAtLocation(constructorArg);
-    const constructorParams = getConstructorParameters(constructorType, checker);
+    let constructorParams = getConstructorParameters(constructorType, checker);
+    // Tier 2: AST fallback if TypeChecker returned nothing (e.g., esbuild with standalone sourceFiles)
+    let astFallbackParams = null;
     if (constructorParams.length === 0) {
+        const classDecl = findClassDeclarationInChain(node, checker);
+        if (classDecl) {
+            astFallbackParams = extractConstructorParametersFromAST(classDecl);
+        }
+    }
+    // If neither method found parameters, skip autowiring
+    if (constructorParams.length === 0 && (!astFallbackParams || astFallbackParams.length === 0)) {
         return node; // No parameters to autowire
     }
-    // Filter out primitive types and generate map entries
-    const mapEntries = [];
-    for (const param of constructorParams) {
-        const interfaceName = getInterfaceNameFromType(param.type);
-        if (interfaceName) {
-            mapEntries.push({
-                paramName: param.name,
-                interfaceName: interfaceName
+    // Generate mapResolvers array for ALL parameters (including primitives as undefined)
+    const resolverEntries = [];
+    if (astFallbackParams) {
+        // Use AST-extracted parameter types directly (esbuild path)
+        for (let i = 0; i < astFallbackParams.length; i++) {
+            resolverEntries.push({
+                index: i,
+                typeName: astFallbackParams[i].typeName
             });
         }
     }
-    if (mapEntries.length === 0) {
-        return node; // No interface dependencies to autowire
+    else {
+        // Use TypeChecker-extracted parameter types (Rollup/webpack/Vite path)
+        for (let i = 0; i < constructorParams.length; i++) {
+            const param = constructorParams[i];
+            const interfaceName = getInterfaceNameFromType(param.type);
+            resolverEntries.push({
+                index: i,
+                typeName: interfaceName // null for primitive types
+            });
+        }
     }
-    // Generate .autoWire({ map: {...} }) call
-    const autoWireCall = createAutoWireMapCall(mapEntries, context);
+    // Tier 2.5: AST fallback if TypeChecker returned Any/Unknown types
+    // This handles cases where Program exists but sourceFile has partial type info
+    if (resolverEntries.length > 0 && resolverEntries.every(entry => entry.typeName === null)) {
+        // TypeChecker found parameters, but all have Any/Unknown types
+        // Try AST fallback to extract types from source code
+        const classDecl = findClassDeclarationInChain(node, checker);
+        if (classDecl) {
+            const astParams = extractConstructorParametersFromAST(classDecl);
+            if (astParams.length > 0 && astParams.some(p => p.typeName !== null)) {
+                // AST fallback found usable type information - rebuild entries
+                resolverEntries.length = 0;
+                for (let i = 0; i < astParams.length; i++) {
+                    resolverEntries.push({
+                        index: i,
+                        typeName: astParams[i].typeName
+                    });
+                }
+            }
+        }
+    }
+    if (resolverEntries.every(entry => entry.typeName === null)) {
+        return node; // No interface dependencies to autowire (all primitives)
+    }
+    // Generate .autoWire({ mapResolvers: [...] }) call
+    const autoWireCall = createAutoWireMapResolversCall(resolverEntries, context);
     // Insert autoWire call into the method chain
     return insertAutoWireIntoChain(node, autoWireCall, context);
 }
@@ -298,32 +378,87 @@ function getInterfaceNameFromType(type) {
     return symbol.getName();
 }
 /**
- * Create AST for .autoWire({ map: { param: (c) => c.resolveInterface<T>("T") } })
+ * Extract constructor parameters directly from AST (fallback when TypeChecker unavailable)
+ * Works with esbuild and standalone source files outside TypeScript Program
  */
-function createAutoWireMapCall(entries, context) {
+function extractConstructorParametersFromAST(classNode) {
+    const params = [];
+    // Find constructor declaration
+    const constructor = classNode.members.find(member => ts.isConstructorDeclaration(member));
+    if (!constructor) {
+        return params;
+    }
+    // Extract each parameter with its type annotation
+    for (const param of constructor.parameters) {
+        if (!param.type)
+            continue;
+        let paramName = null;
+        if (ts.isIdentifier(param.name)) {
+            paramName = param.name.text;
+        }
+        const typeName = getTypeNameFromTypeNode(param.type);
+        if (paramName && typeName) {
+            params.push({ name: paramName, typeName });
+        }
+    }
+    return params;
+}
+/**
+ * Find the class declaration node from registration call chain
+ * Used for AST fallback when TypeChecker doesn't have type information
+ */
+function findClassDeclarationInChain(node, checker) {
+    const chain = getMethodChain(node);
+    const registerTypeCall = chain.find(call => ts.isPropertyAccessExpression(call.expression) &&
+        call.expression.name.text === 'registerType');
+    if (!registerTypeCall || registerTypeCall.arguments.length === 0) {
+        return null;
+    }
+    const classArg = registerTypeCall.arguments[0];
+    // Try to get the symbol and find its declaration
+    const symbol = checker.getSymbolAtLocation(classArg);
+    if (!symbol || !symbol.valueDeclaration) {
+        return null;
+    }
+    if (ts.isClassDeclaration(symbol.valueDeclaration)) {
+        return symbol.valueDeclaration;
+    }
+    return null;
+}
+/**
+ * Create AST for .autoWire({ mapResolvers: [(c) => c.resolveInterface("IEventBus"), undefined, ...] })
+ * Array-based autowiring with optimal O(1) performance
+ * Minification-safe and refactoring-friendly (transformer regenerates on recompile)
+ */
+function createAutoWireMapResolversCall(entries, context) {
     const factory = context.factory;
-    // Create map object: { logger: (c) => c.resolveInterface<ILogger>("ILogger"), ... }
-    const mapProperties = entries.map(entry => {
-        // Create: (c) => c.resolveInterface<InterfaceName>("InterfaceName")
-        const arrowFunction = factory.createArrowFunction(undefined, // modifiers
-        undefined, // type parameters
-        [factory.createParameterDeclaration(undefined, // modifiers
-            undefined, // dotDotDotToken
-            'c', // name
-            undefined, // questionToken
-            undefined, // type
-            undefined // initializer
-            )], undefined, // type
-        factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken), 
-        // c.resolveInterface<InterfaceName>("InterfaceName")
-        factory.createCallExpression(factory.createPropertyAccessExpression(factory.createIdentifier('c'), 'resolveInterface'), [factory.createTypeReferenceNode(entry.interfaceName)], [factory.createStringLiteral(entry.interfaceName)]));
-        return factory.createPropertyAssignment(entry.paramName, arrowFunction);
+    // Create array of resolvers: [(c) => c.resolveInterface("TypeName"), undefined, ...]
+    const resolverExpressions = entries.map(entry => {
+        if (entry.typeName === null) {
+            // Primitive type → undefined
+            return factory.createIdentifier('undefined');
+        }
+        else {
+            // Interface type → (c) => c.resolveInterface("TypeName")
+            return factory.createArrowFunction(undefined, // modifiers
+            undefined, // type parameters
+            [factory.createParameterDeclaration(undefined, // modifiers
+                undefined, // dotDotDotToken
+                'c', // name
+                undefined, // questionToken
+                undefined, // type
+                undefined // initializer
+                )], undefined, // type
+            factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken), 
+            // c.resolveInterface("TypeName")
+            factory.createCallExpression(factory.createPropertyAccessExpression(factory.createIdentifier('c'), 'resolveInterface'), undefined, [factory.createStringLiteral(entry.typeName)]));
+        }
     });
-    // Create: { map: { ... } }
+    // Create: { mapResolvers: [...] }
     const configObject = factory.createObjectLiteralExpression([
-        factory.createPropertyAssignment('map', factory.createObjectLiteralExpression(mapProperties, true))
+        factory.createPropertyAssignment('mapResolvers', factory.createArrayLiteralExpression(resolverExpressions, true))
     ], true);
-    // Create: .autoWire({ map: {...} })
+    // Create: .autoWire({ mapResolvers: [...] })
     return factory.createCallExpression(factory.createPropertyAccessExpression(factory.createIdentifier('_placeholder_'), // Will be replaced
     'autoWire'), undefined, [configObject]);
 }
@@ -374,4 +509,3 @@ function ensureTypeNamesInjected(node, context) {
     }
     return node;
 }
-//# sourceMappingURL=index.js.map

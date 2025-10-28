@@ -223,11 +223,13 @@ export function resolveByMapResolvers(
 
 /**
  * Resolve dependencies using positionType strategy
- * Minification-safe + Refactoring-friendly
+ * Minification-safe: Matches on array index position
  *
- * Smart matching strategy:
- * 1. Primary: Match on parameter name (supports refactoring/reordering)
- * 2. Fallback: Match on position (supports minification)
+ * Position-based matching:
+ * - Match on parameter position (index)
+ * - If parameters are reordered, rebuild generates new positions
+ * - Minification-safe: Works even when parameter names are mangled
+ * - Performance: O(1) lookup per parameter using index Map
  *
  * Note: mapResolvers provides better performance (O(1) array access)
  * Requires build-time transformer to generate position metadata
@@ -241,6 +243,13 @@ export function resolveByPositionType(
     return []
   }
 
+  // Build index lookup map once (O(n))
+  // Avoids O(n*m) cost of repeated .find() calls
+  const indexMap = new Map<number, typeof options.positions[0]>()
+  for (const pos of options.positions) {
+    indexMap.set(pos.index, pos)
+  }
+
   // Extract actual parameter names from runtime constructor
   // (will be minified names if code is minified)
   const actualParamNames = extractParameterNames(constructor)
@@ -250,15 +259,8 @@ export function resolveByPositionType(
   for (let i = 0; i < actualParamNames.length; i++) {
     const actualParamName = actualParamNames[i]
 
-    // Strategy 1: Try to match by parameter name first (refactoring support)
-    // This allows developers to reorder parameters without breaking autowiring
-    let metadata = options.positions.find(p => p.parameterName === actualParamName)
-
-    // Strategy 2: Fallback to position matching (minification support)
-    // If parameter names don't match (due to minification), use position
-    if (!metadata) {
-      metadata = options.positions.find(p => p.index === i)
-    }
+    // O(1) lookup by position index
+    const metadata = indexMap.get(i)
 
     // If we found metadata, resolve the dependency
     if (metadata) {

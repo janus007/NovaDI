@@ -292,15 +292,32 @@ function transformDefaultAutowiring(
     return node // Not a registerType chain
   }
 
-  // Check if already has .autoWire() in chain
-  const hasAutoWire = chain.some(call =>
+  // Check if already has .autoWire() with mapResolvers in chain
+  // We skip ONLY if user has explicitly defined mapResolvers
+  // Empty .autoWire() or .autoWire({}) should get default autowiring
+  const existingAutoWireCall = chain.find(call =>
     ts.isPropertyAccessExpression(call.expression) &&
     call.expression.name.text === 'autoWire'
   )
 
-  if (hasAutoWire) {
-    return node // Already has explicit autowiring
+  if (existingAutoWireCall && existingAutoWireCall.arguments.length > 0) {
+    const arg = existingAutoWireCall.arguments[0]
+    if (ts.isObjectLiteralExpression(arg)) {
+      // Check if mapResolvers property exists in config
+      const hasMapResolvers = arg.properties.some(prop =>
+        ts.isPropertyAssignment(prop) &&
+        ts.isIdentifier(prop.name) &&
+        prop.name.text === 'mapResolvers'
+      )
+      if (hasMapResolvers) {
+        return node // Already has explicit mapResolvers, don't override
+      }
+    }
   }
+  // Continue with default autowiring for:
+  // - No .autoWire() call
+  // - .autoWire() with no arguments
+  // - .autoWire({}) or .autoWire({ other: config }) without mapResolvers
 
   // Get the constructor from .registerType(Constructor) call
   const registerTypeCall = chain[registerTypeIndex]
@@ -310,24 +327,66 @@ function transformDefaultAutowiring(
 
   const constructorArg = registerTypeCall.arguments[0]
 
-  // Get constructor type from type checker
+  // Get constructor type from type checker (Tier 1: TypeChecker - fast and best type info)
   const constructorType = checker.getTypeAtLocation(constructorArg)
-  const constructorParams = getConstructorParameters(constructorType, checker)
+  let constructorParams = getConstructorParameters(constructorType, checker)
 
+  // Tier 2: AST fallback if TypeChecker returned nothing (e.g., esbuild with standalone sourceFiles)
+  let astFallbackParams: Array<{ name: string; typeName: string | null }> | null = null
   if (constructorParams.length === 0) {
+    const classDecl = findClassDeclarationInChain(node, checker)
+    if (classDecl) {
+      astFallbackParams = extractConstructorParametersFromAST(classDecl)
+    }
+  }
+
+  // If neither method found parameters, skip autowiring
+  if (constructorParams.length === 0 && (!astFallbackParams || astFallbackParams.length === 0)) {
     return node // No parameters to autowire
   }
 
   // Generate mapResolvers array for ALL parameters (including primitives as undefined)
   const resolverEntries: Array<{ index: number; typeName: string | null }> = []
 
-  for (let i = 0; i < constructorParams.length; i++) {
-    const param = constructorParams[i]
-    const interfaceName = getInterfaceNameFromType(param.type)
-    resolverEntries.push({
-      index: i,
-      typeName: interfaceName // null for primitive types
-    })
+  if (astFallbackParams) {
+    // Use AST-extracted parameter types directly (esbuild path)
+    for (let i = 0; i < astFallbackParams.length; i++) {
+      resolverEntries.push({
+        index: i,
+        typeName: astFallbackParams[i].typeName
+      })
+    }
+  } else {
+    // Use TypeChecker-extracted parameter types (Rollup/webpack/Vite path)
+    for (let i = 0; i < constructorParams.length; i++) {
+      const param = constructorParams[i]
+      const interfaceName = getInterfaceNameFromType(param.type)
+      resolverEntries.push({
+        index: i,
+        typeName: interfaceName // null for primitive types
+      })
+    }
+  }
+
+  // Tier 2.5: AST fallback if TypeChecker returned Any/Unknown types
+  // This handles cases where Program exists but sourceFile has partial type info
+  if (resolverEntries.length > 0 && resolverEntries.every(entry => entry.typeName === null)) {
+    // TypeChecker found parameters, but all have Any/Unknown types
+    // Try AST fallback to extract types from source code
+    const classDecl = findClassDeclarationInChain(node, checker)
+    if (classDecl) {
+      const astParams = extractConstructorParametersFromAST(classDecl)
+      if (astParams.length > 0 && astParams.some(p => p.typeName !== null)) {
+        // AST fallback found usable type information - rebuild entries
+        resolverEntries.length = 0
+        for (let i = 0; i < astParams.length; i++) {
+          resolverEntries.push({
+            index: i,
+            typeName: astParams[i].typeName
+          })
+        }
+      }
+    }
   }
 
   if (resolverEntries.every(entry => entry.typeName === null)) {
@@ -417,6 +476,76 @@ function getInterfaceNameFromType(type: ts.Type): string | null {
 
   // Return the symbol name (e.g., "ILogger", "IDatabase")
   return symbol.getName()
+}
+
+/**
+ * Extract constructor parameters directly from AST (fallback when TypeChecker unavailable)
+ * Works with esbuild and standalone source files outside TypeScript Program
+ */
+function extractConstructorParametersFromAST(
+  classNode: ts.ClassDeclaration
+): Array<{ name: string; typeName: string | null }> {
+  const params: Array<{ name: string; typeName: string | null }> = []
+
+  // Find constructor declaration
+  const constructor = classNode.members.find(
+    member => ts.isConstructorDeclaration(member)
+  ) as ts.ConstructorDeclaration | undefined
+
+  if (!constructor) {
+    return params
+  }
+
+  // Extract each parameter with its type annotation
+  for (const param of constructor.parameters) {
+    if (!param.type) continue
+
+    let paramName: string | null = null
+    if (ts.isIdentifier(param.name)) {
+      paramName = param.name.text
+    }
+
+    const typeName = getTypeNameFromTypeNode(param.type)
+
+    if (paramName && typeName) {
+      params.push({ name: paramName, typeName })
+    }
+  }
+
+  return params
+}
+
+/**
+ * Find the class declaration node from registration call chain
+ * Used for AST fallback when TypeChecker doesn't have type information
+ */
+function findClassDeclarationInChain(
+  node: ts.CallExpression,
+  checker: ts.TypeChecker
+): ts.ClassDeclaration | null {
+  const chain = getMethodChain(node)
+  const registerTypeCall = chain.find(call =>
+    ts.isPropertyAccessExpression(call.expression) &&
+    call.expression.name.text === 'registerType'
+  )
+
+  if (!registerTypeCall || registerTypeCall.arguments.length === 0) {
+    return null
+  }
+
+  const classArg = registerTypeCall.arguments[0]
+
+  // Try to get the symbol and find its declaration
+  const symbol = checker.getSymbolAtLocation(classArg)
+  if (!symbol || !symbol.valueDeclaration) {
+    return null
+  }
+
+  if (ts.isClassDeclaration(symbol.valueDeclaration)) {
+    return symbol.valueDeclaration
+  }
+
+  return null
 }
 
 /**
