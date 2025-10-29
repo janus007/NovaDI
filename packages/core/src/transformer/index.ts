@@ -257,30 +257,22 @@ function getQualifiedName(node: ts.QualifiedName): string {
 }
 
 /**
- * Transform default autowiring:
- * .registerType(X).as<Y>() → .registerType(X).as<Y>().autoWire({ mapResolvers: [...] })
- *
- * Generates array of resolvers in parameter position order for optimal O(1) performance.
- * Minification-safe and refactoring-friendly.
+ * Check if call chain should be transformed for autowiring
+ * @internal
  */
-function transformDefaultAutowiring(
+function shouldTransformForAutowiring(
   node: ts.CallExpression,
-  context: ts.TransformationContext,
-  checker: ts.TypeChecker
-): ts.Node {
+  chain: ts.CallExpression[]
+): { shouldTransform: boolean; registerTypeIndex: number } {
   // Only transform if this is an .as() or .asDefaultInterface() call
-  // (the end of a registration chain)
   if (!ts.isPropertyAccessExpression(node.expression)) {
-    return node
+    return { shouldTransform: false, registerTypeIndex: -1 }
   }
 
   const methodName = node.expression.name.text
   if (methodName !== 'as' && methodName !== 'asDefaultInterface') {
-    return node // Not the end of a registration chain
+    return { shouldTransform: false, registerTypeIndex: -1 }
   }
-
-  // Check if this is a method chain that includes .registerType()
-  const chain = getMethodChain(node)
 
   // Find .registerType() call in the chain
   const registerTypeIndex = chain.findIndex(call =>
@@ -288,13 +280,17 @@ function transformDefaultAutowiring(
     call.expression.name.text === 'registerType'
   )
 
-  if (registerTypeIndex === -1) {
-    return node // Not a registerType chain
+  return {
+    shouldTransform: registerTypeIndex !== -1,
+    registerTypeIndex
   }
+}
 
-  // Check if already has .autoWire() with mapResolvers in chain
-  // We skip ONLY if user has explicitly defined mapResolvers
-  // Empty .autoWire() or .autoWire({}) should get default autowiring
+/**
+ * Check if chain already has explicit mapResolvers
+ * @internal
+ */
+function hasExplicitMapResolvers(chain: ts.CallExpression[]): boolean {
   const existingAutoWireCall = chain.find(call =>
     ts.isPropertyAccessExpression(call.expression) &&
     call.expression.name.text === 'autoWire'
@@ -303,35 +299,33 @@ function transformDefaultAutowiring(
   if (existingAutoWireCall && existingAutoWireCall.arguments.length > 0) {
     const arg = existingAutoWireCall.arguments[0]
     if (ts.isObjectLiteralExpression(arg)) {
-      // Check if mapResolvers property exists in config
-      const hasMapResolvers = arg.properties.some(prop =>
+      return arg.properties.some(prop =>
         ts.isPropertyAssignment(prop) &&
         ts.isIdentifier(prop.name) &&
         prop.name.text === 'mapResolvers'
       )
-      if (hasMapResolvers) {
-        return node // Already has explicit mapResolvers, don't override
-      }
     }
   }
-  // Continue with default autowiring for:
-  // - No .autoWire() call
-  // - .autoWire() with no arguments
-  // - .autoWire({}) or .autoWire({ other: config }) without mapResolvers
 
-  // Get the constructor from .registerType(Constructor) call
-  const registerTypeCall = chain[registerTypeIndex]
-  if (registerTypeCall.arguments.length === 0) {
-    return node // No constructor argument
-  }
+  return false
+}
 
+/**
+ * Extract parameters using best available method (TypeChecker or AST)
+ * @internal
+ */
+function extractParameters(
+  node: ts.CallExpression,
+  registerTypeCall: ts.CallExpression,
+  checker: ts.TypeChecker
+): Array<{ index: number; typeName: string | null }> {
   const constructorArg = registerTypeCall.arguments[0]
 
-  // Get constructor type from type checker (Tier 1: TypeChecker - fast and best type info)
+  // Tier 1: TypeChecker (fast and accurate)
   const constructorType = checker.getTypeAtLocation(constructorArg)
   let constructorParams = getConstructorParameters(constructorType, checker)
 
-  // Tier 2: AST fallback if TypeChecker returned nothing (e.g., esbuild with standalone sourceFiles)
+  // Tier 2: AST fallback
   let astFallbackParams: Array<{ name: string; typeName: string | null }> | null = null
   if (constructorParams.length === 0) {
     const classDecl = findClassDeclarationInChain(node, checker)
@@ -340,16 +334,11 @@ function transformDefaultAutowiring(
     }
   }
 
-  // If neither method found parameters, skip autowiring
-  if (constructorParams.length === 0 && (!astFallbackParams || astFallbackParams.length === 0)) {
-    return node // No parameters to autowire
-  }
-
-  // Generate mapResolvers array for ALL parameters (including primitives as undefined)
+  // Build resolver entries
   const resolverEntries: Array<{ index: number; typeName: string | null }> = []
 
   if (astFallbackParams) {
-    // Use AST-extracted parameter types directly (esbuild path)
+    // Use AST parameters
     for (let i = 0; i < astFallbackParams.length; i++) {
       resolverEntries.push({
         index: i,
@@ -357,27 +346,23 @@ function transformDefaultAutowiring(
       })
     }
   } else {
-    // Use TypeChecker-extracted parameter types (Rollup/webpack/Vite path)
+    // Use TypeChecker parameters
     for (let i = 0; i < constructorParams.length; i++) {
       const param = constructorParams[i]
       const interfaceName = getInterfaceNameFromType(param.type)
       resolverEntries.push({
         index: i,
-        typeName: interfaceName // null for primitive types
+        typeName: interfaceName
       })
     }
   }
 
-  // Tier 2.5: AST fallback if TypeChecker returned Any/Unknown types
-  // This handles cases where Program exists but sourceFile has partial type info
+  // Tier 2.5: AST fallback for Any/Unknown types
   if (resolverEntries.length > 0 && resolverEntries.every(entry => entry.typeName === null)) {
-    // TypeChecker found parameters, but all have Any/Unknown types
-    // Try AST fallback to extract types from source code
     const classDecl = findClassDeclarationInChain(node, checker)
     if (classDecl) {
       const astParams = extractConstructorParametersFromAST(classDecl)
       if (astParams.length > 0 && astParams.some(p => p.typeName !== null)) {
-        // AST fallback found usable type information - rebuild entries
         resolverEntries.length = 0
         for (let i = 0; i < astParams.length; i++) {
           resolverEntries.push({
@@ -389,8 +374,46 @@ function transformDefaultAutowiring(
     }
   }
 
-  if (resolverEntries.every(entry => entry.typeName === null)) {
-    return node // No interface dependencies to autowire (all primitives)
+  return resolverEntries
+}
+
+/**
+ * Transform default autowiring:
+ * .registerType(X).as<Y>() → .registerType(X).as<Y>().autoWire({ mapResolvers: [...] })
+ *
+ * Generates array of resolvers in parameter position order for optimal O(1) performance.
+ * Minification-safe and refactoring-friendly.
+ */
+function transformDefaultAutowiring(
+  node: ts.CallExpression,
+  context: ts.TransformationContext,
+  checker: ts.TypeChecker
+): ts.Node {
+  // Check if this is a method chain that should be transformed
+  const chain = getMethodChain(node)
+  const { shouldTransform, registerTypeIndex } = shouldTransformForAutowiring(node, chain)
+
+  if (!shouldTransform) {
+    return node
+  }
+
+  // Check if already has explicit mapResolvers
+  if (hasExplicitMapResolvers(chain)) {
+    return node
+  }
+
+  // Get constructor argument
+  const registerTypeCall = chain[registerTypeIndex]
+  if (registerTypeCall.arguments.length === 0) {
+    return node
+  }
+
+  // Extract parameters using best available method
+  const resolverEntries = extractParameters(node, registerTypeCall, checker)
+
+  // If no parameters or all primitives, skip
+  if (resolverEntries.length === 0 || resolverEntries.every(entry => entry.typeName === null)) {
+    return node
   }
 
   // Generate .autoWire({ mapResolvers: [...] }) call

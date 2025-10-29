@@ -362,6 +362,118 @@ export class Builder {
   }
 
   /**
+   * Resolve interface type names to tokens
+   * @internal
+   */
+  private resolveInterfaceTokens(container: Container): void {
+    for (const config of this.registrations) {
+      if (config.interfaceType !== undefined && !config.token) {
+        config.token = container.interfaceToken(config.interfaceType)
+      }
+    }
+  }
+
+  /**
+   * Identify tokens that have non-default registrations
+   * @internal
+   */
+  private identifyNonDefaultTokens(): Set<Token<any>> {
+    const tokensWithNonDefaults = new Set<Token<any>>()
+    for (const config of this.registrations) {
+      if (!config.isDefault && !config.name && config.key === undefined) {
+        tokensWithNonDefaults.add(config.token)
+      }
+    }
+    return tokensWithNonDefaults
+  }
+
+  /**
+   * Check if registration should be skipped
+   * @internal
+   */
+  private shouldSkipRegistration(
+    config: RegistrationConfig,
+    tokensWithNonDefaults: Set<Token<any>>,
+    registeredTokens: Set<Token<any>>
+  ): boolean {
+    // Skip default registrations if there's a non-default for the same token
+    if (config.isDefault && !config.name && config.key === undefined && tokensWithNonDefaults.has(config.token)) {
+      return true
+    }
+
+    // Handle ifNotRegistered
+    if (config.ifNotRegistered && registeredTokens.has(config.token)) {
+      return true
+    }
+
+    // Handle asDefault
+    if (config.isDefault && registeredTokens.has(config.token)) {
+      return true
+    }
+
+    return false
+  }
+
+  /**
+   * Create binding token for registration (named, keyed, or multi)
+   * @internal
+   */
+  private createBindingToken(
+    config: RegistrationConfig,
+    namedRegistrations: Map<string, any>,
+    keyedRegistrations: Map<string | symbol, any>,
+    multiRegistrations: Map<Token<any>, Token<any>[]>
+  ): Token<any> {
+    if (config.name) {
+      // Named registration gets unique token
+      const bindingToken = Token(`__named_${config.name}`)
+      namedRegistrations.set(config.name, { ...config, token: bindingToken })
+      return bindingToken
+    } else if (config.key !== undefined) {
+      // Keyed registration gets unique token
+      const keyStr = typeof config.key === 'symbol' ? config.key.toString() : config.key
+      const bindingToken = Token(`__keyed_${keyStr}`)
+      keyedRegistrations.set(config.key, { ...config, token: bindingToken })
+      return bindingToken
+    } else {
+      // Multi-registration handling
+      if (multiRegistrations.has(config.token)) {
+        // Subsequent registration for this token
+        const bindingToken = Token(`__multi_${config.token.toString()}_${multiRegistrations.get(config.token)!.length}`)
+        multiRegistrations.get(config.token)!.push(bindingToken)
+        return bindingToken
+      } else {
+        // First registration for this token, use the original token
+        multiRegistrations.set(config.token, [config.token])
+        return config.token
+      }
+    }
+  }
+
+  /**
+   * Register additional interfaces for a config
+   * @internal
+   */
+  private registerAdditionalInterfaces(
+    container: Container,
+    config: RegistrationConfig,
+    bindingToken: Token<any>,
+    registeredTokens: Set<Token<any>>
+  ): void {
+    if (config.additionalTokens) {
+      for (const additionalToken of config.additionalTokens) {
+        // Create a factory that resolves the binding token
+        container.bindFactory(
+          additionalToken,
+          (c) => c.resolve(bindingToken),
+          { lifetime: config.lifetime }
+        )
+        registeredTokens.add(additionalToken)
+      }
+    }
+  }
+
+  /**
    * Build the container with all registered bindings
    */
   build(): Container {
@@ -369,11 +481,7 @@ export class Builder {
     const container = this.baseContainer.createChild()
 
     // Pre-process: resolve interface types to tokens
-    for (const config of this.registrations) {
-      if (config.interfaceType !== undefined && !config.token) {
-        config.token = container.interfaceToken(config.interfaceType)
-      }
-    }
+    this.resolveInterfaceTokens(container)
 
     // Track what's been registered for ifNotRegistered checks
     const registeredTokens = new Set<Token<any>>()
@@ -381,56 +489,22 @@ export class Builder {
     const keyedRegistrations = new Map<string | symbol, any>()
     const multiRegistrations = new Map<Token<any>, Token<any>[]>()
 
-    // Pre-process: identify tokens that have non-default registrations (unnamed, unkeyed)
-    const tokensWithNonDefaults = new Set<Token<any>>()
-    for (const config of this.registrations) {
-      if (!config.isDefault && !config.name && config.key === undefined) {
-        tokensWithNonDefaults.add(config.token)
-      }
-    }
+    // Pre-process: identify tokens that have non-default registrations
+    const tokensWithNonDefaults = this.identifyNonDefaultTokens()
 
     for (const config of this.registrations) {
-      // Skip default registrations if there's a non-default for the same token
-      if (config.isDefault && !config.name && config.key === undefined && tokensWithNonDefaults.has(config.token)) {
+      // Check if registration should be skipped
+      if (this.shouldSkipRegistration(config, tokensWithNonDefaults, registeredTokens)) {
         continue
       }
 
-      // Handle ifNotRegistered
-      if (config.ifNotRegistered && registeredTokens.has(config.token)) {
-        continue
-      }
-
-      // Handle asDefault
-      if (config.isDefault && registeredTokens.has(config.token)) {
-        continue
-      }
-
-      // Determine which token to use for binding
-      // Create a unique internal token for each registration to avoid conflicts
-      let bindingToken: Token<any>
-
-      if (config.name) {
-        // Named registration gets unique token
-        bindingToken = Token(`__named_${config.name}`)
-        namedRegistrations.set(config.name, { ...config, token: bindingToken })
-      } else if (config.key !== undefined) {
-        // Keyed registration gets unique token
-        const keyStr = typeof config.key === 'symbol' ? config.key.toString() : config.key
-        bindingToken = Token(`__keyed_${keyStr}`)
-        keyedRegistrations.set(config.key, { ...config, token: bindingToken })
-      } else {
-        // Multi-registration handling
-        if (multiRegistrations.has(config.token)) {
-          // Subsequent registration for this token
-          bindingToken = Token(`__multi_${config.token.toString()}_${multiRegistrations.get(config.token)!.length}`)
-        } else {
-          // First registration for this token, use the original token
-          bindingToken = config.token
-          multiRegistrations.set(config.token, [])
-        }
-        // Track this binding token for resolveAll
-        multiRegistrations.get(config.token)!.push(bindingToken)
-      }
+      // Create binding token (named, keyed, or multi)
+      const bindingToken = this.createBindingToken(
+        config,
+        namedRegistrations,
+        keyedRegistrations,
+        multiRegistrations
+      )
 
       // Apply registration to container using the binding token
       this.applyRegistration(container, { ...config, token: bindingToken })
@@ -439,17 +513,7 @@ export class Builder {
       registeredTokens.add(config.token)
 
       // Register additional interfaces
-      if (config.additionalTokens) {
-        for (const additionalToken of config.additionalTokens) {
-          // Create a factory that resolves the binding token
-          container.bindFactory(
-            additionalToken,
-            (c) => c.resolve(bindingToken),
-            { lifetime: config.lifetime }
-          )
-          registeredTokens.add(additionalToken)
-        }
-      }
+      this.registerAdditionalInterfaces(container, config, bindingToken, registeredTokens)
     }
 
     // Attach metadata for named/keyed resolution
@@ -458,6 +522,127 @@ export class Builder {
     ;(container as any).__multiRegistrations = multiRegistrations
 
     return container
+  }
+
+  /**
+   * Analyze constructor to detect dependencies
+   * @internal
+   */
+  private analyzeConstructor(constructor: new (...args: any[]) => any): {
+    hasDependencies: boolean
+  } {
+    const constructorStr = constructor.toString()
+    const hasDependencies = /constructor\s*\([^)]+\)/.test(constructorStr)
+    return { hasDependencies }
+  }
+
+  /**
+   * Create optimized factory for zero-dependency constructors
+   * @internal
+   */
+  private createOptimizedFactory(
+    container: Container,
+    config: RegistrationConfig,
+    options: { lifetime: Lifetime }
+  ): void {
+    if (config.lifetime === 'singleton') {
+      // Singleton: Create instance directly (fastest path - no factory overhead)
+      const instance = new config.constructor!()
+      container.bindValue(config.token, instance)
+    } else if (config.lifetime === 'transient') {
+      // Transient Fast Path: Register in fast transient cache
+      const ctor = config.constructor!
+      const fastFactory = () => new ctor()
+      ;(container as any).fastTransientCache.set(config.token, fastFactory)
+      container.bindFactory(config.token, fastFactory, options)
+    } else {
+      // Per-request: Use simple factory without autowire overhead
+      const factory: Factory<any> = () => new config.constructor!()
+      container.bindFactory(config.token, factory, options)
+    }
+  }
+
+  /**
+   * Create autowire factory
+   * @internal
+   */
+  private createAutoWireFactory(
+    container: Container,
+    config: RegistrationConfig,
+    options: { lifetime: Lifetime }
+  ): void {
+    const factory: Factory<any> = (c) => {
+      const resolvedDeps = autowire(config.constructor!, c, config.autowireOptions)
+      return new config.constructor!(...resolvedDeps)
+    }
+    container.bindFactory(config.token, factory, options)
+  }
+
+  /**
+   * Create withParameters factory
+   * @internal
+   */
+  private createParameterFactory(
+    container: Container,
+    config: RegistrationConfig,
+    options: { lifetime: Lifetime }
+  ): void {
+    const factory: Factory<any> = () => {
+      const values = Object.values(config.parameterValues!)
+      return new config.constructor!(...values)
+    }
+    container.bindFactory(config.token, factory, options)
+  }
+
+  /**
+   * Apply type registration (class constructor)
+   * @internal
+   */
+  private applyTypeRegistration(
+    container: Container,
+    config: RegistrationConfig,
+    options: { lifetime: Lifetime }
+  ): void {
+    const { hasDependencies } = this.analyzeConstructor(config.constructor!)
+
+    // Fast path: No dependencies and no special config
+    if (!hasDependencies && !config.autowireOptions && !config.parameterValues) {
+      this.createOptimizedFactory(container, config, options)
+      return
+    }
+
+    // AutoWire path
+    if (config.autowireOptions) {
+      this.createAutoWireFactory(container, config, options)
+      return
+    }
+
+    // withParameters path
+    if (config.parameterValues) {
+      this.createParameterFactory(container, config, options)
+      return
+    }
+
+    // Error: Constructor has dependencies but no config
+    if (hasDependencies) {
+      const className = config.constructor!.name || 'UnnamedClass'
+      throw new Error(
+        `Service "${className}" has constructor dependencies but no autowiring configuration.\n\n` +
+        `Solutions:\n` +
+        `  1. ⭐ Use the NovaDI transformer (recommended):\n` +
+        `     - Add "@novadi/core/unplugin" to your build config\n` +
+        `     - Transformer automatically generates .autoWire() for all dependencies\n\n` +
+        `  2. Add manual autowiring:\n` +
+        `     .autoWire({ map: { /* param: resolver */ } })\n\n` +
+        `  3. Use a factory function:\n` +
+        `     .register((c) => new ${className}(...))\n\n` +
+        `See docs: https://github.com/janus007/NovaDI#autowire`
+      )
+    }
+
+    // No dependencies - create simple factory
+    const factory: Factory<any> = () => new config.constructor!()
+    container.bindFactory(config.token, factory, options)
   }
 
   private applyRegistration(container: Container, config: RegistrationConfig): void {
@@ -473,71 +658,7 @@ export class Builder {
         break
 
       case 'type':
-        // Performance optimization: Detect constructors with no dependencies
-        const constructorStr = config.constructor!.toString()
-        const hasNoDependencies = !constructorStr.match(/constructor\s*\([^)]+\)/)
-
-        if (hasNoDependencies && !config.autowireOptions && !config.parameterValues) {
-          // Constructor has no dependencies - optimize for both singleton and transient
-          if (config.lifetime === 'singleton') {
-            // Singleton: Create instance directly (fastest path - no factory overhead)
-            const instance = new config.constructor!()
-            container.bindValue(config.token, instance)
-          } else if (config.lifetime === 'transient') {
-            // Transient Fast Path: Register in fast transient cache
-            // Skips ResolutionContext allocation for maximum performance
-            const ctor = config.constructor!
-            const fastFactory = () => new ctor()
-            ;(container as any).fastTransientCache.set(config.token, fastFactory)
-
-            // Also register in normal bindings as fallback
-            container.bindFactory(config.token, fastFactory, options)
-          } else {
-            // Per-request: Use simple factory without autowire overhead
-            // This avoids parameter extraction and reflection on every resolve
-            const factory: Factory<any> = () => new config.constructor!()
-            container.bindFactory(config.token, factory, options)
-          }
-        } else if (config.autowireOptions) {
-          // Handle autowiring
-          const factory: Factory<any> = (c) => {
-            const resolvedDeps = autowire(config.constructor!, c, config.autowireOptions)
-            return new config.constructor!(...resolvedDeps)
-          }
-          container.bindFactory(config.token, factory, options)
-        } else if (config.parameterValues) {
-          // Handle withParameters - inject primitive values
-          const factory: Factory<any> = () => {
-            const values = Object.values(config.parameterValues!)
-            return new config.constructor!(...values)
-          }
-          container.bindFactory(config.token, factory, options)
-        } else {
-          // Check if constructor has dependencies
-          const constructorStr = config.constructor!.toString()
-          const hasConstructor = /constructor\s*\([^)]+\)/.test(constructorStr)
-
-          if (hasConstructor) {
-            // Constructor has parameters but no .autoWire() configuration
-            const className = config.constructor!.name || 'UnnamedClass'
-            throw new Error(
-              `Service "${className}" has constructor dependencies but no autowiring configuration.\n\n` +
-              `Solutions:\n` +
-              `  1. ⭐ Use the NovaDI transformer (recommended):\n` +
-              `     - Add "@novadi/core/unplugin" to your build config\n` +
-              `     - Transformer automatically generates .autoWire() for all dependencies\n\n` +
-              `  2. Add manual autowiring:\n` +
-              `     .autoWire({ map: { /* param: resolver */ } })\n\n` +
-              `  3. Use a factory function:\n` +
-              `     .register((c) => new ${className}(...))\n\n` +
-              `See docs: https://github.com/janus007/NovaDI#autowire`
-            )
-          }
-
-          // No dependencies - create simple factory
-          const factory: Factory<any> = () => new config.constructor!()
-          container.bindFactory(config.token, factory, options)
-        }
+        this.applyTypeRegistration(container, config, options)
         break
     }
   }

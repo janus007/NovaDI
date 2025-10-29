@@ -199,25 +199,10 @@ export class Container {
    * Performance optimized with multiple fast paths
    */
   resolve<T>(token: Token<T>): T {
-    // Performance: ULTRA-FAST path - Direct singleton lookup (zero overhead)
-    const ultraFast = this.ultraFastSingletonCache.get(token)
-    if (ultraFast !== undefined) {
-      return ultraFast // ⚡ Instant return, no checks needed
-    }
-
-    // Performance: Fast path 1 - Cached singletons (skip ResolutionContext allocation)
-    if (this.singletonCache.has(token)) {
-      const cached = this.singletonCache.get(token)
-      // Promote to ultra-fast cache for next time
-      this.ultraFastSingletonCache.set(token, cached)
+    // Try all cache levels first (ultra-fast, singleton, fast transient)
+    const cached = this.tryGetFromCaches(token)
+    if (cached !== undefined) {
       return cached
-    }
-
-    // Performance: Fast path 2 - Simple transients (NO dependencies, NO circular checks needed)
-    // This optimization skips ResolutionContext allocation for simple transients
-    const fastFactory = this.fastTransientCache.get(token)
-    if (fastFactory) {
-      return fastFactory() as T
     }
 
     // If we're already resolving (called from within a factory), reuse the context
@@ -225,15 +210,14 @@ export class Container {
       return this.resolveWithContext(token, this.currentContext)
     }
 
-    // Slow path: Complex resolution with full ResolutionContext
-    // Performance: Use pooled context to avoid heap allocation
+    // Complex resolution with pooled context
     const context = Container.contextPool.acquire()
     this.currentContext = context
     try {
       return this.resolveWithContext(token, context)
     } finally {
       this.currentContext = undefined
-      Container.contextPool.release(context) // Return to pool for reuse
+      Container.contextPool.release(context)
     }
   }
 
@@ -271,32 +255,21 @@ export class Container {
     // Reuse single context for all resolutions
     const wasResolving = !!this.currentContext
     const context = this.currentContext || Container.contextPool.acquire()
-    
+
     if (!wasResolving) {
       this.currentContext = context
     }
 
     try {
       const results = tokens.map(token => {
-        // Try ultra-fast cache first
-        const cached = this.ultraFastSingletonCache.get(token)
+        // Try all cache levels first
+        const cached = this.tryGetFromCaches(token)
         if (cached !== undefined) return cached
-        
-        // Try singleton cache
-        const singleton = this.singletonCache.get(token)
-        if (singleton !== undefined) {
-          this.ultraFastSingletonCache.set(token, singleton)
-          return singleton
-        }
-        
-        // Try fast transient
-        const factory = this.fastTransientCache.get(token)
-        if (factory) return factory()
-        
+
         // Full resolve with shared context
         return this.resolveWithContext(token, context)
       })
-      
+
       return results as any
     } finally {
       if (!wasResolving) {
@@ -324,6 +297,142 @@ export class Container {
     } finally {
       this.currentContext = undefined
       Container.contextPool.release(context) // Return to pool for reuse
+    }
+  }
+
+  /**
+   * Try to get instance from all cache levels
+   * Returns undefined if not cached
+   * @internal
+   */
+  private tryGetFromCaches<T>(token: Token<T>): T | undefined {
+    // Level 1: Ultra-fast singleton cache (zero overhead)
+    const ultraFast = this.ultraFastSingletonCache.get(token)
+    if (ultraFast !== undefined) {
+      return ultraFast
+    }
+
+    // Level 2: Regular singleton cache
+    if (this.singletonCache.has(token)) {
+      const cached = this.singletonCache.get(token)
+      // Promote to ultra-fast cache for next time
+      this.ultraFastSingletonCache.set(token, cached)
+      return cached
+    }
+
+    // Level 3: Fast transient cache (no dependencies)
+    const fastFactory = this.fastTransientCache.get(token)
+    if (fastFactory) {
+      return fastFactory() as T
+    }
+
+    return undefined
+  }
+
+  /**
+   * Cache instance based on lifetime strategy
+   * @internal
+   */
+  private cacheInstance<T>(
+    token: Token<T>,
+    instance: T,
+    lifetime: Lifetime,
+    context?: ResolutionContext
+  ): void {
+    if (lifetime === 'singleton') {
+      this.singletonCache.set(token, instance)
+      this.singletonOrder.push(token)
+      // Also add to ultra-fast cache
+      this.ultraFastSingletonCache.set(token, instance)
+    } else if (lifetime === 'per-request' && context) {
+      context.cachePerRequest(token, instance)
+    }
+  }
+
+  /**
+   * Validate and get binding with circular dependency check
+   * Returns binding or throws error
+   * @internal
+   */
+  private validateAndGetBinding<T>(
+    token: Token<T>,
+    context: ResolutionContext
+  ): Binding<T> {
+    // Check circular dependency
+    if (context.isResolving(token)) {
+      throw new CircularDependencyError([...context.getPath(), token.toString()])
+    }
+
+    const binding = this.getBinding(token)
+    if (!binding) {
+      throw new BindingNotFoundError(token.toString(), context.getPath())
+    }
+
+    return binding
+  }
+
+  /**
+   * Instantiate from binding synchronously
+   * @internal
+   */
+  private instantiateBindingSync<T>(
+    binding: Binding<T>,
+    token: Token<T>,
+    context: ResolutionContext
+  ): T {
+    switch (binding.type) {
+      case 'value':
+        return binding.value!
+
+      case 'factory':
+        const result = binding.factory!(this) as T
+        if (result instanceof Promise) {
+          throw new Error(
+            `Async factory detected for ${token.toString()}. Use resolveAsync() instead.`
+          )
+        }
+        return result
+
+      case 'class':
+        const deps = binding.dependencies || []
+        const resolvedDeps = deps.map(dep => this.resolveWithContext(dep, context))
+        return new binding.constructor!(...resolvedDeps)
+
+      case 'inline-class':
+        return new binding.constructor!()
+
+      default:
+        throw new Error(`Unknown binding type: ${(binding as any).type}`)
+    }
+  }
+
+  /**
+   * Instantiate from binding asynchronously
+   * @internal
+   */
+  private async instantiateBindingAsync<T>(
+    binding: Binding<T>,
+    context: ResolutionContext
+  ): Promise<T> {
+    switch (binding.type) {
+      case 'value':
+        return binding.value!
+
+      case 'factory':
+        return await Promise.resolve(binding.factory!(this))
+
+      case 'class':
+        const deps = binding.dependencies || []
+        const resolvedDeps = await Promise.all(
+          deps.map(dep => this.resolveAsyncWithContext(dep, context))
+        )
+        return new binding.constructor!(...resolvedDeps)
+
+      case 'inline-class':
+        return new binding.constructor!()
+
+      default:
+        throw new Error(`Unknown binding type: ${(binding as any).type}`)
     }
   }
 
@@ -517,15 +626,8 @@ export class Container {
    * Internal: Resolve with context for circular dependency detection
    */
   private resolveWithContext<T>(token: Token<T>, context: ResolutionContext): T {
-    // Check circular dependency
-    if (context.isResolving(token)) {
-      throw new CircularDependencyError([...context.getPath(), token.toString()])
-    }
-
-    const binding = this.getBinding(token)
-    if (!binding) {
-      throw new BindingNotFoundError(token.toString(), context.getPath())
-    }
+    // Validate and get binding (with circular dependency check)
+    const binding = this.validateAndGetBinding(token, context)
 
     // Check per-request cache
     if (binding.lifetime === 'per-request' && context.hasPerRequest(token)) {
@@ -541,46 +643,11 @@ export class Container {
     context.enterResolve(token)
 
     try {
-      let instance: T
-
-      switch (binding.type) {
-        case 'value':
-          instance = binding.value!
-          break
-
-        case 'factory':
-          instance = binding.factory!(this) as T
-          if (instance instanceof Promise) {
-            throw new Error(
-              `Async factory detected for ${token.toString()}. Use resolveAsync() instead.`
-            )
-          }
-          break
-
-        case 'class':
-          const deps = binding.dependencies || []
-          const resolvedDeps = deps.map(dep => this.resolveWithContext(dep, context))
-          instance = new binding.constructor!(...resolvedDeps)
-          break
-
-        case 'inline-class':
-          // Performance: Direct instantiation without function call overhead
-          instance = new binding.constructor!()
-          break
-
-        default:
-          throw new Error(`Unknown binding type: ${(binding as any).type}`)
-      }
+      // Instantiate from binding
+      const instance = this.instantiateBindingSync(binding, token, context)
 
       // Cache based on lifetime
-      if (binding.lifetime === 'singleton') {
-        this.singletonCache.set(token, instance)
-        this.singletonOrder.push(token)
-        // Performance: Also add to ultra-fast cache
-        this.ultraFastSingletonCache.set(token, instance)
-      } else if (binding.lifetime === 'per-request') {
-        context.cachePerRequest(token, instance)
-      }
+      this.cacheInstance(token, instance, binding.lifetime, context)
 
       return instance
     } finally {
@@ -595,15 +662,8 @@ export class Container {
     token: Token<T>,
     context: ResolutionContext
   ): Promise<T> {
-    // Check circular dependency
-    if (context.isResolving(token)) {
-      throw new CircularDependencyError([...context.getPath(), token.toString()])
-    }
-
-    const binding = this.getBinding(token)
-    if (!binding) {
-      throw new BindingNotFoundError(token.toString(), context.getPath())
-    }
+    // Validate and get binding (with circular dependency check)
+    const binding = this.validateAndGetBinding(token, context)
 
     // Check per-request cache
     if (binding.lifetime === 'per-request' && context.hasPerRequest(token)) {
@@ -619,41 +679,11 @@ export class Container {
     context.enterResolve(token)
 
     try {
-      let instance: T
-
-      switch (binding.type) {
-        case 'value':
-          instance = binding.value!
-          break
-
-        case 'factory':
-          instance = await Promise.resolve(binding.factory!(this))
-          break
-
-        case 'class':
-          const deps = binding.dependencies || []
-          const resolvedDeps = await Promise.all(
-            deps.map(dep => this.resolveAsyncWithContext(dep, context))
-          )
-          instance = new binding.constructor!(...resolvedDeps)
-          break
-
-        case 'inline-class':
-          // Performance: Direct instantiation without function call overhead
-          instance = new binding.constructor!()
-          break
-
-        default:
-          throw new Error(`Unknown binding type: ${(binding as any).type}`)
-      }
+      // Instantiate from binding asynchronously
+      const instance = await this.instantiateBindingAsync(binding, context)
 
       // Cache based on lifetime
-      if (binding.lifetime === 'singleton') {
-        this.singletonCache.set(token, instance)
-        this.singletonOrder.push(token)
-      } else if (binding.lifetime === 'per-request') {
-        context.cachePerRequest(token, instance)
-      }
+      this.cacheInstance(token, instance, binding.lifetime, context)
 
       return instance
     } finally {
