@@ -1169,6 +1169,15 @@ table code {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  position: sticky;
+  top: 0;
+  max-height: 100vh;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.main-nav::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .nav-container {
@@ -1290,6 +1299,23 @@ table code {
   color: var(--accent-primary);
   background: transparent;
   border-left-color: var(--accent-primary);
+  font-weight: 500;
+}
+
+/* Sub-link styling for inline sub-items */
+a.nav-sub-link {
+  font-size: var(--text-sm);
+  font-weight: 400;
+  padding-left: var(--space-xl);
+  color: var(--text-muted);
+}
+
+a.nav-sub-link:hover {
+  color: var(--accent-primary);
+}
+
+a.nav-sub-link.active {
+  color: var(--accent-primary);
   font-weight: 500;
 }
 
@@ -2748,6 +2774,8 @@ table tr.bg-success {
   background: var(--badge-blue-bg);
   color: var(--badge-blue-text);
   border: 1px solid var(--badge-blue-border);
+  white-space: nowrap;
+  font-size: 9px;
 }
 
 .api-badge-static {

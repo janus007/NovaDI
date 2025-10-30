@@ -27,7 +27,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet">
   </head>
-  <body class="has-toc">
+  <body>
     <!-- Mobile Menu Button -->
     <button class="mobile-menu-button" aria-label="Toggle navigation menu">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -78,15 +78,28 @@
             <a href="api-reference.html" class="active">API Reference</a>
           </li>
           <li class="nav-group">
-            <div class="nav-group-title">Core API</div>
-            <a href="#container">Container</a>
-            <a href="#builder">Builder</a>
-            <a href="#token">Token</a>
-            <a href="#autowire">AutoWire</a>
+            <div class="nav-group-title">Container</div>
+            <a href="#container">Overview</a>
+            <a href="#resolveType" class="nav-sub-link">resolveType&lt;T&gt;()</a>
           </li>
           <li class="nav-group">
-            <div class="nav-group-title">Errors</div>
+            <div class="nav-group-title">Builder</div>
+            <a href="#builder">Overview</a>
+            <a href="#registerType" class="nav-sub-link">registerType&lt;T&gt;()</a>
+          </li>
+          <li class="nav-group">
+            <div class="nav-group-title">AutoWire</div>
+            <a href="#autowire">Overview</a>
+            <a href="#autoWire" class="nav-sub-link">autoWire()</a>
+            <a href="#autowire-options" class="nav-sub-link">AutoWireOptions</a>
+            <a href="#advanced-techniques" class="nav-sub-link">Advanced Techniques</a>
+          </li>
+          <li class="nav-group">
+            <div class="nav-group-title">Reference</div>
+            <a href="#api-overview">API Overview</a>
             <a href="#errors">Error Classes</a>
+            <a href="#binding-not-found" class="nav-sub-link">BindingNotFoundError</a>
+            <a href="#circular" class="nav-sub-link">CircularDependencyError</a>
           </li>
         </ul>
       </div>
@@ -108,128 +121,8 @@
           <h2>Container</h2>
           <p class="text-secondary mb-32">The core dependency injection container that manages service registration and resolution with support for multiple lifetimes, circular dependency detection, and automatic disposal.</p>
 
-          <!-- resolve<T>() -->
-          <div class="api-method-card">
-            <div class="api-method-header" data-expandable>
-              <div class="api-method-title-row">
-                <h3 class="api-method-name">resolve<span class="api-method-generic">&lt;T&gt;</span></h3>
-                <button class="api-expand-btn" aria-label="Toggle method details">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
-                </button>
-              </div>
-              <div class="api-method-signature">
-                <code>container.resolve&lt;T&gt;(token: Token&lt;T&gt;): T</code>
-              </div>
-              <p class="api-method-summary">Resolves a service synchronously by its token. Performance-optimized with multiple fast paths for common scenarios.</p>
-            </div>
-
-            <div class="api-method-body">
-              <h4 class="api-section-title">How It Works</h4>
-              <p>The <code>resolve</code> method uses a multi-tiered performance optimization strategy:</p>
-              <ol>
-                <li><strong>Ultra-fast path</strong>: Direct singleton lookup (zero overhead)</li>
-                <li><strong>Fast path</strong>: Cached singletons (skip ResolutionContext allocation)</li>
-                <li><strong>Simple transients</strong>: Zero-dependency classes (no circular checks needed)</li>
-                <li><strong>Complex resolution</strong>: Full circular dependency detection with pooled context</li>
-              </ol>
-
-              <div class="api-section-block">
-                <h4 class="api-section-title">Parameters</h4>
-                <table class="api-params-table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Type</th>
-                      <th>Description</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>
-                        <code>token</code>
-                        <span class="api-badge api-badge-required">Required</span>
-                      </td>
-                      <td><code class="api-type">Token&lt;T&gt;</code></td>
-                      <td>The token representing the service to resolve</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div class="api-section-block">
-                <h4 class="api-section-title">Returns</h4>
-                <div class="api-return-block">
-                  <code class="api-type">T</code>
-                  <p>The resolved service instance (singleton, per-request, or transient based on registration)</p>
-                </div>
-              </div>
-
-              <div class="api-section-block">
-                <h4 class="api-section-title">Throws</h4>
-                <ul class="api-throws-list">
-                  <li>
-                    <code class="api-type">BindingNotFoundError</code>
-                    <p>When no binding exists for the token in this container or parent chain</p>
-                  </li>
-                  <li>
-                    <code class="api-type">CircularDependencyError</code>
-                    <p>When a circular dependency is detected (e.g., A → B → C → A)</p>
-                  </li>
-                </ul>
-              </div>
-
-              <div class="api-section-block">
-                <h4 class="api-section-title">Real-World Example</h4>
-                <div class="api-code-block">
-                  <button class="api-copy-btn" aria-label="Copy code">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                    <span>Copy</span>
-                  </button>
-                  <pre><code class="language-typescript">// Define your services
-interface ILogger {
-  log(message: string): void
-}
-
-class ConsoleLogger implements ILogger {
-  log(message: string) {
-    console.log(`[${new Date().toISOString()}] ${message}`)
-  }
-}
-
-// Build container
-const container = new Builder()
-  .registerType(ConsoleLogger).as&lt;ILogger&gt;().singleInstance()
-  .build()
-
-// Resolve service (ultra-fast singleton lookup after first call)
-const logger = container.resolve(Token.for&lt;ILogger&gt;('ILogger'))
-logger.log('Application started') // [2025-01-15T...] Application started</code></pre>
-                </div>
-              </div>
-
-              <div class="info-box info-box-tip mt-16">
-                <h4 class="info-box-title">Performance Tip</h4>
-                <p>Singletons are cached after first resolution and subsequent calls use ultra-fast direct lookup with zero overhead. For maximum performance in hot paths, use singletons instead of transients.</p>
-              </div>
-
-              <div class="api-section-block">
-                <h4 class="api-section-title">See Also</h4>
-                <ul class="api-see-also">
-                  <li><a href="#resolveType">resolveType&lt;T&gt;()</a></li>
-                  <li><a href="#resolveBatch">resolveBatch&lt;T&gt;()</a></li>
-                  <li><a href="#resolveAsync">resolveAsync&lt;T&gt;()</a></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
           <!-- resolveType<T>() -->
-          <div class="api-method-card">
+          <div class="api-method-card" id="resolveType">
             <div class="api-method-header" data-expandable>
               <div class="api-method-title-row">
                 <h3 class="api-method-name">resolveType<span class="api-method-generic">&lt;T&gt;</span></h3>
@@ -349,63 +242,6 @@ eventBus.publish('user.login', { userId: 123 })</code></pre>
             </div>
           </div>
 
-          <!-- resolveBatch<T>() -->
-          <div class="api-method-card collapsed">
-            <div class="api-method-header" data-expandable>
-              <div class="api-method-title-row">
-                <h3 class="api-method-name">resolveBatch<span class="api-method-generic">&lt;T&gt;</span></h3>
-                <button class="api-expand-btn" aria-label="Toggle method details">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
-                </button>
-              </div>
-              <div class="api-method-signature">
-                <code>container.resolveBatch&lt;T&gt;(tokens: T): ReturnType</code>
-              </div>
-              <p class="api-method-summary">Resolve multiple dependencies at once. More efficient than multiple individual resolves by reusing a single resolution context.</p>
-            </div>
-
-            <div class="api-method-body">
-              <h4 class="api-section-title">How It Works</h4>
-              <p>Instead of creating a new ResolutionContext for each resolve call, <code>resolveBatch</code> creates one context and reuses it for all resolutions. This reduces heap allocations and improves performance when resolving multiple services.</p>
-
-              <div class="api-section-block">
-                <h4 class="api-section-title">Performance Benefits</h4>
-                <ul>
-                  <li><strong>Single context allocation</strong>: Instead of N allocations, only 1</li>
-                  <li><strong>Shared circular detection</strong>: Efficient dependency tracking across batch</li>
-                  <li><strong>Cache locality</strong>: Better CPU cache usage for related resolutions</li>
-                </ul>
-              </div>
-
-              <div class="api-section-block">
-                <h4 class="api-section-title">Real-World Example</h4>
-                <div class="api-code-block">
-                  <button class="api-copy-btn" aria-label="Copy code">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                    <span>Copy</span>
-                  </button>
-                  <pre><code class="language-typescript">// Application startup - resolve multiple core services at once
-const [logger, config, database, eventBus] = container.resolveBatch([
-  Token.for&lt;ILogger&gt;('ILogger'),
-  Token.for&lt;IConfig&gt;('IConfig'),
-  Token.for&lt;IDatabase&gt;('IDatabase'),
-  Token.for&lt;IEventBus&gt;('IEventBus')
-])
-
-// All services resolved with single context allocation
-logger.log('Application initialized')
-await database.connect(config.connectionString)
-eventBus.publish('app.started', {})</code></pre>
-                </div>
-              </div>
-            </div>
-          </div>
-
         </section>
 
         <hr>
@@ -416,7 +252,7 @@ eventBus.publish('app.started', {})</code></pre>
           <p class="text-secondary mb-32">Fluent API for configuring the container with Autofac-style syntax. Provides a clean, chainable interface for registering services.</p>
 
           <!-- registerType<T>() -->
-          <div class="api-method-card">
+          <div class="api-method-card" id="registerType">
             <div class="api-method-header" data-expandable>
               <div class="api-method-title-row">
                 <h3 class="api-method-name">registerType<span class="api-method-generic">&lt;T&gt;</span></h3>
@@ -553,130 +389,6 @@ const user = await userService.getUser(123)</code></pre>
 
         </section>
 
-        <hr>
-
-        <!-- ==================== TOKEN ==================== -->
-        <section class="api-section" id="token">
-          <h2>Token</h2>
-          <p class="text-secondary mb-32">Type-safe tokens for service identification. Provides compile-time type safety without decorators or reflect-metadata.</p>
-
-          <!-- Token.for<T>() -->
-          <div class="api-method-card">
-            <div class="api-method-header" data-expandable>
-              <div class="api-method-title-row">
-                <h3 class="api-method-name">Token<span class="api-method-generic">&lt;T&gt;</span></h3>
-                <span class="api-badge api-badge-static">Function</span>
-                <button class="api-expand-btn" aria-label="Toggle method details">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
-                </button>
-              </div>
-              <div class="api-method-signature">
-                <code>Token&lt;T&gt;(description?: string): Token&lt;T&gt;</code>
-              </div>
-              <p class="api-method-summary">Creates a type-safe token for dependency injection. Each token is globally unique and can be used as a Map key.</p>
-            </div>
-
-            <div class="api-method-body">
-              <h4 class="api-section-title">How It Works</h4>
-              <p>Tokens use JavaScript Symbols for uniqueness and a phantom type property for TypeScript type inference. This provides both runtime uniqueness and compile-time type safety without any runtime overhead.</p>
-
-              <div class="api-section-block">
-                <h4 class="api-section-title">Parameters</h4>
-                <table class="api-params-table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Type</th>
-                      <th>Description</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>
-                        <code>description</code>
-                        <span class="api-badge api-badge-optional">Optional</span>
-                      </td>
-                      <td><code class="api-type">string</code></td>
-                      <td>Human-readable description for debugging (appears in error messages)</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div class="api-section-block">
-                <h4 class="api-section-title">Returns</h4>
-                <div class="api-return-block">
-                  <code class="api-type">Token&lt;T&gt;</code>
-                  <p>A globally unique token with type information</p>
-                </div>
-              </div>
-
-              <div class="api-section-block">
-                <h4 class="api-section-title">Real-World Example</h4>
-                <div class="api-code-block">
-                  <button class="api-copy-btn" aria-label="Copy code">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                    <span>Copy</span>
-                  </button>
-                  <pre><code class="language-typescript">// Define service interfaces
-interface ILogger {
-  log(message: string): void
-}
-
-interface IDatabase {
-  query(sql: string): Promise&lt;any&gt;
-}
-
-// Create tokens with descriptions for debugging
-const LoggerToken = Token&lt;ILogger&gt;('ILogger')
-const DatabaseToken = Token&lt;IDatabase&gt;('IDatabase')
-
-// Register services
-const container = new Container()
-container.bindClass(LoggerToken, ConsoleLogger, { lifetime: 'singleton' })
-container.bindClass(DatabaseToken, PostgresDatabase, { lifetime: 'singleton' })
-
-// Resolve with full type safety
-const logger: ILogger = container.resolve(LoggerToken)
-const db: IDatabase = container.resolve(DatabaseToken)
-
-// TypeScript knows the types!
-logger.log('Connected') // ✅ Type-safe
-await db.query('SELECT * FROM users') // ✅ Type-safe</code></pre>
-                </div>
-              </div>
-
-              <div class="info-box info-box-info mt-16">
-                <h4 class="info-box-title">Type Safety Without Decorators</h4>
-                <p>Unlike other DI frameworks that require <code>@injectable()</code> decorators or reflect-metadata, NovaDI uses phantom types for compile-time type safety with zero runtime overhead.</p>
-              </div>
-
-              <div class="api-section-block">
-                <h4 class="api-section-title">Use Cases</h4>
-                <ul>
-                  <li><strong>Explicit token management</strong>: When you need full control over tokens</li>
-                  <li><strong>Cross-module sharing</strong>: Export tokens for use in other modules</li>
-                  <li><strong>Testing</strong>: Create mock tokens for isolated unit tests</li>
-                  <li><strong>Library APIs</strong>: Expose tokens as part of your public API</li>
-                </ul>
-              </div>
-
-              <div class="api-section-block">
-                <h4 class="api-section-title">See Also</h4>
-                <ul class="api-see-also">
-                  <li><a href="#resolve">resolve&lt;T&gt;()</a></li>
-                  <li><a href="#resolveType">resolveType&lt;T&gt;() - No explicit token needed</a></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-        </section>
 
         <hr>
 
@@ -686,7 +398,7 @@ await db.query('SELECT * FROM users') // ✅ Type-safe</code></pre>
           <p class="text-secondary mb-32">Automatic dependency injection strategies. The transformer generates optimal resolution code at build time for zero runtime overhead.</p>
 
           <!-- autowire() -->
-          <div class="api-method-card">
+          <div class="api-method-card" id="autoWire">
             <div class="api-method-header" data-expandable>
               <div class="api-method-title-row">
                 <h3 class="api-method-name">autoWire<span class="api-method-generic">()</span></h3>
@@ -798,11 +510,891 @@ await client.get('/users')</code></pre>
                   <li><strong>Configuration objects</strong>: Port numbers, timeouts, retry counts</li>
                   <li><strong>External constants</strong>: Build-time values, version strings</li>
                   <li><strong>Testing mocks</strong>: Override specific dependencies for unit tests</li>
+                  <li><strong>Polymorphism</strong>: Explicit interface selection when conventions don't match</li>
+                  <li><strong>Nested interfaces</strong>: Specific implementations of base interfaces</li>
+                </ul>
+              </div>
+
+              <div class="api-section-block">
+                <h4 class="api-section-title">Advanced: Explicit Interface Mapping with .map</h4>
+                <p>Sometimes the transformer needs help resolving the correct interface, especially with polymorphism and nested interface hierarchies. Use the <code>map</code> option to explicitly specify which implementation to inject.</p>
+
+                <div class="info-box info-box-warning mt-16">
+                  <h4 class="info-box-title">When Naming Conventions Don't Match</h4>
+                  <p>If your class name doesn't follow the "remove I from interface" convention, the transformer might not find the right registration. Use explicit mapping to tell it exactly which interface to resolve.</p>
+                </div>
+
+                <div class="api-code-block mt-16">
+                  <button class="api-copy-btn" aria-label="Copy code">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <span>Copy</span>
+                  </button>
+                  <pre><code class="language-typescript">// Example 1: Naming convention mismatch
+interface IPaymentProcessor {
+  processPayment(amount: number): Promise&lt;void&gt;
+}
+
+interface INotificationService {
+  notify(message: string): void
+}
+
+// ❌ Class name doesn't match IPaymentProcessor convention
+class StripePaymentGateway implements IPaymentProcessor {
+  constructor(private notificationService: INotificationService) {}
+
+  async processPayment(amount: number) {
+    // Process with Stripe...
+    this.notificationService.notify(`Processed $${amount}`)
+  }
+}
+
+// ✅ Explicit mapping tells transformer which interface to use
+const container = new Builder()
+  .registerType(EmailNotificationService).as&lt;INotificationService&gt;().singleInstance()
+  .registerType(StripePaymentGateway)
+    .as&lt;IPaymentProcessor&gt;()
+    .autoWire({
+      map: {
+        // Explicitly resolve INotificationService (transformer can't infer from parameter name)
+        notificationService: (c) => c.resolveType&lt;INotificationService&gt;()
+      }
+    })
+    .singleInstance()
+  .build()</code></pre>
+                </div>
+
+                <h4 class="api-section-title mt-32">Polymorphism: Selecting Specific Implementations</h4>
+                <p>When working with interface hierarchies (e.g., <code>IMonkey implements IAnimal</code>), you often want to inject a <strong>specific implementation</strong> rather than just any <code>IAnimal</code>. This is common in polymorphic designs.</p>
+
+                <div class="api-code-block mt-16">
+                  <button class="api-copy-btn" aria-label="Copy code">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <span>Copy</span>
+                  </button>
+                  <pre><code class="language-typescript">// Interface hierarchy
+interface IAnimal {
+  makeSound(): string
+}
+
+interface IMonkey extends IAnimal {
+  climb(): void
+}
+
+interface IElephant extends IAnimal {
+  trumpet(): void
+}
+
+// Implementations
+class Monkey implements IMonkey {
+  makeSound() { return 'Ooh ooh ah ah!' }
+  climb() { console.log('🌴 Climbing tree...') }
+}
+
+class Elephant implements IElephant {
+  makeSound() { return 'Paaooo!' }
+  trumpet() { console.log('🎺 Trumpeting...') }
+}
+
+// Zoo needs a SPECIFIC animal, not just any IAnimal
+class MonkeyZoo {
+  constructor(
+    private animal: IAnimal  // ⚠️ Parameter type is IAnimal, but we want IMonkey specifically!
+  ) {}
+
+  performShow() {
+    console.log(this.animal.makeSound())
+    // We know it's a monkey, so we want to call climb()
+    if ('climb' in this.animal) {
+      (this.animal as IMonkey).climb()
+    }
+  }
+}
+
+// ✅ Explicit mapping: Inject IMonkey even though parameter type is IAnimal
+const container = new Builder()
+  .registerType(Monkey).as&lt;IMonkey&gt;().singleInstance()
+  .registerType(Elephant).as&lt;IElephant&gt;().singleInstance()
+  .registerType(MonkeyZoo)
+    .autoWire({
+      map: {
+        // Explicitly resolve IMonkey, not generic IAnimal
+        animal: (c) => c.resolveType&lt;IMonkey&gt;()
+      }
+    })
+    .singleInstance()
+  .build()
+
+const zoo = container.resolveType&lt;MonkeyZoo&gt;()
+zoo.performShow()  // 🐵 "Ooh ooh ah ah!" + climbing</code></pre>
+                </div>
+
+                <div class="info-box info-box-tip mt-16">
+                  <h4 class="info-box-title">Why Not Just Use IMonkey as Parameter Type?</h4>
+                  <p><strong>Design flexibility!</strong> Sometimes you want the class to accept any <code>IAnimal</code> for flexibility, but configure it with a specific implementation at registration time. This is the <strong>Strategy Pattern</strong> in action.</p>
+                  <p>Other times, the parameter type is defined in a third-party library you can't change, so explicit mapping is your only option.</p>
+                </div>
+
+                <h4 class="api-section-title mt-32">Multiple Registrations: Choosing Between Implementations</h4>
+                <p>When you have multiple implementations of the same interface, use <code>map</code> to explicitly select which one to inject.</p>
+
+                <div class="api-code-block mt-16">
+                  <button class="api-copy-btn" aria-label="Copy code">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <span>Copy</span>
+                  </button>
+                  <pre><code class="language-typescript">interface ILogger {
+  log(message: string): void
+}
+
+class ConsoleLogger implements ILogger {
+  log(msg: string) { console.log(msg) }
+}
+
+class FileLogger implements ILogger {
+  log(msg: string) { /* write to file */ }
+}
+
+class CloudLogger implements ILogger {
+  log(msg: string) { /* send to cloud */ }
+}
+
+// Service needs TWO different loggers for different purposes
+class PaymentService {
+  constructor(
+    private auditLogger: ILogger,      // Should be FileLogger for compliance
+    private debugLogger: ILogger       // Should be ConsoleLogger for dev
+  ) {}
+}
+
+// ✅ Explicit mapping: Different ILogger implementations for different parameters
+const container = new Builder()
+  .registerType(ConsoleLogger).as&lt;ILogger&gt;().named('console').singleInstance()
+  .registerType(FileLogger).as&lt;ILogger&gt;().named('file').singleInstance()
+  .registerType(PaymentService)
+    .autoWire({
+      map: {
+        auditLogger: (c) => c.resolveTypeNamed&lt;ILogger&gt;('file'),
+        debugLogger: (c) => c.resolveTypeNamed&lt;ILogger&gt;('console')
+      }
+    })
+    .singleInstance()
+  .build()</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AutoWireOptions Interface -->
+          <div class="api-method-card" id="autowire-options">
+            <div class="api-method-header" data-expandable>
+              <div class="api-method-title-row">
+                <h3 class="api-method-name">AutoWireOptions</h3>
+                <span class="api-badge api-badge-static">Interface</span>
+                <button class="api-expand-btn" aria-label="Toggle method details">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+              </div>
+              <div class="api-method-signature">
+                <code>interface AutoWireOptions</code>
+              </div>
+              <p class="api-method-summary">Configuration options for automatic dependency injection behavior.</p>
+            </div>
+
+            <div class="api-method-body">
+              <h4 class="api-section-title">Properties</h4>
+              <table class="api-params-table">
+                <thead>
+                  <tr>
+                    <th>Property</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <code>strict</code>
+                      <span class="api-badge api-badge-optional">Optional</span>
+                    </td>
+                    <td><code class="api-type">boolean</code></td>
+                    <td>Enable strict mode: throw error if dependency cannot be resolved. Default: <code>false</code></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <code>map</code>
+                      <span class="api-badge api-badge-optional">Optional</span>
+                    </td>
+                    <td><code class="api-type">Record&lt;string, (c: Container) => any&gt;</code></td>
+                    <td>Manual mapping object with parameter names as keys and resolver functions as values. Used for primitives, environment variables, and explicit interface selection.</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <code>mapResolvers</code>
+                      <span class="api-badge api-badge-optional">Optional</span>
+                    </td>
+                    <td><code class="api-type">Array&lt;((c: Container) => any) | undefined&gt;</code></td>
+                    <td>Array of resolver functions in parameter position order. Automatically generated by the transformer for optimal performance (O(1) array access).</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <code>by</code>
+                      <span class="api-badge api-badge-optional">Optional</span>
+                    </td>
+                    <td><code class="api-type">'name' | 'type'</code></td>
+                    <td>Resolution strategy: <code>'name'</code> for parameter name matching, <code>'type'</code> for type-based resolution (default). Transformer uses type-based resolution for reliability.</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="api-section-block">
+                <h4 class="api-section-title">Example: Combining All Options</h4>
+                <div class="api-code-block">
+                  <button class="api-copy-btn" aria-label="Copy code">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <span>Copy</span>
+                  </button>
+                  <pre><code class="language-typescript">class DatabaseService {
+  constructor(
+    private connectionString: string,
+    private logger: ILogger,
+    private maxRetries: number
+  ) {}
+}
+
+const container = new Builder()
+  .registerType(ConsoleLogger).as&lt;ILogger&gt;().singleInstance()
+  .registerType(DatabaseService)
+    .autoWire({
+      strict: true,  // Throw error if logger is not registered
+      map: {
+        connectionString: () => process.env.DB_CONNECTION_STRING,
+        maxRetries: () => 3
+        // logger is handled by transformer automatically via mapResolvers
+      },
+      by: 'type'  // Use type-based resolution (default)
+    })
+    .singleInstance()
+  .build()</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Advanced Techniques -->
+          <div class="api-method-card" id="advanced-techniques">
+            <div class="api-method-header" data-expandable>
+              <div class="api-method-title-row">
+                <h3 class="api-method-name">Advanced Techniques</h3>
+                <button class="api-expand-btn" aria-label="Toggle method details">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+              </div>
+              <p class="api-method-summary">Advanced autowiring patterns for complex scenarios: factory resolution, conditional injection, scope-aware dependencies, and dynamic configuration.</p>
+            </div>
+
+            <div class="api-method-body">
+
+              <h4 class="api-section-title">1. Factory-Based Resolution</h4>
+              <p>Use factory functions in <code>map</code> to create complex dependencies or add custom logic during resolution.</p>
+
+              <div class="api-code-block">
+                <button class="api-copy-btn" aria-label="Copy code">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span>Copy</span>
+                </button>
+                <pre><code class="language-typescript">// Complex configuration object factory
+interface IConfig {
+  apiUrl: string
+  timeout: number
+  retryStrategy: 'exponential' | 'linear'
+}
+
+class ApiService {
+  constructor(
+    private config: IConfig,
+    private logger: ILogger
+  ) {}
+}
+
+const container = new Builder()
+  .registerType(ConsoleLogger).as&lt;ILogger&gt;().singleInstance()
+  .registerType(ApiService)
+    .autoWire({
+      map: {
+        // Factory creates config based on environment
+        config: () => ({
+          apiUrl: import.meta.env.PROD
+            ? 'https://api.production.com'
+            : 'http://localhost:3000',
+          timeout: import.meta.env.PROD ? 10000 : 30000,
+          retryStrategy: import.meta.env.PROD ? 'exponential' : 'linear'
+        })
+      }
+    })
+    .singleInstance()
+  .build()</code></pre>
+              </div>
+
+              <h4 class="api-section-title mt-32">2. Conditional Injection Based on Environment</h4>
+              <p>Inject different implementations based on runtime conditions like environment, feature flags, or configuration.</p>
+
+              <div class="api-code-block">
+                <button class="api-copy-btn" aria-label="Copy code">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span>Copy</span>
+                </button>
+                <pre><code class="language-typescript">interface ICache {
+  get(key: string): Promise&lt;any&gt;
+  set(key: string, value: any): Promise&lt;void&gt;
+}
+
+class RedisCache implements ICache {
+  async get(key: string) { /* Redis implementation */ }
+  async set(key: string, value: any) { /* Redis implementation */ }
+}
+
+class InMemoryCache implements ICache {
+  async get(key: string) { /* In-memory implementation */ }
+  async set(key: string, value: any) { /* In-memory implementation */ }
+}
+
+class UserService {
+  constructor(private cache: ICache) {}
+}
+
+const container = new Builder()
+  .registerType(RedisCache).as&lt;ICache&gt;().named('redis').singleInstance()
+  .registerType(InMemoryCache).as&lt;ICache&gt;().named('memory').singleInstance()
+  .registerType(UserService)
+    .autoWire({
+      map: {
+        // Conditional: Use Redis in production, in-memory for dev/test
+        cache: (c) => {
+          const env = import.meta.env.MODE
+          return env === 'production'
+            ? c.resolveTypeNamed&lt;ICache&gt;('redis')
+            : c.resolveTypeNamed&lt;ICache&gt;('memory')
+        }
+      }
+    })
+    .singleInstance()
+  .build()</code></pre>
+              </div>
+
+              <h4 class="api-section-title mt-32">3. Scope-Aware Dependencies</h4>
+              <p>Create child containers and resolve scoped dependencies for request-specific or tenant-specific contexts.</p>
+
+              <div class="api-code-block">
+                <button class="api-copy-btn" aria-label="Copy code">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span>Copy</span>
+                </button>
+                <pre><code class="language-typescript">interface IRequestContext {
+  userId: string
+  tenantId: string
+}
+
+class RequestContext implements IRequestContext {
+  constructor(
+    public userId: string,
+    public tenantId: string
+  ) {}
+}
+
+class TenantDatabase {
+  constructor(
+    private context: IRequestContext,
+    private logger: ILogger
+  ) {
+    this.logger.log(`DB for tenant: ${context.tenantId}`)
+  }
+
+  query(sql: string) {
+    // Use context.tenantId to route to correct database
+  }
+}
+
+// Global container with singletons
+const rootContainer = new Builder()
+  .registerType(ConsoleLogger).as&lt;ILogger&gt;().singleInstance()
+  .registerType(TenantDatabase).scoped()  // Scoped to child container
+  .build()
+
+// Per-request child container
+function handleRequest(userId: string, tenantId: string) {
+  const requestScope = rootContainer.createChild()
+
+  // Register request-specific context
+  requestScope.bindValue(
+    { symbol: Symbol('IRequestContext') } as any,
+    new RequestContext(userId, tenantId),
+    { lifetime: 'scoped' }
+  )
+
+  // TenantDatabase gets scoped context + singleton logger
+  const db = requestScope.resolveType&lt;TenantDatabase&gt;()
+  db.query('SELECT * FROM users')
+
+  requestScope.dispose()  // Clean up scoped instances
+}</code></pre>
+              </div>
+
+              <h4 class="api-section-title mt-32">4. Lazy Resolution with Factories</h4>
+              <p>Defer dependency creation until it's actually needed using factory injection.</p>
+
+              <div class="api-code-block">
+                <button class="api-copy-btn" aria-label="Copy code">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span>Copy</span>
+                </button>
+                <pre><code class="language-typescript">interface IHeavyService {
+  process(): void
+}
+
+class HeavyService implements IHeavyService {
+  constructor() {
+    console.log('⚠️ Expensive initialization!')
+  }
+  process() { /* Heavy work */ }
+}
+
+// Instead of injecting the service directly, inject a factory
+type ServiceFactory&lt;T&gt; = () => T
+
+class OptimizedController {
+  constructor(
+    private serviceFactory: ServiceFactory&lt;IHeavyService&gt;,
+    private logger: ILogger
+  ) {}
+
+  handleRequest(needsHeavyProcessing: boolean) {
+    this.logger.log('Request received')
+
+    if (needsHeavyProcessing) {
+      // Only create HeavyService when actually needed!
+      const service = this.serviceFactory()
+      service.process()
+    }
+  }
+}
+
+const container = new Builder()
+  .registerType(ConsoleLogger).as&lt;ILogger&gt;().singleInstance()
+  .registerType(HeavyService).as&lt;IHeavyService&gt;().transient()
+  .registerType(OptimizedController)
+    .autoWire({
+      map: {
+        // Inject a factory function instead of the service itself
+        serviceFactory: (c) => () => c.resolveType&lt;IHeavyService&gt;()
+      }
+    })
+    .singleInstance()
+  .build()
+
+const controller = container.resolveType&lt;OptimizedController&gt;()
+controller.handleRequest(false)  // ✅ No heavy initialization!
+controller.handleRequest(true)   // ⚠️ Now it initializes</code></pre>
+              </div>
+
+              <h4 class="api-section-title mt-32">5. Decorator Pattern with DI</h4>
+              <p>Wrap services with decorators while maintaining dependency injection.</p>
+
+              <div class="api-code-block">
+                <button class="api-copy-btn" aria-label="Copy code">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span>Copy</span>
+                </button>
+                <pre><code class="language-typescript">interface IDataService {
+  getData(id: string): Promise&lt;any&gt;
+}
+
+class DataService implements IDataService {
+  async getData(id: string) {
+    // Fetch from database
+    return { id, data: 'raw data' }
+  }
+}
+
+// Decorator: Adds caching
+class CachedDataService implements IDataService {
+  private cache = new Map()
+
+  constructor(
+    private inner: IDataService,
+    private logger: ILogger
+  ) {}
+
+  async getData(id: string) {
+    if (this.cache.has(id)) {
+      this.logger.log(`Cache hit: ${id}`)
+      return this.cache.get(id)
+    }
+
+    const data = await this.inner.getData(id)
+    this.cache.set(id, data)
+    return data
+  }
+}
+
+// Decorator: Adds logging
+class LoggedDataService implements IDataService {
+  constructor(
+    private inner: IDataService,
+    private logger: ILogger
+  ) {}
+
+  async getData(id: string) {
+    this.logger.log(`Getting data: ${id}`)
+    const result = await this.inner.getData(id)
+    this.logger.log(`Got data: ${id}`)
+    return result
+  }
+}
+
+const container = new Builder()
+  .registerType(ConsoleLogger).as&lt;ILogger&gt;().singleInstance()
+  .registerType(DataService).named('core').transient()
+
+  // Wrap with caching decorator
+  .registerType(CachedDataService)
+    .named('cached')
+    .autoWire({
+      map: {
+        inner: (c) => c.resolveTypeNamed&lt;IDataService&gt;('core')
+      }
+    })
+    .transient()
+
+  // Wrap cached version with logging decorator
+  .registerType(LoggedDataService)
+    .as&lt;IDataService&gt;()  // This is the final service
+    .autoWire({
+      map: {
+        inner: (c) => c.resolveTypeNamed&lt;IDataService&gt;('cached')
+      }
+    })
+    .singleInstance()
+  .build()
+
+// Resolves: LoggedDataService → CachedDataService → DataService
+const service = container.resolveType&lt;IDataService&gt;()
+await service.getData('123')  // Logs + caches + fetches</code></pre>
+              </div>
+
+              <h4 class="api-section-title mt-32">6. Dynamic Configuration with Feature Flags</h4>
+              <p>Enable/disable features dynamically at registration time.</p>
+
+              <div class="api-code-block">
+                <button class="api-copy-btn" aria-label="Copy code">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span>Copy</span>
+                </button>
+                <pre><code class="language-typescript">interface IAnalytics {
+  track(event: string): void
+}
+
+class GoogleAnalytics implements IAnalytics {
+  track(event: string) {
+    console.log(`📊 GA: ${event}`)
+  }
+}
+
+class MixpanelAnalytics implements IAnalytics {
+  track(event: string) {
+    console.log(`📈 Mixpanel: ${event}`)
+  }
+}
+
+class NoOpAnalytics implements IAnalytics {
+  track(event: string) {
+    // Do nothing (analytics disabled)
+  }
+}
+
+// Feature flags from environment
+const features = {
+  analyticsProvider: import.meta.env.VITE_ANALYTICS_PROVIDER, // 'google' | 'mixpanel' | 'none'
+  enablePremiumFeatures: import.meta.env.VITE_PREMIUM_FEATURES === 'true'
+}
+
+const container = new Builder()
+  .registerType(GoogleAnalytics).named('google').singleInstance()
+  .registerType(MixpanelAnalytics).named('mixpanel').singleInstance()
+  .registerType(NoOpAnalytics).named('none').singleInstance()
+
+  // Main app gets analytics based on feature flag
+  .registerType(App)
+    .autoWire({
+      map: {
+        analytics: (c) => {
+          switch (features.analyticsProvider) {
+            case 'google': return c.resolveTypeNamed&lt;IAnalytics&gt;('google')
+            case 'mixpanel': return c.resolveTypeNamed&lt;IAnalytics&gt;('mixpanel')
+            default: return c.resolveTypeNamed&lt;IAnalytics&gt;('none')
+          }
+        },
+        premiumEnabled: () => features.enablePremiumFeatures
+      }
+    })
+    .singleInstance()
+  .build()</code></pre>
+              </div>
+
+              <div class="info-box info-box-tip mt-32">
+                <h4 class="info-box-title">Best Practices</h4>
+                <ul>
+                  <li><strong>Keep it simple</strong>: Only use advanced techniques when you have a real need</li>
+                  <li><strong>Transformer first</strong>: Let the transformer handle typed dependencies automatically</li>
+                  <li><strong>Use named registrations</strong>: For multiple implementations of the same interface</li>
+                  <li><strong>Factory pattern</strong>: For lazy initialization and dynamic dependencies</li>
+                  <li><strong>Decorator pattern</strong>: For cross-cutting concerns (logging, caching, validation)</li>
+                  <li><strong>Test your factories</strong>: Complex map functions should have unit tests</li>
                 </ul>
               </div>
             </div>
           </div>
 
+        </section>
+
+        <hr>
+
+        <!-- ==================== API OVERVIEW ==================== -->
+        <section class="api-section" id="api-overview">
+          <h2>API Overview</h2>
+          <p class="text-secondary mb-32">Complete overview of all NovaDI public methods. Methods marked with ✅ are transformer-based and recommended for use. Methods marked with ⚠️ are token-based low-level APIs used internally.</p>
+
+          <h3 class="mt-32 mb-16">Container Resolution</h3>
+          <table class="api-params-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;"></th>
+                <th>Method</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span style="color: #10b981; font-size: 1.2em;">✅</span></td>
+                <td><code>resolveType&lt;T&gt;(typeName?: string)</code></td>
+                <td>Primary resolution method. Transformer injects interface name automatically.</td>
+              </tr>
+              <tr>
+                <td><span style="color: #10b981; font-size: 1.2em;">✅</span></td>
+                <td><code>resolveTypeNamed&lt;T&gt;(name: string, typeName?: string)</code></td>
+                <td>Resolve named registration. Transformer-compatible.</td>
+              </tr>
+              <tr>
+                <td><span style="color: #10b981; font-size: 1.2em;">✅</span></td>
+                <td><code>resolveTypeKeyed&lt;T&gt;(key: any, typeName?: string)</code></td>
+                <td>Resolve keyed registration. Transformer-compatible.</td>
+              </tr>
+              <tr>
+                <td><span style="color: #10b981; font-size: 1.2em;">✅</span></td>
+                <td><code>resolveTypeAll&lt;T&gt;(typeName?: string)</code></td>
+                <td>Resolve all registrations for a type. Transformer-compatible.</td>
+              </tr>
+              <tr>
+                <td><span style="color: #f59e0b; font-size: 1.2em;">⚠️</span></td>
+                <td><code>resolve&lt;T&gt;(token: Token&lt;T&gt;)</code></td>
+                <td>Low-level resolution with explicit Token. Used internally.</td>
+              </tr>
+              <tr>
+                <td><span style="color: #f59e0b; font-size: 1.2em;">⚠️</span></td>
+                <td><code>resolveNamed&lt;T&gt;(token: Token&lt;T&gt;, name: string)</code></td>
+                <td>Low-level named resolution with Token.</td>
+              </tr>
+              <tr>
+                <td><span style="color: #f59e0b; font-size: 1.2em;">⚠️</span></td>
+                <td><code>resolveKeyed&lt;T&gt;(token: Token&lt;T&gt;, key: any)</code></td>
+                <td>Low-level keyed resolution with Token.</td>
+              </tr>
+              <tr>
+                <td><span style="color: #f59e0b; font-size: 1.2em;">⚠️</span></td>
+                <td><code>resolveAll&lt;T&gt;(token: Token&lt;T&gt;)</code></td>
+                <td>Low-level batch resolution with Token.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 class="mt-32 mb-16">Builder Registration</h3>
+          <table class="api-params-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;"></th>
+                <th>Method</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span style="color: #10b981; font-size: 1.2em;">✅</span></td>
+                <td><code>registerType&lt;T&gt;(constructor)</code></td>
+                <td>Register a class with automatic transformer-based autowiring.</td>
+              </tr>
+              <tr>
+                <td><span style="color: #10b981; font-size: 1.2em;">✅</span></td>
+                <td><code>registerInstance&lt;T&gt;(instance)</code></td>
+                <td>Register an existing instance. Transformer-compatible.</td>
+              </tr>
+              <tr>
+                <td><span style="color: #10b981; font-size: 1.2em;">✅</span></td>
+                <td><code>registerFactory&lt;T&gt;(factory)</code></td>
+                <td>Register a factory function. Transformer-compatible.</td>
+              </tr>
+              <tr>
+                <td><span style="color: #6366f1; font-size: 1.2em;">🔧</span></td>
+                <td><code>build()</code></td>
+                <td>Build and return the configured container.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 class="mt-32 mb-16">RegistrationBuilder (Fluent Chain)</h3>
+          <table class="api-params-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;"></th>
+                <th>Method</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span style="color: #10b981; font-size: 1.2em;">✅</span></td>
+                <td><code>.as&lt;U&gt;(typeName?: string)</code></td>
+                <td>Bind to interface type. Transformer injects type name.</td>
+              </tr>
+              <tr>
+                <td><span style="color: #10b981; font-size: 1.2em;">✅</span></td>
+                <td><code>.named(name: string)</code></td>
+                <td>Register with a named identifier.</td>
+              </tr>
+              <tr>
+                <td><span style="color: #10b981; font-size: 1.2em;">✅</span></td>
+                <td><code>.keyed(key: any)</code></td>
+                <td>Register with a keyed identifier.</td>
+              </tr>
+              <tr>
+                <td><span style="color: #10b981; font-size: 1.2em;">✅</span></td>
+                <td><code>.autoWire(options?)</code></td>
+                <td>Configure automatic dependency injection. Transformer generates resolvers.</td>
+              </tr>
+              <tr>
+                <td><span style="color: #6366f1; font-size: 1.2em;">🔧</span></td>
+                <td><code>.singleInstance()</code></td>
+                <td>Set lifetime to singleton.</td>
+              </tr>
+              <tr>
+                <td><span style="color: #6366f1; font-size: 1.2em;">🔧</span></td>
+                <td><code>.transient()</code></td>
+                <td>Set lifetime to transient (new instance each time).</td>
+              </tr>
+              <tr>
+                <td><span style="color: #6366f1; font-size: 1.2em;">🔧</span></td>
+                <td><code>.scoped()</code></td>
+                <td>Set lifetime to scoped (one instance per scope).</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 class="mt-32 mb-16">Container Management</h3>
+          <table class="api-params-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;"></th>
+                <th>Method</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span style="color: #6366f1; font-size: 1.2em;">🔧</span></td>
+                <td><code>createChild()</code></td>
+                <td>Create a child container (for scoped resolution).</td>
+              </tr>
+              <tr>
+                <td><span style="color: #6366f1; font-size: 1.2em;">🔧</span></td>
+                <td><code>dispose()</code></td>
+                <td>Dispose all disposable services in the container.</td>
+              </tr>
+              <tr>
+                <td><span style="color: #f59e0b; font-size: 1.2em;">⚠️</span></td>
+                <td><code>bindValue&lt;T&gt;(token, value, options?)</code></td>
+                <td>Low-level manual value binding. Used internally by Builder.</td>
+              </tr>
+              <tr>
+                <td><span style="color: #f59e0b; font-size: 1.2em;">⚠️</span></td>
+                <td><code>bindFactory&lt;T&gt;(token, factory, options?)</code></td>
+                <td>Low-level manual factory binding. Used internally by Builder.</td>
+              </tr>
+              <tr>
+                <td><span style="color: #f59e0b; font-size: 1.2em;">⚠️</span></td>
+                <td><code>bindClass&lt;T&gt;(token, constructor, options?)</code></td>
+                <td>Low-level manual class binding. Used internally by Builder.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 class="mt-32 mb-16">Token API (Low-Level)</h3>
+          <table class="api-params-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;"></th>
+                <th>Method</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span style="color: #f59e0b; font-size: 1.2em;">⚠️</span></td>
+                <td><code>Token&lt;T&gt;(description?: string)</code></td>
+                <td>Create a type-safe token. Used internally. Not needed with transformer.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="info-box info-box-tip mt-32">
+            <h4 class="info-box-title">Legend</h4>
+            <ul>
+              <li><span style="color: #10b981;">✅ Transformer-based</span>: Recommended methods that work with the NovaDI transformer for automatic type injection</li>
+              <li><span style="color: #f59e0b;">⚠️ Token-based</span>: Low-level methods requiring manual Token management. Used internally by the framework.</li>
+              <li><span style="color: #6366f1;">🔧 Utility</span>: Helper methods for configuration and lifecycle management</li>
+            </ul>
+          </div>
         </section>
 
         <hr>
@@ -813,7 +1405,7 @@ await client.get('/users')</code></pre>
           <p class="text-secondary mb-32">Specialized error types for dependency injection failures with helpful debugging information.</p>
 
           <!-- BindingNotFoundError -->
-          <div class="api-method-card collapsed">
+          <div class="api-method-card collapsed" id="binding-not-found">
             <div class="api-method-header" data-expandable>
               <div class="api-method-title-row">
                 <h3 class="api-method-name">BindingNotFoundError</h3>
@@ -824,7 +1416,7 @@ await client.get('/users')</code></pre>
                 </button>
               </div>
               <div class="api-method-signature">
-                <code>throw new BindingNotFoundError(tokenDescription: string, path?: string[])</code>
+                <code>throw new BindingNotFoundError(typeDescription: string, path?: string[])</code>
               </div>
               <p class="api-method-summary">Thrown when attempting to resolve a service that hasn't been registered in the container.</p>
             </div>
@@ -832,7 +1424,7 @@ await client.get('/users')</code></pre>
             <div class="api-method-body">
               <h4 class="api-section-title">Example Error Message</h4>
               <div class="api-code-block">
-                <pre><code class="language-text">BindingNotFoundError: Token "ILogger" is not bound or registered in the container.
+                <pre><code class="language-text">BindingNotFoundError: Type "ILogger" is not bound or registered in the container.
   Dependency path: IUserService -> IEmailService -> ILogger</code></pre>
               </div>
 
@@ -867,7 +1459,7 @@ const logger = container.resolveType&lt;ILogger&gt;() // Works!</code></pre>
           </div>
 
           <!-- CircularDependencyError -->
-          <div class="api-method-card collapsed">
+          <div class="api-method-card collapsed" id="circular">
             <div class="api-method-header" data-expandable>
               <div class="api-method-title-row">
                 <h3 class="api-method-name">CircularDependencyError</h3>
@@ -936,30 +1528,6 @@ class EmailService {
       </div>
 
     </main>
-
-    <!-- Table of Contents -->
-    <aside class="main-toc">
-      <h3 class="toc-title">On This Page</h3>
-      <ul class="toc-links">
-        <li><a href="#container" class="toc-section-title">Container</a></li>
-        <li><a href="#resolve">resolve&lt;T&gt;()</a></li>
-        <li><a href="#resolveType">resolveType&lt;T&gt;()</a></li>
-        <li><a href="#resolveBatch">resolveBatch&lt;T&gt;()</a></li>
-
-        <li><a href="#builder" class="toc-section-title">Builder</a></li>
-        <li><a href="#registerType">registerType&lt;T&gt;()</a></li>
-
-        <li><a href="#token" class="toc-section-title">Token</a></li>
-        <li><a href="#token-func">Token&lt;T&gt;()</a></li>
-
-        <li><a href="#autowire" class="toc-section-title">AutoWire</a></li>
-        <li><a href="#autoWire">autoWire()</a></li>
-
-        <li><a href="#errors" class="toc-section-title">Errors</a></li>
-        <li><a href="#binding-not-found">BindingNotFoundError</a></li>
-        <li><a href="#circular">CircularDependencyError</a></li>
-      </ul>
-    </aside>
 
     <!-- Footer -->
     <footer class="main-footer">
