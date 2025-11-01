@@ -112,7 +112,7 @@ describe('Builder - Lifetimes', () => {
     container = new Container()
   })
 
-  it('should default to transient if no lifetime specified', () => {
+  it('should default to singleton if no lifetime specified', () => {
     // Arrange
     interface IService {
       id: number
@@ -130,8 +130,8 @@ describe('Builder - Lifetimes', () => {
 
     // Assert
     expect(instance1.id).toBe(1)
-    expect(instance2.id).toBe(2)
-    expect(instance1).not.toBe(instance2)
+    expect(instance2.id).toBe(1)
+    expect(instance1).toBe(instance2)
   })
 
   it('should set singleton lifetime with singleInstance()', () => {
@@ -183,6 +183,7 @@ describe('Builder - Lifetimes', () => {
     builder
       .register((c) => ({ logger: c.resolve(loggerToken) }))
       .as(serviceToken)
+      .instancePerDependency()
 
     const builtContainer = builder.build()
 

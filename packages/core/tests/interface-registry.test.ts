@@ -606,6 +606,7 @@ describe('Interface Registry - Resolve All', () => {
     builder
       .register(() => ({ id: ++count }))
       .as(loggerToken)
+      .instancePerDependency()
 
     const builtContainer = builder.build()
     const loggers1 = builtContainer.resolveAll(loggerToken)
