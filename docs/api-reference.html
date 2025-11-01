@@ -1007,8 +1007,8 @@ class OptimizedController {
 }
 
 const container = new Builder()
-  .registerType(ConsoleLogger).as&lt;ILogger&gt;().singleInstance()
-  .registerType(HeavyService).as&lt;IHeavyService&gt;().transient()
+  .registerType(ConsoleLogger).as&lt;ILogger&gt;()
+  .registerType(HeavyService).as&lt;IHeavyService&gt;().instancePerDependency()
   .registerType(OptimizedController)
     .autoWire({
       map: {
@@ -1016,7 +1016,6 @@ const container = new Builder()
         serviceFactory: (c) => () => c.resolveType&lt;IHeavyService&gt;()
       }
     })
-    .singleInstance()
   .build()
 
 const controller = container.resolveType&lt;OptimizedController&gt;()
@@ -1083,8 +1082,8 @@ class LoggedDataService implements IDataService {
 }
 
 const container = new Builder()
-  .registerType(ConsoleLogger).as&lt;ILogger&gt;().singleInstance()
-  .registerType(DataService).named('core').transient()
+  .registerType(ConsoleLogger).as&lt;ILogger&gt;()
+  .registerType(DataService).named('core').instancePerDependency()
 
   // Wrap with caching decorator
   .registerType(CachedDataService)
@@ -1094,7 +1093,7 @@ const container = new Builder()
         inner: (c) => c.resolveTypeNamed&lt;IDataService&gt;('core')
       }
     })
-    .transient()
+    .instancePerDependency()
 
   // Wrap cached version with logging decorator
   .registerType(LoggedDataService)
@@ -1316,17 +1315,17 @@ const container = new Builder()
               <tr>
                 <td><span style="color: #6366f1; font-size: 1.2em;">🔧</span></td>
                 <td><code>.singleInstance()</code></td>
-                <td>Set lifetime to singleton.</td>
+                <td>Set lifetime to singleton (DEFAULT - no call needed).</td>
               </tr>
               <tr>
                 <td><span style="color: #6366f1; font-size: 1.2em;">🔧</span></td>
-                <td><code>.transient()</code></td>
+                <td><code>.instancePerDependency()</code></td>
                 <td>Set lifetime to transient (new instance each time).</td>
               </tr>
               <tr>
                 <td><span style="color: #6366f1; font-size: 1.2em;">🔧</span></td>
-                <td><code>.scoped()</code></td>
-                <td>Set lifetime to scoped (one instance per scope).</td>
+                <td><code>.instancePerRequest()</code></td>
+                <td>Set lifetime to per-request (one instance per resolution tree).</td>
               </tr>
             </tbody>
           </table>

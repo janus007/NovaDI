@@ -173,8 +173,8 @@ Core API:
    const service = app.resolveType&lt;UserService&gt;()
 
 Lifetimes:
-- .singleInstance() - singleton
-- .instancePerDependency() - transient (DEFAULT)
+- Default (no method call) - singleton (DEFAULT)
+- .instancePerDependency() - transient
 - .instancePerRequest() - per resolution tree
 
 AutoWire (Convention Over Configuration):

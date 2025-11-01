@@ -244,7 +244,7 @@
         constructor(pending, registrations) {
             this.registrations = registrations;
             this.configs = [];
-            this.defaultLifetime = 'transient';
+            this.defaultLifetime = 'singleton';
             this.pending = pending;
         }
         /**

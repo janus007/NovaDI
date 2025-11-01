@@ -280,14 +280,15 @@ builder.registerType(UserService).as<UserService>().autoWire()</code></pre>
       <section id="lifetimes">
         <h2>Lifetimes</h2>
         <p>
-          Lifetimes control when and how instances are created. <strong>Default is transient</strong> (new instance
-          every time).
+          Lifetimes control when and how instances are created. <strong>Default is singleton</strong> (one instance
+          for entire container lifetime).
         </p>
 
-        <h3>Singleton - One Instance Forever</h3>
+        <h3>Singleton - One Instance Forever (DEFAULT)</h3>
         <pre
-          class="line-numbers"><code class="language-typescript">builder.registerType(Database).as<IDatabase>().singleInstance()</code></pre>
-        <p><strong>Use for:</strong> Loggers, database connections, configuration, caches, stateless services</p>
+          class="line-numbers"><code class="language-typescript">builder.registerType(Database).as<IDatabase>()
+// No explicit lifetime = singleton by default</code></pre>
+        <p><strong>Use for:</strong> Loggers, database connections, configuration, caches, stateless services, most services</p>
         <ul class="ml-24 lh-relaxed">
           <li>✅ One instance created on first resolution</li>
           <li>✅ Reused for entire application lifetime</li>
@@ -295,9 +296,9 @@ builder.registerType(UserService).as<UserService>().autoWire()</code></pre>
           <li>⚡ Ultra-fast (cached lookup)</li>
         </ul>
 
-        <h3>Transient - New Instance Every Time (DEFAULT)</h3>
-        <pre class="line-numbers"><code class="language-typescript">builder.registerType(RequestHandler).as<IRequestHandler>()
-// No .singleInstance() = transient by default</code></pre>
+        <h3>Transient - New Instance Every Time</h3>
+        <pre class="line-numbers"><code class="language-typescript">builder.registerType(RequestHandler).as<IRequestHandler>().instancePerDependency()
+// Explicit call needed for transient</code></pre>
         <p><strong>Use for:</strong> Request handlers, commands, stateful operations, short-lived services</p>
         <ul class="ml-24 lh-relaxed">
           <li>✅ Fresh instance on every resolution</li>
@@ -319,9 +320,9 @@ builder.registerType(UserService).as<UserService>().autoWire()</code></pre>
         <div class="callout callout-info" class="my-24">
           <strong>💡 Choosing the Right Lifetime:</strong><br>
           <ul class="my-8 ml-24 lh-relaxed">
-            <li><strong>Singleton:</strong> Can it be safely shared? → Yes → Singleton</li>
-            <li><strong>Transient:</strong> Does it hold state? → Yes → Transient</li>
-            <li><strong>Per-Request:</strong> Needs to be shared in one operation? → Yes → Per-Request</li>
+            <li><strong>Singleton (default):</strong> Can it be safely shared? → Yes → Use default</li>
+            <li><strong>Transient:</strong> Does it hold state or need isolation? → Yes → .instancePerDependency()</li>
+            <li><strong>Per-Request:</strong> Needs to be shared in one operation? → Yes → .instancePerRequest()</li>
           </ul>
         </div>
       </section>

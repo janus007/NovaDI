@@ -1,6 +1,6 @@
 {
   "name": "@novadi/core",
-  "version": "0.5.3",
+  "version": "0.5.5",
   "description": "Annotation-free, Autofac-style dependency injection container for TypeScript",
   "type": "module",
   "main": "./dist/index.js",

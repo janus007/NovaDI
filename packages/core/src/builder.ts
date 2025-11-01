@@ -78,7 +78,7 @@ export interface AutoWireOptions {
 export class RegistrationBuilder<T> {
   private pending: PendingRegistration
   private configs: RegistrationConfig[] = []
-  private defaultLifetime: Lifetime = 'transient'
+  private defaultLifetime: Lifetime = 'singleton'
 
   constructor(
     pending: PendingRegistration,

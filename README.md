@@ -62,7 +62,7 @@ const userService = app.resolveType<UserService>()
 - **Tiny Bundle** - Only 3.93 KB gzipped (second smallest, 79% larger than Brandi but with full autowire)
 - **Type-Safe** - Full TypeScript type inference and compile-time checking
 - **Composition Root** - All DI configuration in one place
-- **Multiple Lifetimes** - Singleton, Transient (default), Per-Request scoping
+- **Multiple Lifetimes** - Singleton (default), Transient, Per-Request scoping
 - **TypeScript Transformer** - Compile-time type name injection
 
 ---
@@ -277,19 +277,19 @@ builder.registerType(ApiClient).as<IHttpClient>().autoWire({
 
 ## Lifetimes
 
-**Important:** Default lifetime is `transient` (new instance every time).
+**Important:** Default lifetime is `singleton` (one instance for container lifetime).
 
-### Singleton - One instance for the container lifetime
+### Singleton - One instance for the container lifetime (DEFAULT)
 ```typescript
-builder.registerType(Database).as<IDatabase>().singleInstance()
+builder.registerType(Database).as<IDatabase>()
+// No explicit lifetime = singleton by default
 ```
 
-Use for: Loggers, database connections, configuration, caches
+Use for: Loggers, database connections, configuration, caches, most services
 
-### Transient - New instance every resolution (DEFAULT)
+### Transient - New instance every resolution
 ```typescript
-builder.registerType(RequestHandler).as<IRequestHandler>()
-// No .singleInstance() = transient by default
+builder.registerType(RequestHandler).as<IRequestHandler>().instancePerDependency()
 ```
 
 Use for: Request handlers, commands, stateful operations
@@ -855,8 +855,8 @@ Core API:
    const service = app.resolveType<UserService>()
 
 Lifetimes:
-- .singleInstance() - singleton
-- .instancePerDependency() - transient (DEFAULT)
+- Default (no method call) - singleton (DEFAULT)
+- .instancePerDependency() - transient
 - .instancePerRequest() - per resolution tree
 
 AutoWire (Transformer-Powered):
